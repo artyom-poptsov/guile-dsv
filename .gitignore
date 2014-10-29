@@ -1,0 +1,17 @@
+# -*- shell-script -*-
+
+# Backup files
+*\~
+
+# Auto-generated files
+Makefile
+Makefile.in
+configure
+
+config.log
+config.status
+.deps
+autom4te.cache
+
+TAGS
+tags
