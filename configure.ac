@@ -32,6 +32,15 @@ AM_INIT_AUTOMAKE()
 
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])], [AC_SUBST([AM_DEFAULT_VERBOSITY],1)])
 
+AC_ARG_WITH([guilesitedir],
+            [AS_HELP_STRING([--with-guilesitedir],
+                            [use the specified installation path for Guile modules])],
+            [case "x$withval" in
+             xyes|xno) guilesitedir="";;
+             *)        guilesitedir="$withval";;
+             esac],
+             [guilesitedir=""])
+
 PKG_CHECK_MODULES([GUILE_2], [guile-2.0])
 
 GUILE_PROGS
