@@ -1,6 +1,6 @@
 ## Config file for GNU Automake. 
 ##
-## Copyright (C) 2013, 2014 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+## Copyright (C) 2014 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ##
 ## This file is part of Guile-DSV.
 ## 
@@ -17,28 +17,10 @@
 ## You should have received a copy of the GNU General Public License
 ## along with Guile-DSV.  If not, see <http://www.gnu.org/licenses/>.
 
-include $(top_srcdir)/am/guilec
+AUTOMAKE_OPTIONS = gnu
 
-ACLOCAL_AMFLAGS = -I build-aux
+am_frags = guilec
 
-SUBDIRS = am build-aux
+EXTRA_DIST = $(am_frags)
 
-SOURCES = dsv.scm
-
-GOBJECTS = $(SOURCES:%.scm=%.go)
-
-moddir=$(prefix)/share/guile/site
-nobase_mod_DATA = $(SOURCES) $(GOBJECTS)
-
-GUILE_WARNINGS = -Wunbound-variable -Warity-mismatch -Wformat
-SUFFIXES = .scm .go
-
-.scm.go:
-	$(AM_V_GUILEC)$(guilec_env) $(GUILEC) $(guilec_opts) \
-	--output=$@ $<
-
-clean-go:
-	@cd ssh; make clean-go
-.PHONY: clean-go
-
-# Makefile.am ends here
+## Makefile.am ends here

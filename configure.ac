@@ -53,7 +53,7 @@ if test "x$guilesitedir" = "x"; then
 fi
 AC_SUBST([guilesitedir])
 
-AC_CONFIG_FILES([Makefile build-aux/Makefile])
+AC_CONFIG_FILES([Makefile am/Makefile build-aux/Makefile])
 
 # Generate a Makefile, based on the results.
 AC_OUTPUT
