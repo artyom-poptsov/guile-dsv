@@ -54,7 +54,7 @@
 
 ;;; Code:
 
-(define-module (fresco dsv-parser)
+(define-module (dsv)
   #:use-module (ice-9 rdelim)
   #:use-module (ice-9 regex)
 
