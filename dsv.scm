@@ -145,7 +145,7 @@ default delimiter (colon)."
                        %default-delimiter)))
 
     (let ((dsv (map (lambda (data)
-                      (if (not (null? data))
+                      (or (null? data)
                           (list->dsv-string data delimiter)))
                     list)))
       (for-each
