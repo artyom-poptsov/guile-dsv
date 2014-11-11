@@ -75,8 +75,8 @@
   "Convert DSV from a STRING a list using a DELIMITER.  If DELIMITER
 is not set, use the default delimiter (colon).  Return newly created
 list."
-  (let ((delimiter (if (not (null? delim))
-                       (car delim)
+  (let ((delimiter (if (not (null? delimiter))
+                       (car delimiter)
                        %default-delimiter)))
     (dsv-string-split string delimiter)))
 
@@ -92,8 +92,8 @@ Example:
   (list->dsv-string '(\"a\" \"b\" \"c\"))
   => \"a:b:c\"
 "
-  (let ((delimiter (if (not (null? delim))
-                     (car delim)
+  (let ((delimiter (if (not (null? delimiter))
+                       (car delimiter)
                        %default-delimiter)))
     (let append-field ((rec list))
       (string-append
