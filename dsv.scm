@@ -72,20 +72,9 @@
 
 
 (define (dsv-string->list string . delimiter)
-  "Convert DSV from a string @var{string} to a list usigng a
-@var{delimiter}.  If @var{delimiter} is not set, use the default
-delimiter (colon).  Return newly created list.
-
-Examples:
-
-@lisp
-  (dsv-string->list \"a:b:c\")
-  => '(\"a\" \"b\" \"c\")
-
-  (dsv-string-split \"car:cdr:ca\\:dr\" #\:)
-  => (\"car\" \"cdr\" \"ca\\:dr\")
-@end lisp
-"
+  "Convert DSV from a STRING a list using a DELIMITER.  If DELIMITER
+is not set, use the default delimiter (colon).  Return newly created
+list."
   (let ((delimiter (if (not (null? delim))
                        (car delim)
                        %default-delimiter)))
@@ -94,16 +83,14 @@ Examples:
 
 
 (define (list->dsv-string list . delimiter)
-  "Convert a @var{list} to DSV string using @var{delimiter}.
-If @var{delimitter} is not set, use the default delimiter (colon).
-Return a DSV string.
+  "Convert a LIST to DSV string using DELIMITER.
+If DELIMITER is not set, use the default delimiter (colon).  Return a
+DSV string.
 
 Example:
 
-@lisp
   (list->dsv-string '(\"a\" \"b\" \"c\"))
   => \"a:b:c\"
-@end lisp
 "
   (let ((delimiter (if (not (null? delim))
                      (car delim)
@@ -119,8 +106,8 @@ Example:
 
 
 (define (dsv-read . args)
-  "Read DSV from @var{port}.  If port is not set, read from default
-input port.  If delimiter is not set, use the default
+  "Read DSV from PORT.  If port is not set, read from default input
+port.  If delimiter is not set, use the default
 delimiter (colon). Return a list of values."
   (let ((port      (if (not (null? args))
                        (car args)
@@ -146,7 +133,7 @@ delimiter (colon). Return a list of values."
 
 
 (define (dsv-write list . args)
-  "Write a @var{list} of values as DSV to a port.  If port is not set,
+  "Write a LIST of values as DSV to a PORT.  If port is not set,
 write to default output port.  If delimiter is not set, use the
 default delimiter (colon)."
   (let ((port      (if (not (null? args))
@@ -172,17 +159,15 @@ default delimiter (colon)."
 ;; TODO: Probably the procedure should be rewritten or replaced with
 ;;       some standard procedure.
 (define (dsv-string-split string . delimiter)
-  "Split the @var{string} into the list of the substrings delimited by
-appearances of the @var{delimiter}.  If @var{delimiter} is not set,
-use the default delimiter (colon).
+  "Split the STRING into the list of the substrings delimited by
+appearances of the DELIMITER.  If DELIMITER is not set, use the
+default delimiter (colon).
 
 This procedure is simlar to string-split, but works correctly with
-escaped delimiter -- that is, skips it. E.g.:
+escaped delimiter -- that is, skips it.  E.g.:
 
-@lisp
-  (dsv-string-split \"car:cdr:ca\\:dr\" #\:)
+  (dsv-string-split \"car:cdr:ca\\:dr\" #\\:)
   => (\"car\" \"cdr\" \"ca\\:dr\")
-@end lisp
 "
   (let* ((delimiter (if (not (null? delimiter))
                         (car delimiter)
