@@ -21,7 +21,7 @@ include $(top_srcdir)/am/guilec
 
 ACLOCAL_AMFLAGS = -I build-aux
 
-SUBDIRS = am build-aux
+SUBDIRS = am build-aux tests
 
 SOURCES = dsv.scm
 
