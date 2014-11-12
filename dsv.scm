@@ -185,10 +185,13 @@ escaped delimiter -- that is, skips it.  E.g.:
              (= i 0))
         (set! dsv-list (append dsv-list (list "")))
         (set! start 1))
-       ((and (= i (1- len))
-             (not (delimiter? i)))
-        (set! dsv-list
-              (append dsv-list (list (substring string start (1+ i))))))
+       ((= i (1- len))
+        (if (delimiter? i)
+            (set! dsv-list
+                  (append dsv-list (list (substring string start i)
+                                         "")))
+            (set! dsv-list
+                  (append dsv-list (list (substring string start (1+ i)))))))
        ((and (delimiter? i)
              (not (eq? (string-ref string (1- i)) #\\)))
         (set! dsv-list

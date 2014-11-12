@@ -24,9 +24,12 @@
   (let ((test-string0   "a:b:c")
         (expected-list0 '("a" "b" "c"))
         (test-string1   "a,b,c")
-        (expected-list1 '("a" "b" "c")))
+        (expected-list1 '("a" "b" "c"))
+        (test-string2   "a:b:")
+        (expected-list2 '("a" "b" "")))
     (and (equal? expected-list0 (dsv-string->list test-string0))
-         (equal? expected-list1 (dsv-string->list test-string1 #\,)))))
+         (equal? expected-list1 (dsv-string->list test-string1 #\,))
+         (equal? expected-list2 (dsv-string->list test-string2)))))
 
 (test-end "dsv")
 
