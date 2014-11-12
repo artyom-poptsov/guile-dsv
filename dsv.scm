@@ -64,8 +64,7 @@
   #:export (dsv-string->list
             list->dsv-string
             dsv-read
-            dsv-write
-            dsv-string-split))
+            dsv-write))
 
 ;; Default delimiter for DSV
 (define %default-delimiter #\:)
