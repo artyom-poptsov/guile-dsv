@@ -57,6 +57,7 @@
 (define-module (dsv)
   #:use-module (ice-9 rdelim)
   #:use-module (ice-9 regex)
+  #:use-module (ice-9 rdelim)
 
   ;; escape-special-chars
   #:use-module (string transform)
@@ -149,9 +150,7 @@ default delimiter (colon)."
                     list)))
       (for-each
        (lambda (dsv-record)
-         (begin
-           (display dsv-record port)
-           (newline port)))
+         (write-line dsv-record port))
        dsv))))
 
 
