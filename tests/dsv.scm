@@ -21,9 +21,12 @@
 (test-begin "dsv")
 
 (test-assert "dsv-string->list"
-  (let ((test-string   "a:b:c")
-        (expected-list '("a" "b" "c")))
-    (equal? expected-list (dsv-string->list test-string))))
+  (let ((test-string0   "a:b:c")
+        (expected-list0 '("a" "b" "c"))
+        (test-string1   "a,b,c")
+        (expected-list1 '("a" "b" "c")))
+    (and (equal? expected-list0 (dsv-string->list test-string0))
+         (equal? expected-list1 (dsv-string->list test-string1 #\,)))))
 
 (test-end "dsv")
 
