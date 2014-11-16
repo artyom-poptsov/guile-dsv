@@ -174,8 +174,8 @@ default delimiter (colon)."
                         b)))
                 (car delimiter-list)
                 delimiter-list)))
-    (or (zero? (cdr guessed-delimiter))
-        (car guessed-delimiter))))
+    (and (> (cdr guessed-delimiter) 1)
+         (car guessed-delimiter))))
 
 
 ;; TODO: Probably the procedure should be rewritten or replaced with
