@@ -41,6 +41,14 @@
          (equal? expected-string1 (list->dsv-string test-list0 #\,))
          (equal? expected-string2 (list->dsv-string test-list1)))))
 
+(test-assert "guess-delimiter"
+  (and (equal? #\,     (guess-delimiter "a,b,c"))
+       (equal? #\:     (guess-delimiter "a:b:c"))
+       (equal? #\tab   (guess-delimiter "a	b	c"))
+       (equal? #\space (guess-delimiter "a b c"))
+       (equal? #\:     (guess-delimiter "a,b:c:d:e"))
+       (equal? #\,     (guess-delimiter "a,b,c,d:e"))))
+
 (test-end "dsv")
 
 (exit (= (test-runner-fail-count (test-runner-current)) 0))

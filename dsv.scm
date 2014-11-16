@@ -58,6 +58,7 @@
   #:use-module (ice-9 rdelim)
   #:use-module (ice-9 regex)
   #:use-module (ice-9 rdelim)
+  #:use-module (srfi  srfi-1)
 
   ;; escape-special-chars
   #:use-module (string transform)
@@ -65,10 +66,14 @@
   #:export (dsv-string->list
             list->dsv-string
             dsv-read
-            dsv-write))
+            dsv-write
+            guess-delimiter))
 
 ;; Default delimiter for DSV
 (define %default-delimiter #\:)
+
+;; List of known delimiters
+(define %known-delimiters '(#\, #\: #\tab #\space))
 
 
 (define (dsv-string->list string . delimiter)
@@ -152,6 +157,25 @@ default delimiter (colon)."
        (lambda (dsv-record)
          (write-line dsv-record port))
        dsv))))
+
+
+(define (guess-delimiter string)
+  "Guess a DSV STRING delimiter."
+  (let* ((delimiter-list
+          (map (lambda (d)
+                 (cons d (length (dsv-string-split string d))))
+               %known-delimiters))
+         (guessed-delimiter
+          (fold (lambda (a b)
+                  (let ((a-count (cdr a))
+                        (b-count (cdr b)))
+                    (if (> a-count b-count)
+                        a
+                        b)))
+                (car delimiter-list)
+                delimiter-list)))
+    (or (zero? (cdr guessed-delimiter))
+        (car guessed-delimiter))))
 
 
 ;; TODO: Probably the procedure should be rewritten or replaced with
