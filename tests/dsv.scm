@@ -53,13 +53,18 @@
   (let ((test-data0     "a:b:c")
         (expected-list0 '(("a" "b" "c")))
         (test-data1     "a\\:b:c")
-        (expected-list1 '(("a:b" "c"))))
+        (expected-list1 '(("a:b" "c")))
+        (test-data2     "a\\,b,c")
+        (expected-list2 '(("a,b" "c"))))
     (and (equal? expected-list0 (call-with-input-string test-data0
                                   (lambda (p)
                                     (dsv-read p))))
          (equal? expected-list1 (call-with-input-string test-data1
                                   (lambda (p)
-                                    (dsv-read p)))))))
+                                    (dsv-read p))))
+         (equal? expected-list2 (call-with-input-string test-data2
+                                  (lambda (p)
+                                    (dsv-read p #\,)))))))
 
 (test-end "dsv")
 

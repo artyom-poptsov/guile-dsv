@@ -59,6 +59,7 @@
   #:use-module (ice-9 regex)
   #:use-module (ice-9 rdelim)
   #:use-module (srfi  srfi-1)
+  #:use-module (srfi  srfi-26)
 
   ;; escape-special-chars
   #:use-module (string transform)
@@ -129,9 +130,9 @@ delimiter (colon). Return a list of values."
               (set! dsv-list
                     (map
                      (lambda (dsv-data)
-                       (map (lambda (field)
-                              (regexp-substitute/global
-                               #f "\\\\:" field 'pre ":" 'post))
+                       (map (cute regexp-substitute/global
+                                  #f (string-append "\\\\" (string delimiter))
+                                  <> 'pre (string delimiter) 'post)
                             dsv-data))
                      dsv-list))
               (reverse dsv-list)))))))
