@@ -122,20 +122,19 @@ delimiter (colon). Return a list of values."
                             (not (null? (cdr args))))
                        (cadr args)
                        %default-delimiter)))
-    (let parse ((dsv-list '()))
-      (let ((line (read-line port)))
-        (if (not (eof-object? line))
-            (parse (cons (dsv-string-split line delimiter) dsv-list))
-            (begin
-              (set! dsv-list
-                    (map
-                     (lambda (dsv-data)
-                       (map (cute regexp-substitute/global
-                                  #f (string-append "\\\\" (string delimiter))
-                                  <> 'pre (string delimiter) 'post)
-                            dsv-data))
-                     dsv-list))
-              (reverse dsv-list)))))))
+    (let parse ((dsv-list '())
+                (line     (read-line port)))
+      (if (not (eof-object? line))
+          (parse (cons (dsv-string-split line delimiter) dsv-list)
+                 (read-line port))
+          (reverse
+           (map
+            (lambda (dsv-data)
+              (map (cute regexp-substitute/global
+                         #f (string-append "\\\\" (string delimiter))
+                         <> 'pre (string delimiter) 'post)
+                   dsv-data))
+            dsv-list))))))
 
 
 (define (dsv-write list . args)
