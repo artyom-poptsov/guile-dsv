@@ -49,6 +49,18 @@
        (equal? #\:     (guess-delimiter "a,b:c:d:e"))
        (equal? #\,     (guess-delimiter "a,b,c,d:e"))))
 
+(test-assert "dsv-read"
+  (let ((test-data0     "a:b:c")
+        (expected-list0 '(("a" "b" "c")))
+        (test-data1     "a\\:b:c")
+        (expected-list1 '(("a:b" "c"))))
+    (and (equal? expected-list0 (call-with-input-string test-data0
+                                  (lambda (p)
+                                    (dsv-read p))))
+         (equal? expected-list1 (call-with-input-string test-data1
+                                  (lambda (p)
+                                    (dsv-read p)))))))
+
 (test-end "dsv")
 
 (exit (= (test-runner-fail-count (test-runner-current)) 0))
