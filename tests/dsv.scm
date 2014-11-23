@@ -67,6 +67,18 @@
                                   (lambda (p)
                                     (dsv-read p #\,)))))))
 
+(test-assert "dsv-write"
+  (and (string=? "a:b:c\n"
+                 (call-with-output-string
+                  (lambda (p)
+                    (dsv-write '(("a" "b" "c")) p))))
+       (string=? "a:b:c\nd:e:f\n"
+                 (call-with-output-string
+                  (lambda (p)
+                    (dsv-write '(("a" "b" "c")
+                                 ("d" "e" "f"))
+                               p))))))
+
 (test-end "dsv")
 
 (exit (= (test-runner-fail-count (test-runner-current)) 0))
