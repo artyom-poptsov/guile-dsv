@@ -155,9 +155,9 @@ default delimiter (colon)."
 
 ;; TODO: Probably the procedure should be rewritten or replaced with
 ;;       some standard procedure.
-(define* (string-split/escaped str #:optional (delimiter %default-delimiter))
+(define (string-split/escaped str delimiter)
   "Split a string STR into the list of the substrings delimited by appearances
-of the DELIMITER.  If DELIMITER is not set, use the default delimiter (colon).
+of the DELIMITER.
 
 This procedure is simlar to string-split, but works correctly with
 escaped delimiter -- that is, skips it.  E.g.:
