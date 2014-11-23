@@ -98,9 +98,9 @@ Example:
   (list->dsv-string '(\"a\" \"b\" \"c\"))
   => \"a:b:c\"
 "
-  (let* ((delimiter (if (not (null? delimiter))
-                        (car delimiter)
-                        %default-delimiter))
+  (let* ((delimiter (if (null? delimiter)
+                        %default-delimiter
+                        (car delimiter)))
          (escaped-list (map (cut escape-special-chars <> delimiter #\\)
                             list)))
     (string-join escaped-list (string delimiter))))
