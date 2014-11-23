@@ -47,7 +47,8 @@
        (equal? #\tab   (guess-delimiter "a	b	c"))
        (equal? #\space (guess-delimiter "a b c"))
        (equal? #\:     (guess-delimiter "a,b:c:d:e"))
-       (equal? #\,     (guess-delimiter "a,b,c,d:e"))))
+       (equal? #\,     (guess-delimiter "a,b,c,d:e"))
+       (equal? #f      (guess-delimiter "a,b:c"))))
 
 (test-assert "dsv-read"
   (let ((test-data0     "a:b:c")

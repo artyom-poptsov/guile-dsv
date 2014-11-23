@@ -142,17 +142,19 @@ default delimiter (colon)."
           (map (lambda (d)
                  (cons d (length (dsv-string-split string d))))
                %known-delimiters))
-         (guessed-delimiter
-          (fold (lambda (a b)
-                  (let ((a-count (cdr a))
-                        (b-count (cdr b)))
-                    (if (> a-count b-count)
-                        a
-                        b)))
-                (car delimiter-list)
+         (guessed-delimiter-list
+          (fold (lambda (a prev)
+                  (if (not (null? prev))
+                      (let ((a-count (cdr a))
+                            (b-count (cdar prev)))
+                        (cond ((> a-count b-count) (list a))
+                              ((= a-count b-count) (append (list a) prev))
+                              (else prev)))
+                      (list a)))
+                '()
                 delimiter-list)))
-    (and (> (cdr guessed-delimiter) 1)
-         (car guessed-delimiter))))
+    (and (= (length guessed-delimiter-list) 1)
+         (caar guessed-delimiter-list))))
 
 
 ;; TODO: Probably the procedure should be rewritten or replaced with
