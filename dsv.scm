@@ -155,10 +155,9 @@ default delimiter (colon)."
 
 ;; TODO: Probably the procedure should be rewritten or replaced with
 ;;       some standard procedure.
-(define* (dsv-string-split string #:optional (delimiter %default-delimiter))
-  "Split the STRING into the list of the substrings delimited by
-appearances of the DELIMITER.  If DELIMITER is not set, use the
-default delimiter (colon).
+(define* (dsv-string-split str #:optional (delimiter %default-delimiter))
+  "Split a string STR into the list of the substrings delimited by appearances
+of the DELIMITER.  If DELIMITER is not set, use the default delimiter (colon).
 
 This procedure is simlar to string-split, but works correctly with
 escaped delimiter -- that is, skips it.  E.g.:
@@ -166,32 +165,17 @@ escaped delimiter -- that is, skips it.  E.g.:
   (dsv-string-split \"car:cdr:ca\\:dr\" #\\:)
   => (\"car\" \"cdr\" \"ca\\:dr\")
 "
-  (let* ((delimiter? (lambda (idx)
-                      (eq? (string-ref string idx) delimiter)))
-         (dsv-list  '())
-         (len       (string-length string))
-         (start     0))
-
-    (do ((i 0 (1+ i)))
-        ((= i len))
-      (cond
-       ((and (delimiter? i)
-             (= i 0))
-        (set! dsv-list (append dsv-list (list "")))
-        (set! start 1))
-       ((= i (1- len))
-        (if (delimiter? i)
-            (set! dsv-list
-                  (append dsv-list (list (substring string start i)
-                                         "")))
-            (set! dsv-list
-                  (append dsv-list (list (substring string start (1+ i)))))))
-       ((and (delimiter? i)
-             (not (eq? (string-ref string (1- i)) #\\)))
-        (set! dsv-list
-              (append dsv-list (list (substring string start i))))
-        (set! start (1+ i)))))
-
-    dsv-list))
+  (let ((fields (string-split str delimiter)))
+    (fold (lambda (field prev)
+            (if (and (not (null? prev))
+                     (string-suffix? "\\" (last prev)))
+                (append (drop-right prev 1)
+                        (list (string-append 
+                               (string-drop-right (last prev) 1)
+                               (string delimiter)
+                               field)))
+                (append prev (list field))))
+          '()
+          fields)))
 
 ;;; dsv.scm ends here.
