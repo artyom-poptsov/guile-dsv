@@ -77,18 +77,14 @@
 (define %known-delimiters '(#\, #\: #\tab #\space))
 
 
-(define (dsv-string->list string . delimiter)
+(define* (dsv-string->list string #:optional (delimiter %default-delimiter))
   "Convert DSV from a STRING a list using a DELIMITER.  If DELIMITER
 is not set, use the default delimiter (colon).  Return newly created
 list."
-  (let ((delimiter (if (not (null? delimiter))
-                       (car delimiter)
-                       %default-delimiter)))
-    (dsv-string-split string delimiter)))
+    (dsv-string-split string delimiter))
 
 
-
-(define (list->dsv-string list . delimiter)
+(define* (list->dsv-string list #:optional (delimiter %default-delimiter))
   "Convert a LIST to DSV string using DELIMITER.
 If DELIMITER is not set, use the default delimiter (colon).  Return a
 DSV string.
@@ -98,60 +94,46 @@ Example:
   (list->dsv-string '(\"a\" \"b\" \"c\"))
   => \"a:b:c\"
 "
-  (let* ((delimiter (if (null? delimiter)
-                        %default-delimiter
-                        (car delimiter)))
-         (escaped-list (map (cut escape-special-chars <> delimiter #\\)
+  (let* ((escaped-list (map (cut escape-special-chars <> delimiter #\\)
                             list)))
     (string-join escaped-list (string delimiter))))
 
 
-(define (dsv-read . args)
+(define* (dsv-read #:optional
+                   (port      (current-input-port))
+                   (delimiter %default-delimiter))
   "Read DSV from PORT.  If port is not set, read from default input
 port.  If delimiter is not set, use the default
 delimiter (colon). Return a list of values."
-  (let ((port      (if (not (null? args))
-                       (car args)
-                       (current-input-port)))
-        (delimiter (if (and (not (null? args))
-                            (not (null? (cdr args))))
-                       (cadr args)
-                       %default-delimiter)))
-    (let parse ((dsv-list '())
-                (line     (read-line port)))
-      (if (not (eof-object? line))
-          (parse (cons (dsv-string-split line delimiter) dsv-list)
-                 (read-line port))
-          (reverse
-           (map
-            (lambda (dsv-data)
-              (map (cute regexp-substitute/global
-                         #f (string-append "\\\\" (string delimiter))
-                         <> 'pre (string delimiter) 'post)
-                   dsv-data))
-            dsv-list))))))
+  (let parse ((dsv-list '())
+              (line     (read-line port)))
+    (if (not (eof-object? line))
+        (parse (cons (dsv-string-split line delimiter) dsv-list)
+               (read-line port))
+        (reverse
+         (map
+          (lambda (dsv-data)
+            (map (cute regexp-substitute/global
+                       #f (string-append "\\\\" (string delimiter))
+                       <> 'pre (string delimiter) 'post)
+                 dsv-data))
+          dsv-list)))))
 
 
-(define (dsv-write list . args)
+(define* (dsv-write list #:optional
+                    (port      (current-input-port))
+                    (delimiter %default-delimiter))
   "Write a LIST of values as DSV to a PORT.  If port is not set,
 write to default output port.  If delimiter is not set, use the
 default delimiter (colon)."
-  (let ((port      (if (not (null? args))
-                       (car args)
-                       (current-output-port)))
-        (delimiter (if (and (not (null? args))
-                            (not (null? (cdr args))))
-                       (cadr args)
-                       %default-delimiter)))
-
-    (let ((dsv (map (lambda (data)
-                      (or (null? data)
-                          (list->dsv-string data delimiter)))
-                    list)))
-      (for-each
-       (lambda (dsv-record)
-         (write-line dsv-record port))
-       dsv))))
+  (let ((dsv (map (lambda (data)
+                    (or (null? data)
+                        (list->dsv-string data delimiter)))
+                  list)))
+    (for-each
+     (lambda (dsv-record)
+       (write-line dsv-record port))
+     dsv)))
 
 
 (define (guess-delimiter string)
@@ -175,7 +157,7 @@ default delimiter (colon)."
 
 ;; TODO: Probably the procedure should be rewritten or replaced with
 ;;       some standard procedure.
-(define (dsv-string-split string . delimiter)
+(define* (dsv-string-split string #:optional (delimiter %default-delimiter))
   "Split the STRING into the list of the substrings delimited by
 appearances of the DELIMITER.  If DELIMITER is not set, use the
 default delimiter (colon).
@@ -186,10 +168,7 @@ escaped delimiter -- that is, skips it.  E.g.:
   (dsv-string-split \"car:cdr:ca\\:dr\" #\\:)
   => (\"car\" \"cdr\" \"ca\\:dr\")
 "
-  (let* ((delimiter (if (not (null? delimiter))
-                        (car delimiter)
-                        %default-delimiter))
-         (delimiter? (lambda (idx)
+  (let* ((delimiter? (lambda (idx)
                       (eq? (string-ref string idx) delimiter)))
          (dsv-list  '())
          (len       (string-length string))
