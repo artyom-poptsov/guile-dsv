@@ -50,7 +50,7 @@ gen-ChangeLog:
 	fi
 
 clean-go:
-	@cd ssh; make clean-go
+	-$(RM) $(GOBJECTS)
 .PHONY: clean-go
 
 # Makefile.am ends here
