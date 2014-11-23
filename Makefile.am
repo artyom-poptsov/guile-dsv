@@ -23,6 +23,10 @@ ACLOCAL_AMFLAGS = -I build-aux
 
 SUBDIRS = am build-aux tests
 
+EXTRA_DIST = \
+	srfi/srfi-64.scm		\
+	srfi/srfi-64.upstream.scm
+
 SOURCES = dsv.scm
 
 GOBJECTS = $(SOURCES:%.scm=%.go)
