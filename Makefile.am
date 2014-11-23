@@ -41,6 +41,14 @@ SUFFIXES = .scm .go
 	$(AM_V_GUILEC)$(guilec_env) $(GUILEC) $(guilec_opts) \
 	--output=$@ $<
 
+gen-ChangeLog:
+	if test -d .git; then				\
+	  $(top_srcdir)/build-aux/gitlog-to-changelog	\
+	    2bea8c70..HEAD > $(distdir)/cl-t;		\
+	  rm -f $(distdir)/ChangeLog;			\
+	  mv $(distdir)/cl-t $(distdir)/ChangeLog;	\
+	fi
+
 clean-go:
 	@cd ssh; make clean-go
 .PHONY: clean-go
