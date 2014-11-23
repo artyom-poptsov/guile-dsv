@@ -121,7 +121,7 @@ delimiter (colon). Return a list of values."
 
 
 (define* (dsv-write list #:optional
-                    (port      (current-input-port))
+                    (port      (current-output-port))
                     (delimiter %default-delimiter))
   "Write a LIST of values as DSV to a PORT.  If port is not set,
 write to default output port.  If delimiter is not set, use the
