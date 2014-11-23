@@ -31,7 +31,7 @@
 ;;   (dsv-string->list "a;b;c" #\;)
 ;;   => '("a" "b" "c")
 ;;
-;;   (dsv-string-split "car:cdr:ca\\:dr" #\:)
+;;   (string-split/escaped "car:cdr:ca\\:dr" #\:)
 ;;   => ("car" "cdr" "ca\\:dr")
 ;;
 ;;   (list->dsv-string '("a" "b" "c"))
@@ -48,7 +48,7 @@
 ;;   list->dsv-string list [delimiter]
 ;;   dsv-read [port [delimiter]]
 ;;   dsv-write [port [delimiter]]
-;;   dsv-string-split string [delimiter]
+;;   string-split/escaped string [delimiter]
 ;;
 
 
@@ -81,7 +81,7 @@
   "Convert DSV from a STRING a list using a DELIMITER.  If DELIMITER
 is not set, use the default delimiter (colon).  Return newly created
 list."
-    (dsv-string-split string delimiter))
+    (string-split/escaped string delimiter))
 
 
 (define* (list->dsv-string list #:optional (delimiter %default-delimiter))
@@ -108,7 +108,7 @@ delimiter (colon). Return a list of values."
   (let parse ((dsv-list '())
               (line     (read-line port)))
     (if (not (eof-object? line))
-        (parse (cons (dsv-string-split line delimiter) dsv-list)
+        (parse (cons (string-split/escaped line delimiter) dsv-list)
                (read-line port))
         (reverse
          (map
@@ -136,7 +136,7 @@ default delimiter (colon)."
   "Guess a DSV STRING delimiter."
   (let* ((delimiter-list
           (map (lambda (d)
-                 (cons d (length (dsv-string-split string d))))
+                 (cons d (length (string-split/escaped string d))))
                %known-delimiters))
          (guessed-delimiter-list
           (fold (lambda (a prev)
@@ -155,14 +155,14 @@ default delimiter (colon)."
 
 ;; TODO: Probably the procedure should be rewritten or replaced with
 ;;       some standard procedure.
-(define* (dsv-string-split str #:optional (delimiter %default-delimiter))
+(define* (string-split/escaped str #:optional (delimiter %default-delimiter))
   "Split a string STR into the list of the substrings delimited by appearances
 of the DELIMITER.  If DELIMITER is not set, use the default delimiter (colon).
 
 This procedure is simlar to string-split, but works correctly with
 escaped delimiter -- that is, skips it.  E.g.:
 
-  (dsv-string-split \"car:cdr:ca\\:dr\" #\\:)
+  (string-split/escaped \"car:cdr:ca\\:dr\" #\\:)
   => (\"car\" \"cdr\" \"ca\\:dr\")
 "
   (let ((fields (string-split str delimiter)))
