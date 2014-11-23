@@ -31,8 +31,8 @@
 ;;   (dsv-string->list "a;b;c" #\;)
 ;;   => '("a" "b" "c")
 ;;
-;;   (string-split/escaped "car:cdr:ca\\:dr" #\:)
-;;   => ("car" "cdr" "ca\\:dr")
+;;   (dsv-string->list "a,b\\,c" #\,)
+;;   => '("a" "b,c")
 ;;
 ;;   (list->dsv-string '("a" "b" "c"))
 ;;   => "a:b:c"
@@ -42,13 +42,16 @@
 ;;       ("news" "x" "9" "13" "news" "/usr/lib/news" "/bin/false")
 ;;       ("root" "x" "0" "0" "root" "/root" "/bin/zsh"))
 ;;
+;;   (guess-delimiter "a:b,c,d")
+;;   => #\,
+;;
 ;; These procedures are exported:
 ;; 
 ;;   dsv-string->list string [delimiter]
 ;;   list->dsv-string list [delimiter]
 ;;   dsv-read [port [delimiter]]
 ;;   dsv-write [port [delimiter]]
-;;   string-split/escaped string [delimiter]
+;;   guess-delimiter string
 ;;
 
 
@@ -153,8 +156,6 @@ default delimiter (colon)."
          (caar guessed-delimiter-list))))
 
 
-;; TODO: Probably the procedure should be rewritten or replaced with
-;;       some standard procedure.
 (define (string-split/escaped str delimiter)
   "Split a string STR into the list of the substrings delimited by appearances
 of the DELIMITER.
