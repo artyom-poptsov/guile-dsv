@@ -126,9 +126,7 @@ delimiter (colon). Return a list of values."
   "Write a LIST of values as DSV to a PORT.  If port is not set,
 write to default output port.  If delimiter is not set, use the
 default delimiter (colon)."
-  (let ((dsv-record-list (map (lambda (data)
-                                (or (null? data)
-                                    (list->dsv-string data delimiter)))
+  (let ((dsv-record-list (map (cut list->dsv-string <> delimiter)
                               list)))
     (for-each (cut write-line <> port)
               dsv-record-list)))
