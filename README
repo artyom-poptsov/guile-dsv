@@ -1,0 +1,47 @@
+# -*- mode: org; -*-
+
+Guile-DSV is a GNU Guile module for working with the [[https://en.wikipedia.org/wiki/Delimiter-separated_values][delimiter-separated
+values]] (DSV) data format.
+
+* Requirements
+
+  - [[https://www.gnu.org/software/guile/][GNU Guile]] 2.0.x
+  - (srfi srfi-1)
+  - (srfi srfi-26)
+  - (string transform)
+
+* Distribution
+
+Files:
+ - AUTHORS contains list of people who contributed to the library
+   development.
+ - COPYING contains the terms of GNU General Public License.
+ - INSTALL contains general instructions for building/installing of
+   Guile-DSV
+ - NEWS describes user-visible changes.
+
+Directories:
+ - doc      -- Documentation in Texinfo format.
+ - tests    -- Unit tests.
+
+Files are usually installed according to the prefix specified to
+=configure= script, =/usr/local= by default.  Building and installing
+gives you:
+
+Guile modules, in =${GUILE_SITE}/ssh=:
+ - dsv.scm
+
+* Installation
+
+For a basic explanation of the installation of the package, see the
+INSTALL file.
+
+Please *note* that you will need [[https://www.gnu.org/software/automake/][Automake]] 1.12 or later to run
+self-tests with =make check= (but the library itself can be built with
+older Automake version such as 1.11).
+
+*important* You probably want to call configure with the
+=--with-guilesitedir= option so that this package is installed in
+Guile's default path.  But, if you don't know where your Guile site
+directory is, run =configure= without the option, and it will give you
+a suggestion.
