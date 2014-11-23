@@ -98,17 +98,12 @@ Example:
   (list->dsv-string '(\"a\" \"b\" \"c\"))
   => \"a:b:c\"
 "
-  (let ((delimiter (if (not (null? delimiter))
-                       (car delimiter)
-                       %default-delimiter)))
-    (let append-field ((rec list))
-      (string-append
-       (escape-special-chars (car rec) delimiter #\\)
-       (if (not (null? (cdr rec)))
-           (string-append
-            (string delimiter)
-            (append-field (cdr rec)))
-           "")))))
+  (let* ((delimiter (if (not (null? delimiter))
+                        (car delimiter)
+                        %default-delimiter))
+         (escaped-list (map (cut escape-special-chars <> delimiter #\\)
+                            list)))
+    (string-join escaped-list (string delimiter))))
 
 
 (define (dsv-read . args)
