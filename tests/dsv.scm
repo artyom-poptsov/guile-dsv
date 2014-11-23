@@ -16,6 +16,7 @@
 ;; along with the program.  If not, see <http://www.gnu.org/licenses/>.
 
 (use-modules (srfi srfi-64)
+             (srfi srfi-26)
              (dsv))
 
 (test-begin "dsv")
@@ -58,26 +59,19 @@
         (test-data2     "a\\,b,c")
         (expected-list2 '(("a,b" "c"))))
     (and (equal? expected-list0 (call-with-input-string test-data0
-                                  (lambda (p)
-                                    (dsv-read p))))
+                                  (cut dsv-read <>)))
          (equal? expected-list1 (call-with-input-string test-data1
-                                  (lambda (p)
-                                    (dsv-read p))))
+                                  (cut dsv-read <>)))
          (equal? expected-list2 (call-with-input-string test-data2
-                                  (lambda (p)
-                                    (dsv-read p #\,)))))))
+                                  (cut dsv-read <> #\,))))))
 
 (test-assert "dsv-write"
   (and (string=? "a:b:c\n"
                  (call-with-output-string
-                  (lambda (p)
-                    (dsv-write '(("a" "b" "c")) p))))
+                  (cut dsv-write '(("a" "b" "c")) <>)))
        (string=? "a:b:c\nd:e:f\n"
                  (call-with-output-string
-                  (lambda (p)
-                    (dsv-write '(("a" "b" "c")
-                                 ("d" "e" "f"))
-                               p))))))
+                  (cut dsv-write '(("a" "b" "c") ("d" "e" "f")) <>)))))
 
 (test-end "dsv")
 
