@@ -28,7 +28,8 @@ AC_INIT([Guile-DSV], [0.0.0], [poptsov.artyom@gmail.com],
 AC_COPYRIGHT(GUILE_SSH_CONFIGURE_COPYRIGHT)
 AC_CONFIG_AUX_DIR([build-aux])
 
-AM_INIT_AUTOMAKE([color-tests])
+AM_INIT_AUTOMAKE([gnu silent-rules -Wall -Wno-portability
+                      color-tests])
 
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])], [AC_SUBST([AM_DEFAULT_VERBOSITY],1)])
 
