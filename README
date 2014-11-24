@@ -20,6 +20,7 @@ Files:
  - INSTALL contains general instructions for building/installing of
    Guile-DSV
  - NEWS describes user-visible changes.
+ - TODO contains plans for the further development and list of known bugs.
 
 Directories:
  - doc      -- Documentation in Texinfo format.
