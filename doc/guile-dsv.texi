@@ -165,10 +165,10 @@ Example:
 
 @end deffn
 
-@deffn {Scheme Procedure} dsv-read [port [delimiter]]
-Read DSV from @var{port}.  If port is not set, read from default input
-port.  If @var{delimiter} is not set, use the default delimiter
-(colon). Return a list of values.
+@deffn {Scheme Procedure} dsv-read [port [delimiter]] [#:comment-symbol=#\#]
+Read DSV from @var{port}.  If port is not set, read from default input port.
+If @var{delimiter} is not set, use the default delimiter (colon).  Skip lines
+commented with a @var{comment-symbol}.  Return a list of values.
 
 Example:
 

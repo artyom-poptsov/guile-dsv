@@ -104,15 +104,24 @@ Example:
 
 (define* (dsv-read #:optional
                    (port      (current-input-port))
-                   (delimiter %default-delimiter))
+                   (delimiter %default-delimiter)
+                   #:key
+                   (comment-symbol #\#))
   "Read DSV from PORT.  If port is not set, read from default input
 port.  If delimiter is not set, use the default
 delimiter (colon). Return a list of values."
+
+  (define (commented? line)
+    "Check if the LINE is commented."
+    (string-prefix? (string comment-symbol) (string-trim line)))
+
   (let parse ((dsv-list '())
               (line     (read-line port)))
     (if (not (eof-object? line))
-        (parse (cons (string-split/escaped line delimiter) dsv-list)
-               (read-line port))
+        (if (not (commented? line))
+            (parse (cons (string-split/escaped line delimiter) dsv-list)
+                   (read-line port))
+            (parse dsv-list (read-line port)))
         dsv-list)))
 
 
