@@ -113,14 +113,7 @@ delimiter (colon). Return a list of values."
     (if (not (eof-object? line))
         (parse (cons (string-split/escaped line delimiter) dsv-list)
                (read-line port))
-        (reverse
-         (map
-          (lambda (dsv-data)
-            (map (cute regexp-substitute/global
-                       #f (string-append "\\\\" (string delimiter))
-                       <> 'pre (string delimiter) 'post)
-                 dsv-data))
-          dsv-list)))))
+        dsv-list)))
 
 
 (define* (dsv-write list #:optional
