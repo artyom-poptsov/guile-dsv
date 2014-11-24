@@ -63,7 +63,12 @@
          (equal? expected-list1 (call-with-input-string test-data1
                                   (cut dsv-read <>)))
          (equal? expected-list2 (call-with-input-string test-data2
-                                  (cut dsv-read <> #\,))))))
+                                  (cut dsv-read <> #\,)))
+         ;; Handling of commented lines
+         (equal? '(("a" "b" "c"))
+                 (call-with-input-string
+                  "# this is a comment\na:b:c\n"
+                  (cut dsv-read <>))))))
 
 (test-assert "dsv-write"
   (and (string=? "a:b:c\n"
