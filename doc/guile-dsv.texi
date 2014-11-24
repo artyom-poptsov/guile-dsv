@@ -1,0 +1,223 @@
+\input texinfo
+@c -*-texinfo-*-
+@c %**start of header
+@setfilename guile-dsv.info
+@documentencoding UTF-8
+@settitle Guile-DSV Reference Manual
+@c %**end of header
+@include version.texi
+
+@copying
+This manual documents Guile-DSV version @value{VERSION}.
+
+Copyright (C) 2014 Artyom V. Poptsov
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.  A
+copy of the license is included in the section entitled ``GNU Free
+Documentation License.''
+@end copying
+
+@dircategory The Algorithmic Language Scheme
+@direntry
+* Guile-DSV: (guile-dsv).  Guile module for working with DSV data format.
+@end direntry
+
+@setchapternewpage odd
+
+@titlepage
+@sp 10
+
+@title Guile-DSV Reference Manual
+@subtitle For Guile-DSV @value{VERSION}
+
+@author Artyom V. Poptsov
+
+@page
+@vskip 0pt plus 1filll
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@finalout
+@headings double
+
+@ifnottex
+@node Top, Introduction, (dir), (dir)
+@top The Guile-SSH Reference Manual
+
+@insertcopying
+@sp 1
+@end ifnottex
+
+@menu
+* Introduction::
+* Installation::
+* API Reference::
+
+Appendices
+
+* GNU Free Documentation License::  The license of this manual.
+
+@end menu
+
+@contents
+
+@node Introduction
+@chapter Introduction
+
+Guile-DSV is a module that provides procedures for working with
+delimiter-separated values (DSV) format for programs written in
+@url{https://www.gnu.org/software/guile/, GNU Guile}.
+
+@node Installation
+@chapter Installation
+
+Guile-DSV sources are available from GitHub at
+@url{https://github.com/artyom-poptsov/guile-dsv/}.  This section
+describes requirements of Guile-SSH and installation process.
+
+Guile-DSV depends on the following packages:
+
+@itemize
+@item @url{https://www.gnu.org/software/guile/, GNU Guile}, 2.0
+@item @url{http://www.nongnu.org/guile-lib/, Guile Library}, 0.1.9+
+@end itemize
+
+Get the sources of Guile-DSV from GitHub:
+
+@example
+$ git clone git@@github.com:artyom-poptsov/guile-dsv.git
+@end example
+
+Configure the sources:
+
+@example
+$ cd guile-dsv/
+$ autoreconf -vif
+$ ./configure
+@end example
+
+Build and install the library:
+
+@example
+$ make
+$ make install
+@end example
+
+For a basic explanation of the installation of the package, see the
+@file{INSTALL} file.
+
+Please @strong{note} that you will need
+@url{https://www.gnu.org/software/automake/, Automake} version 1.12 or
+later to run self-tests with @command{make check} (but the library
+itself can be built with older Automake version such as 1.11).
+
+@strong{important} You probably want to call @command{configure} with
+the @option{--with-guilesitedir} option so that this package is
+installed in Guile's default path.  But, if you don't know where your
+Guile site directory is, run @command{configure} without the option,
+and it will give you a suggestion.
+
+@node API Reference
+@chapter API Reference
+
+These procedures are provided by @code{(dsv)} module.
+
+@deffn {Scheme Procedure} dsv-string->list string [delimiter]
+Convert DSV from a @var{string} a list using a @var{delimiter}.  If
+@var{delimiter} is not set, use the default delimiter (colon).  Return newly
+created list.
+
+Examples:
+
+@lisp
+(dsv-string->list "a:b:c")
+@result{} '("a" "b" "c")
+
+(dsv-string->list "a;b;c" #\;)
+@result{} '("a" "b" "c")
+
+(dsv-string->list "a,b\\,c" #\,)
+@result{} '("a" "b,c")
+@end lisp
+@end deffn
+
+@deffn {Scheme Procedure} list->dsv-string list [delimiter]
+Convert a @var{list} to DSV string using @var{delimiter}.
+If @var{delimitter} is not set, use the default delimiter (colon).
+Return a DSV string.
+
+Example:
+
+@lisp
+(list->dsv-string '("a" "b" "c"))
+@result{} "a:b:c"
+
+(list->dsv-string '("a" "b" "c") #\,)
+@result{} "a,b,c"
+
+(list->dsv-string '("a" "b,c") #\,)
+@result{} "a,b\\,c"
+@end lisp
+
+@end deffn
+
+@deffn {Scheme Procedure} dsv-read [port [delimiter]]
+Read DSV from @var{port}.  If port is not set, read from default input
+port.  If @var{delimiter} is not set, use the default delimiter
+(colon). Return a list of values.
+
+Example:
+
+@lisp
+(dsv-read (open-input-file "/etc/passwd"))
+@result{}
+(...
+ ("news" "x" "9" "13" "news" "/usr/lib/news" "/bin/false")
+ ("root" "x" "0" "0" "root" "/root" "/bin/zsh"))
+@end lisp
+
+@end deffn
+
+@deffn {Scheme Procedure} dsv-write list [port [delimiter]]
+Write a @var{list} of values as DSV to a port.  If @var{port} is not
+set, write to default output port.  If @var{delimiter} is not set, use
+the default delimiter (colon).
+
+Example:
+
+@lisp
+(dsv-write '(("news" "x" "9" "13" "news" "/usr/lib/news" "/bin/false")
+             ("root" "x" "0" "0" "root" "/root" "/bin/zsh")))
+@result{}
+news:x:9:13:news:/usr/lib/news:/bin/false
+root:x:0:0:root:/root:/bin/zsh
+@end lisp
+
+@end deffn
+
+@deffn {Scheme Procedure} guess-delimiter string
+Guess a DSV @var{string} delimiter.  Known delimiters: @code{#\,}, @code{#\:},
+@code{#\tab}, @code{#\space}
+
+Examples:
+
+@lisp
+(guess-delimiter "a:b,c,d")
+@result{} #\,
+
+(guess-delimiter "a,b:c")
+@result{} #f
+@end lisp
+
+@end deffn
+
+@node GNU Free Documentation License
+@appendix GNU Free Documentation License
+
+@include fdl.texi
+
+@bye

@@ -1,0 +1,4 @@
+@set UPDATED 24 November 2014
+@set UPDATED-MONTH November 2014
+@set EDITION 0.0.0
+@set VERSION 0.0.0
