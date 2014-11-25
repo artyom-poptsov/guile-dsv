@@ -19,9 +19,9 @@
 ;;; Commentary:
 
 ;;
-;; Parsers for delimiter separated values (DSV) format that widespread
-;; in the Unix world.  Notable example of DSV is /etc/passwd file.
-;; Default delimiter is set to a colon.
+;; Procedures for working with delimiter-separated values (DSV) format that is
+;; widespread in the Unix world.  Notable examples of DSV are /etc/passwd and
+;; /etc/inittab files.  Default delimiter is set to a colon.
 ;;
 ;; Some examples:
 ;;
