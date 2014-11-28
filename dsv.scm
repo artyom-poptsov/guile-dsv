@@ -108,7 +108,7 @@ Example:
                    (comment-symbol #\#))
   "Read DSV data from a PORT.  If the PORT is not set, read from the default
 input port.  If a DELIMITER is not set, use the default delimiter (colon).
-Return a list of values."
+Skip lines commented with a COMMENT-SYMBOL.  Return a list of values."
 
   (define (commented? line)
     "Check if the LINE is commented."
