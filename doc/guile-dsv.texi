@@ -207,8 +207,8 @@ root:x:0:0:root:/root:/bin/zsh
 @end deffn
 
 @deffn {Scheme Procedure} guess-delimiter string
-Guess a DSV @var{string} delimiter.  Known delimiters: @code{#\,}, @code{#\:},
-@code{#\tab}, @code{#\space}
+Guess a DSV @var{string} delimiter.  Known delimiters are: @code{#\,},
+@code{#\:}, @code{#\;}, @code{#\|}, @code{#\tab}, @code{#\space}.
 
 Examples:
 
