@@ -69,8 +69,14 @@ Appendices
 @chapter Introduction
 
 Guile-DSV is a module that provides procedures for working with
-delimiter-separated values (DSV) format for programs written in
+@url{https://en.wikipedia.org/wiki/Delimiter-separated_values,
+delimiter-separated values} (DSV) format for programs written in
 @url{https://www.gnu.org/software/guile/, GNU Guile}.
+
+Currently Guile-DSV supports
+@url{http://www.catb.org/~esr/writings/taoup/html/ch05s02.html#id2901882, the
+Unix-style DSV format}; support of @url{https://tools.ietf.org/html/rfc4180,
+RFC4180} is planned.
 
 @node Installation
 @chapter Installation
