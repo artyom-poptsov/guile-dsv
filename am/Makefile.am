@@ -1,4 +1,4 @@
-## Config file for GNU Automake. 
+## Makefile.am -- Config file for GNU Automake.
 ##
 ## Copyright (C) 2014 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ##
