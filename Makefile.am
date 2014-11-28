@@ -32,7 +32,7 @@ SOURCES = dsv.scm
 GOBJECTS = $(SOURCES:%.scm=%.go)
 
 moddir=$(prefix)/share/guile/site
-nobase_mod_DATA = $(SOURCES) $(GOBJECTS)
+nobase_dist_mod_DATA = $(SOURCES) $(GOBJECTS)
 
 GUILE_WARNINGS = -Wunbound-variable -Warity-mismatch -Wformat
 SUFFIXES = .scm .go
