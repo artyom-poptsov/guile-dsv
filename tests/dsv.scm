@@ -73,7 +73,11 @@
          (equal? '(("a" "b" "c"))
                  (call-with-input-string
                   "# this is a comment\na:b:c\n"
-                  (cut dsv-read <>))))))
+                  (cut dsv-read <>)))
+         (equal? '(("a" "b" "c"))
+                 (call-with-input-string
+                  "; this is a comment\na:b:c\n"
+                  (cut dsv-read <> #:comment-symbol #\;))))))
 
 (test-assert "dsv-write"
   (and (string=? "a:b:c\n"
