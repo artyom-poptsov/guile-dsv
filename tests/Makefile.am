@@ -42,7 +42,4 @@ AM_SCM_LOG_FLAGS = \
 EXTRA_DIST = \
 	${SCM_TESTS}
 
-CLEANFILES = \
-	dsv.log
-
 ## Makefile.am ends here
