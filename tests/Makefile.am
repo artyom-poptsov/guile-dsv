@@ -20,5 +20,8 @@ AM_SCM_LOG_FLAGS = \
 	-L "$(top_srcdir)" \
 	-s
 
+EXTRA_DIST = \
+	${SCM_TESTS}
+
 CLEANFILES = \
 	dsv.log
