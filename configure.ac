@@ -1,4 +1,4 @@
-dnl   configuration script for Guile-SSH
+dnl   configuration script for Guile-DSV
 dnl   Process this file with autoconf to produce configure.
 dnl
 
