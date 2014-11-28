@@ -121,7 +121,7 @@ Skip lines commented with a COMMENT-SYMBOL.  Return a list of values."
             (parse (cons (string-split/escaped line delimiter) dsv-list)
                    (read-line port))
             (parse dsv-list (read-line port)))
-        dsv-list)))
+        (reverse dsv-list))))
 
 
 (define* (dsv-write lst #:optional

@@ -64,6 +64,11 @@
                                   (cut dsv-read <>)))
          (equal? expected-list2 (call-with-input-string test-data2
                                   (cut dsv-read <> #\,)))
+         ;; Check order of read records
+         (equal? '(("1") ("2"))
+                 (call-with-input-string
+                  "1\n2\n"
+                  (cut dsv-read <>)))
          ;; Handling of commented lines
          (equal? '(("a" "b" "c"))
                  (call-with-input-string
