@@ -80,16 +80,16 @@
 (define %known-delimiters '(#\, #\: #\; #\| #\tab #\space))
 
 
-(define* (dsv-string->list string #:optional (delimiter %default-delimiter))
-  "Convert a DSV STRING to a list of values using a DELIMITER.  If the
+(define* (dsv-string->list str #:optional (delimiter %default-delimiter))
+  "Convert a DSV string STR to a list of values using a DELIMITER.  If the
 DELIMITER is not set, use the default delimiter (colon).  Return a list of
 values."
-    (string-split/escaped string delimiter))
+    (string-split/escaped str delimiter))
 
 
-(define* (list->dsv-string list #:optional (delimiter %default-delimiter))
-  "Convert a LIST to a DSV string using a DELIMITER.  If the DELIMITER is not
-set, use the default delimiter (colon).  Return a DSV string.
+(define* (list->dsv-string lst #:optional (delimiter %default-delimiter))
+  "Convert a list LST to a DSV string using a DELIMITER.  If the DELIMITER is
+not set, use the default delimiter (colon).  Return a DSV string.
 
 Example:
 
@@ -97,7 +97,7 @@ Example:
   => \"a:b:c\"
 "
   (let ((escaped-list (map (cut escape-special-chars <> delimiter #\\)
-                            list)))
+                           lst)))
     (string-join escaped-list (string delimiter))))
 
 
@@ -124,23 +124,23 @@ Skip lines commented with a COMMENT-SYMBOL.  Return a list of values."
         dsv-list)))
 
 
-(define* (dsv-write list #:optional
+(define* (dsv-write lst #:optional
                     (port      (current-output-port))
                     (delimiter %default-delimiter))
-  "Write a list of values LIST as a sequence of DSV strings to a PORT.
+  "Write a list of values LST as a sequence of DSV strings to a PORT.
 If the PORT is not set, write to the default output port.  If a DELIMITER is
 not set, use the default delimiter (colon)."
   (let ((dsv-record-list (map (cut list->dsv-string <> delimiter)
-                              list)))
+                              lst)))
     (for-each (cut write-line <> port)
               dsv-record-list)))
 
 
-(define (guess-delimiter string)
-  "Guess a DSV STRING delimiter."
+(define (guess-delimiter str)
+  "Guess a DSV string STR delimiter."
   (let* ((delimiter-list
           (map (lambda (d)
-                 (cons d (length (string-split/escaped string d))))
+                 (cons d (length (string-split/escaped str d))))
                %known-delimiters))
          (guessed-delimiter-list
           (fold (lambda (a prev)
