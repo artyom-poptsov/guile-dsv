@@ -77,7 +77,7 @@
 (define %default-delimiter #\:)
 
 ;; List of known delimiters
-(define %known-delimiters '(#\, #\: #\tab #\space))
+(define %known-delimiters '(#\, #\: #\; #\| #\tab #\space))
 
 
 (define* (dsv-string->list string #:optional (delimiter %default-delimiter))
