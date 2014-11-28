@@ -81,16 +81,15 @@
 
 
 (define* (dsv-string->list string #:optional (delimiter %default-delimiter))
-  "Convert DSV from a STRING a list using a DELIMITER.  If DELIMITER
-is not set, use the default delimiter (colon).  Return newly created
-list."
+  "Convert a DSV STRING to a list of values using a DELIMITER.  If the
+DELIMITER is not set, use the default delimiter (colon).  Return a list of
+values."
     (string-split/escaped string delimiter))
 
 
 (define* (list->dsv-string list #:optional (delimiter %default-delimiter))
-  "Convert a LIST to DSV string using DELIMITER.
-If DELIMITER is not set, use the default delimiter (colon).  Return a
-DSV string.
+  "Convert a LIST to a DSV string using a DELIMITER.  If the DELIMITER is not
+set, use the default delimiter (colon).  Return a DSV string.
 
 Example:
 
@@ -107,9 +106,9 @@ Example:
                    (delimiter %default-delimiter)
                    #:key
                    (comment-symbol #\#))
-  "Read DSV from PORT.  If port is not set, read from default input
-port.  If delimiter is not set, use the default
-delimiter (colon). Return a list of values."
+  "Read DSV data from a PORT.  If the PORT is not set, read from the default
+input port.  If a DELIMITER is not set, use the default delimiter (colon).
+Return a list of values."
 
   (define (commented? line)
     "Check if the LINE is commented."
@@ -128,9 +127,9 @@ delimiter (colon). Return a list of values."
 (define* (dsv-write list #:optional
                     (port      (current-output-port))
                     (delimiter %default-delimiter))
-  "Write a LIST of values as DSV to a PORT.  If port is not set,
-write to default output port.  If delimiter is not set, use the
-default delimiter (colon)."
+  "Write a list of values LIST as a sequence of DSV strings to a PORT.
+If the PORT is not set, write to the default output port.  If a DELIMITER is
+not set, use the default delimiter (colon)."
   (let ((dsv-record-list (map (cut list->dsv-string <> delimiter)
                               list)))
     (for-each (cut write-line <> port)
