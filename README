@@ -33,6 +33,10 @@ gives you:
 Guile modules, in =${GUILE_SITE}/ssh=:
  - dsv.scm
 
+All the modules will be compiled and produced .go files will be installed to
+=site-ccache= directory which is something like this:
+=${libdir}/guile/2.0/site-ccache/ssh/=.
+
 Documentation in Info format, in =${prefix}/share/info/=:
  - guile-dsv.info
 
