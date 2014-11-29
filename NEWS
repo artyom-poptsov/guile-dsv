@@ -1,0 +1,15 @@
+#+TITLE: Guile-SSH News -- history of user-visible changes.
+#+STARTUP: content hidestars
+
+Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
+
+  Copying and distribution of this file, with or without modification,
+  are permitted in any medium without royalty provided the copyright
+  notice and this notice are preserved.
+
+* Changes in version 0.1.0 (2014-11-30)
+** Release of the first version of Guile-DSV
+
+Local Variables:
+mode: org
+End:
