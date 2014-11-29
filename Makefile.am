@@ -49,6 +49,9 @@ gen-ChangeLog:
 	  mv $(distdir)/cl-t $(distdir)/ChangeLog;	\
 	fi
 
+dist-hook: gen-ChangeLog
+.PHONY: gen-ChangeLog
+
 clean-go:
 	-$(RM) $(GOBJECTS)
 .PHONY: clean-go
