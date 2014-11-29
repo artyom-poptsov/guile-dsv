@@ -30,7 +30,7 @@ Files are usually installed according to the prefix specified to
 =configure= script, =/usr/local= by default.  Building and installing
 gives you:
 
-Guile modules, in =${GUILE_SITE}/ssh=:
+Guile modules, in =${GUILE_SITE}=:
  - dsv.scm
 
 All the modules will be compiled and produced .go files will be installed to
