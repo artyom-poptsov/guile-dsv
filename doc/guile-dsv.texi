@@ -46,7 +46,7 @@ Documentation License.''
 
 @ifnottex
 @node Top, Introduction, (dir), (dir)
-@top The Guile-SSH Reference Manual
+@top The Guile-DSV Reference Manual
 
 @insertcopying
 @sp 1
@@ -83,7 +83,7 @@ RFC4180} is planned.
 
 Guile-DSV sources are available from GitHub at
 @url{https://github.com/artyom-poptsov/guile-dsv/}.  This section
-describes requirements of Guile-SSH and installation process.
+describes requirements of Guile-DSV and installation process.
 
 Guile-DSV depends on the following packages:
 
