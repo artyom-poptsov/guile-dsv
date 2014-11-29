@@ -21,7 +21,7 @@ include $(top_srcdir)/am/guilec
 
 ACLOCAL_AMFLAGS = -I build-aux
 
-SUBDIRS = am build-aux tests doc
+SUBDIRS = am build-aux tests doc m4
 
 EXTRA_DIST = \
 	srfi/srfi-64.scm		\

@@ -27,6 +27,7 @@ AC_INIT([Guile-DSV], [0.0.0], [poptsov.artyom@gmail.com],
 
 AC_COPYRIGHT(GUILE_SSH_CONFIGURE_COPYRIGHT)
 AC_CONFIG_AUX_DIR([build-aux])
+AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE([gnu silent-rules -Wall -Wno-portability
                       color-tests])
@@ -55,7 +56,7 @@ fi
 AC_SUBST([guilesitedir])
 
 AC_CONFIG_FILES([Makefile am/Makefile build-aux/Makefile tests/Makefile])
-AC_CONFIG_FILES([doc/Makefile])
+AC_CONFIG_FILES([doc/Makefile m4/Makefile])
 
 # Generate a Makefile, based on the results.
 AC_OUTPUT
