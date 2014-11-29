@@ -32,7 +32,18 @@ SOURCES = dsv.scm
 GOBJECTS = $(SOURCES:%.scm=%.go)
 
 moddir=$(guilesitedir)
-nobase_dist_mod_DATA = $(SOURCES) $(GOBJECTS)
+nobase_dist_mod_DATA = $(SOURCES)
+
+ccachedir=$(libdir)/guile/$(GUILE_EFFECTIVE_VERSION)/site-ccache
+nobase_dist_ccache_DATA = $(GOBJECTS)
+
+# Make sure source files are installed first, so that the mtime of
+# installed compiled files is greater than that of installed source
+# files.  See
+# <http://lists.gnu.org/archive/html/guile-devel/2010-07/msg00125.html>
+# for details.
+guile_dsv_install_go_files = install-nobase_dist_ccacheDATA
+$(guile_dsv_install_go_files): install-nobase_dist_modDATA
 
 GUILE_WARNINGS = -Wunbound-variable -Warity-mismatch -Wformat
 SUFFIXES = .scm .go
