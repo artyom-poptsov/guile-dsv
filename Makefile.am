@@ -35,7 +35,7 @@ moddir=$(guilesitedir)
 nobase_dist_mod_DATA = $(SOURCES)
 
 ccachedir=$(libdir)/guile/$(GUILE_EFFECTIVE_VERSION)/site-ccache
-nobase_dist_ccache_DATA = $(GOBJECTS)
+nobase_nodist_ccache_DATA = $(GOBJECTS)
 
 # Make sure source files are installed first, so that the mtime of
 # installed compiled files is greater than that of installed source
@@ -66,5 +66,8 @@ dist-hook: gen-ChangeLog
 clean-go:
 	-$(RM) $(GOBJECTS)
 .PHONY: clean-go
+
+CLEANFILES = \
+	$(GOBJECTS)
 
 # Makefile.am ends here
