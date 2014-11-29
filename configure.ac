@@ -42,8 +42,7 @@ AC_ARG_WITH([guilesitedir],
              esac],
              [guilesitedir=""])
 
-PKG_CHECK_MODULES([GUILE_2], [guile-2.0])
-
+GUILE_PKG([2.0])
 GUILE_PROGS
 GUILE_SITE_DIR
 
