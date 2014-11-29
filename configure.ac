@@ -45,7 +45,6 @@ AC_ARG_WITH([guilesitedir],
 PKG_CHECK_MODULES([GUILE_2], [guile-2.0])
 
 GUILE_PROGS
-GUILE_FLAGS
 GUILE_SITE_DIR
 
 GUILE_MODULE_REQUIRED([string transform])
