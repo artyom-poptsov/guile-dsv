@@ -91,7 +91,7 @@ values."
 
   (define (should-be-enclosed? field)
     "Check if a FIELD should be enclosed in double-quotes."
-    (or (string-index    field (char-set delimiter #\"))
+    (or (string-index    field (char-set delimiter #\" #\newline))
         (string-contains field (string #\cr #\newline))))
 
   (let ((quoted-lst (map (lambda (field)
