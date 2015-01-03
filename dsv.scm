@@ -46,7 +46,7 @@
 ;;   => #\,
 ;;
 ;; These procedures are exported:
-;; 
+;;
 ;;   dsv-string->list string [delimiter]
 ;;   list->dsv-string list [delimiter]
 ;;   dsv-read [port [delimiter]]
@@ -172,7 +172,7 @@ escaped delimiter -- that is, skips it.  E.g.:
             (if (and (not (null? prev))
                      (string-suffix? "\\" (last prev)))
                 (append (drop-right prev 1)
-                        (list (string-append 
+                        (list (string-append
                                (string-drop-right (last prev) 1)
                                (string delimiter)
                                field)))
