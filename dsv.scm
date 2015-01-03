@@ -94,10 +94,19 @@ values."
     (or (string-index    field (char-set delimiter #\" #\newline))
         (string-contains field (string #\cr #\newline))))
 
+  (define (escape-double-quotes field)
+    "Escape each double-quote in a FIELD with additional double-quote."
+    (escape-special-chars field #\" #\"))
+
+  (define (quote-field field)
+    "Quote a FIELD with double-quotes."
+    (string-append (string #\") field (string #\")))
+
   (let ((quoted-lst (map (lambda (field)
-                           (if (should-be-enclosed? field)
-                               (string-append (string #\") field (string #\"))
-                               field))
+                           (let ((escaped-field (escape-double-quotes field)))
+                             (if (should-be-enclosed? escaped-field)
+                                 (quote-field escaped-field)
+                                 field)))
                          lst)))
     (string-append (string-join quoted-lst (string delimiter)) (string #\cr))))
 
