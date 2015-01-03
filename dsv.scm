@@ -87,7 +87,7 @@ values."
     (string-split/escaped str delimiter))
 
 
-(define (list->dsv-string/rfc419 lst delimiter)
+(define (list->dsv-string/rfc4180 lst delimiter)
 
   (define (should-be-enclosed? field)
     "Check if a FIELD should be enclosed in double-quotes."
@@ -121,7 +121,7 @@ Example:
     ((unix)
      (list->dsv-string/unix lst delimiter))
     ((rfc4180)
-     (list->dsv-string/rfc419 lst delimiter))
+     (list->dsv-string/rfc4180 lst delimiter))
     (else
      (error "Unknown format" format))))
 
