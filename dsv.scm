@@ -87,7 +87,28 @@ values."
     (string-split/escaped str delimiter))
 
 
-(define* (list->dsv-string lst #:optional (delimiter %default-delimiter))
+(define (list->dsv-string/rfc419 lst delimiter)
+
+  (define (should-be-enclosed? field)
+    "Check if a FIELD should be enclosed in double-quotes."
+    (or (string-index    field (char-set delimiter #\"))
+        (string-contains field (string #\cr #\newline))))
+
+  (let ((quoted-lst (map (lambda (field)
+                           (if (should-be-enclosed? field)
+                               (string-append (string #\") field (string #\"))
+                               field))
+                         lst)))
+    (string-append (string-join quoted-lst (string delimiter)) (string #\cr))))
+
+(define (list->dsv-string/unix lst delimiter)
+  (let ((escaped-list (map (cut escape-special-chars <> delimiter #\\)
+                           lst)))
+    (string-join escaped-list (string delimiter))))
+
+(define* (list->dsv-string lst
+                           #:optional (delimiter %default-delimiter)
+                           #:key (format 'unix))
   "Convert a list LST to a DSV string using a DELIMITER.  If the DELIMITER is
 not set, use the default delimiter (colon).  Return a DSV string.
 
@@ -96,9 +117,13 @@ Example:
   (list->dsv-string '(\"a\" \"b\" \"c\"))
   => \"a:b:c\"
 "
-  (let ((escaped-list (map (cut escape-special-chars <> delimiter #\\)
-                           lst)))
-    (string-join escaped-list (string delimiter))))
+  (case format
+    ((unix)
+     (list->dsv-string/unix lst delimiter))
+    ((rfc4180)
+     (list->dsv-string/rfc419 lst delimiter))
+    (else
+     (error "Unknown format" format))))
 
 
 (define* (dsv-read #:optional
