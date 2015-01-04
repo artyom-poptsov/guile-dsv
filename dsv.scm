@@ -158,13 +158,17 @@ Skip lines commented with a COMMENT-SYMBOL.  Return a list of values."
         (reverse dsv-list))))
 
 
-(define* (dsv-write lst #:optional
+(define* (dsv-write lst
+                    #:optional
                     (port      (current-output-port))
-                    (delimiter %default-delimiter))
+                    (delimiter %default-delimiter)
+                    #:key
+                    (format    'unix))
   "Write a list of values LST as a sequence of DSV strings to a PORT.
 If the PORT is not set, write to the default output port.  If a DELIMITER is
-not set, use the default delimiter (colon)."
-  (let ((dsv-record-list (map (cut list->dsv-string <> delimiter)
+not set, use the default delimiter (colon).  FORMAT allows to specify a DSV
+format style."
+  (let ((dsv-record-list (map (cut list->dsv-string <> delimiter #:format format)
                               lst)))
     (for-each (cut write-line <> port)
               dsv-record-list)))
