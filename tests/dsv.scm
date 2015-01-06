@@ -32,6 +32,14 @@
          (equal? expected-list1 (dsv-string->list test-string1 #\,))
          (equal? expected-list2 (dsv-string->list test-string2)))))
 
+(test-assert "dsv-string->list, rfc4180"
+  (and (equal? '("a" "b")
+               (dsv-string->list "a,b" #\, #:format 'rfc4180))
+       (equal? '("" "b")
+               (dsv-string->list "\"\",b" #\, #:format 'rfc4180))
+       (equal? '("a" "b")
+               (dsv-string->list "\"a\",b" #\, #:format 'rfc4180))
+
 (test-assert "list->dsv-string"
   (let ((test-list0       '("a" "b" "c"))
         (expected-string0 "a:b:c")
