@@ -42,6 +42,14 @@
          (equal? expected-string1 (list->dsv-string test-list0 #\,))
          (equal? expected-string2 (list->dsv-string test-list1)))))
 
+(test-assert "list->dsv-string, rfc4180"
+  (and (equal? "a,b\r"
+               (list->dsv-string '("a" "b") #\, #:format 'rfc4180))
+       (equal? "\"a,b\"\r"
+               (list->dsv-string '("a,b") #\, #:format 'rfc4180))
+       (equal? "\"\"\"a\"\"\",b\r"
+               (list->dsv-string '("\"a\"" "b") #\, #:format 'rfc4180))))
+
 (test-assert "guess-delimiter"
   (and (equal? #\,     (guess-delimiter "a,b,c"))
        (equal? #\:     (guess-delimiter "a:b:c"))
