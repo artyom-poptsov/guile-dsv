@@ -79,12 +79,127 @@
 ;; List of known delimiters
 (define %known-delimiters '(#\, #\: #\; #\| #\tab #\space))
 
+(define (debug fmt . args)
+  (let ((fmt (string-append "DEBUG: " fmt)))
+    (apply format #t fmt args)))
+
 
-(define* (dsv-string->list str #:optional (delimiter %default-delimiter))
+(define (unescape-special-char str special-char escape-char)
+  (regexp-substitute/global #f (string escape-char special-char) str
+                            'pre (string special-char) 'post))
+
+(define (dsv-string->list/rfc4180 str delimiter)
+
+  (define (string-drop-both s n)
+    "Drop N chars from a string S on the both left and right sides."
+    (string-drop-right (string-drop s n) n))
+
+  (define (quotation-status field)
+    "Get quotation status for a FIELD."
+    (cond
+     ((regexp-match? (string-match "^\"[^\"].*[^\"]\"$" field))
+      'quoted)
+     ((regexp-match? (string-match "^\"[^\"].*" field))
+      'quote-begin)
+     ((regexp-match? (string-match ".*[^\"]\"$" field))
+      'quote-end)))
+
+  (define all-double-quotes-escaped?
+    (case-lambda
+      "Check if all the double-quotes are escaped."
+      ((field)
+       (even? (string-count field #\")))
+      ((field skip)
+       (even? (string-count (string-drop field skip) #\")))
+      ((field skip skip-right)
+       (even? (string-count (string-drop-right (string-drop field skip)
+                                               skip-right)
+                            #\")))))
+
+  (let fold-fields ((fields (string-split str delimiter))
+                    (prev   '())
+                    (state  'add))
+    (debug "state: ~a~%" state)
+    (if (not (null? fields))
+        (let ((field (car fields)))
+          (debug "field: ~a~%" field)
+          (case state
+            ((add)
+             (cond
+              ;; Handle a properly double-quoted field, such as:
+              ;;   "\"Hello World!\""
+              ((equal? (quotation-status field) 'quoted)
+               (if (all-double-quotes-escaped? field)
+                   (fold-fields (cdr fields)
+                                (cons (string-drop-both field 1) prev)
+                                'add)
+                   (error "A field contains unescaped double-quotes" field)))
+              ;; Handle the beginning of a double-quoted field:
+              ;;   "\"Hello"
+              ((equal? (quotation-status field) 'quote-begin)
+               (if (all-double-quotes-escaped? field 1)
+                   (fold-fields (cdr fields)
+                                (cons (string-drop field 1) prev)
+                                'append)
+                   (error "A field contains unescaped double-quotes" field)))
+              ;; Handle an unquoted field with double-quotes inside it:
+              ;;   "Hello World\""
+              ((string-index field #\")
+               (error "Unexpected double-quote inside of an unquoted field"
+                      field))
+              ;; Handle line breaks inside of an unquoted field:
+              ;;   "Hello\r\nWorld!"
+              ((string-contains field "\r\n")
+               (error "Unexpected line break (CRLF) inside of an unquoted field"
+                      field))
+              ;; Handle unquoted fields:
+              ;;   "Hello World!"
+              (else
+               (let ((unescaped-field (unescape-special-char field #\" #\")))
+                 (fold-fields (cdr fields) (cons unescaped-field prev) 'add)))))
+
+            ((append)
+             (debug "append: quotation-status: ~a~%" (quotation-status field))
+             (cond
+              ((or (equal? (quotation-status field) 'quote-end)
+                   (equal? (quotation-status field) 'quoted))
+               (if (all-double-quotes-escaped? field 0 1)
+                   (let* ((prev-field (car prev))
+                          (field (string-append prev-field
+                                                (string delimiter)
+                                                (string-drop-right field 1)))
+                          (field (unescape-special-char field #\" #\")))
+                     (fold-fields (cdr fields) (cons field (drop prev 1))
+                                  'add))
+                   (error "A field contains unescaped double-quotes" field)))
+              (else
+               (if (all-double-quotes-escaped? field)
+                   (let* ((prev-field (car prev))
+                          (field      (string-append prev-field
+                                                     (string delimiter)
+                                                     field))
+                          (field      (unescape-special-char field #\" #\")))
+                     (fold-fields (cdr fields) (cons field (drop prev 1))
+                                  'append))
+                   (error "A field contains unescaped double-quotes" field)))))))
+        (reverse prev))))
+
+(define (dsv-string->list/unix str delimiter)
+    (string-split/escaped str delimiter))
+
+(define* (dsv-string->list str
+                           #:optional (delimiter %default-delimiter)
+                           #:key (format 'unix))
   "Convert a DSV string STR to a list of values using a DELIMITER.  If the
 DELIMITER is not set, use the default delimiter (colon).  Return a list of
 values."
-    (string-split/escaped str delimiter))
+  (case format
+    ((unix)
+     (dsv-string->list/unix str delimiter))
+    ((rfc4180)
+     (dsv-string->list/rfc4180 str delimiter))
+    (else
+     (error "Unknown format" format))))
 
 
 (define (list->dsv-string/rfc4180 lst delimiter)
