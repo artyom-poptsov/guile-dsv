@@ -97,13 +97,14 @@
   (define (quotation-status field)
     "Get quotation status for a FIELD."
     (cond
-     ((or (regexp-match? (string-match "^\"[^\"]?*[^\"]\"$" field))
-          (regexp-match? (string-match "^\"\"$" field)))
+     ((regexp-match? (string-match "^\".*\"$" field))
       'quoted)
-     ((regexp-match? (string-match "^\"[^\"].*" field))
+     ((regexp-match? (string-match "^\".+" field))
       'quote-begin)
-     ((regexp-match? (string-match ".*[^\"]\"$" field))
-      'quote-end)))
+     ((regexp-match? (string-match ".+\"$" field))
+      'quote-end)
+     ((string=? "\"" field)
+      'quote-begin-or-end)))
 
   (define all-double-quotes-escaped?
     (case-lambda
@@ -137,7 +138,8 @@
                    (error "A field contains unescaped double-quotes" field)))
               ;; Handle the beginning of a double-quoted field:
               ;;   "\"Hello"
-              ((equal? (quotation-status field) 'quote-begin)
+              ((or (equal? (quotation-status field) 'quote-begin)
+                   (equal? (quotation-status field) 'quote-begin-or-end))
                (if (all-double-quotes-escaped? field 1)
                    (fold-fields (cdr fields)
                                 (cons (string-drop field 1) prev)
@@ -163,7 +165,8 @@
              (debug "append: quotation-status: ~a~%" (quotation-status field))
              (cond
               ((or (equal? (quotation-status field) 'quote-end)
-                   (equal? (quotation-status field) 'quoted))
+                   (equal? (quotation-status field) 'quoted)
+                   (equal? (quotation-status field) 'quote-begin-or-end))
                (if (all-double-quotes-escaped? field 0 1)
                    (let* ((prev-field (car prev))
                           (field (string-append prev-field

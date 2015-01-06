@@ -37,8 +37,14 @@
                (dsv-string->list "a,b" #\, #:format 'rfc4180))
        (equal? '("" "b")
                (dsv-string->list "\"\",b" #\, #:format 'rfc4180))
+       (equal? '(",a" "b")
+               (dsv-string->list "\",a\",b"))
        (equal? '("a" "b")
-               (dsv-string->list "\"a\",b" #\, #:format 'rfc4180))))
+               (dsv-string->list "\"a\",b" #\, #:format 'rfc4180))
+       (equal? '("a,b" "c")
+               (dsv-string->list "\"a,b\",c" #\, #:format 'rfc4180))
+       (equal? '("\"a\",b")
+               (dsv-string->list "\"\"\"a\"\"\",b" #\, #:format 'rfc4180))))
 
 (test-assert "list->dsv-string"
   (let ((test-list0       '("a" "b" "c"))
