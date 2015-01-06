@@ -97,7 +97,8 @@
   (define (quotation-status field)
     "Get quotation status for a FIELD."
     (cond
-     ((regexp-match? (string-match "^\"[^\"].*[^\"]\"$" field))
+     ((or (regexp-match? (string-match "^\"[^\"]?*[^\"]\"$" field))
+          (regexp-match? (string-match "^\"\"$" field)))
       'quoted)
      ((regexp-match? (string-match "^\"[^\"].*" field))
       'quote-begin)
