@@ -69,6 +69,7 @@
 
   ;; DSV
   #:use-module (dsv rfc4180)
+  #:use-module (dsv unix)
 
   #:export (dsv-string->list
             list->dsv-string
@@ -81,9 +82,6 @@
 
 ;; List of known delimiters
 (define %known-delimiters '(#\, #\: #\; #\| #\tab #\space))
-
-(define (dsv-string->list/unix str delimiter)
-    (string-split/escaped str delimiter))
 
 (define* (dsv-string->list str
                            #:optional (delimiter %default-delimiter)
@@ -98,11 +96,6 @@ values."
      (dsv-string->list/rfc4180 str delimiter))
     (else
      (error "Unknown format" format))))
-
-(define (list->dsv-string/unix lst delimiter)
-  (let ((escaped-list (map (cut escape-special-chars <> delimiter #\\)
-                           lst)))
-    (string-join escaped-list (string delimiter))))
 
 (define* (list->dsv-string lst
                            #:optional (delimiter %default-delimiter)
@@ -182,29 +175,5 @@ format style."
                 delimiter-list)))
     (and (= (length guessed-delimiter-list) 1)
          (caar guessed-delimiter-list))))
-
-
-(define (string-split/escaped str delimiter)
-  "Split a string STR into the list of the substrings delimited by appearances
-of the DELIMITER.
-
-This procedure is simlar to string-split, but works correctly with
-escaped delimiter -- that is, skips it.  E.g.:
-
-  (string-split/escaped \"car:cdr:ca\\:dr\" #\\:)
-  => (\"car\" \"cdr\" \"ca\\:dr\")
-"
-  (let ((fields (string-split str delimiter)))
-    (fold (lambda (field prev)
-            (if (and (not (null? prev))
-                     (string-suffix? "\\" (last prev)))
-                (append (drop-right prev 1)
-                        (list (string-append
-                               (string-drop-right (last prev) 1)
-                               (string delimiter)
-                               field)))
-                (append prev (list field))))
-          '()
-          fields)))
 
 ;;; dsv.scm ends here.

@@ -19,7 +19,7 @@
 
 include $(top_srcdir)/am/guilec
 
-SOURCES = rfc4180.scm
+SOURCES = rfc4180.scm unix.scm
 
 GOBJECTS = $(SOURCES:%.scm=%.go)
 moddir=$(guilesitedir)/dsv
