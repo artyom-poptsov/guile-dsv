@@ -39,19 +39,26 @@
   "Drop N chars from a string S on the both left and right sides."
   (string-drop-right (string-drop s n) n-right))
 
+(define-syntax case-pred
+  (syntax-rules (else)
+    ((_ pred key ((datum ...) exp) ...)
+     (cond
+      ((or (pred key datum) ...) exp) ...))
+    ((_ pred key ((datum ...) exp) ... (else else-exp))
+     (cond
+      ((or (pred key datum) ...) exp) ...
+      (else else-exp)))))
+
 (define (dsv-string->list/rfc4180 str delimiter)
 
   (define (quotation-status field)
     "Get quotation status for a FIELD."
-    (cond
-     ((regexp-match? (string-match "^\".*\"$" field))
-      'quoted)
-     ((regexp-match? (string-match "^\".+" field))
-      'quote-begin)
-     ((regexp-match? (string-match ".+\"$" field))
-      'quote-end)
-     ((string=? "\"" field)
-      'quote-begin-or-end)))
+    (case-pred (lambda (field regexp) (regexp-match? (string-match regexp field)))
+               field
+     (("^\".*\"$") 'quoted)
+     (("^\".+")    'quote-begin)
+     ((".+\"$")    'quote-end)
+     (("^\"$")     'quote-begin-or-end)))
 
   (define* (all-double-quotes-escaped? field #:optional (skip 0) (skip-right 0))
     "Check if all the double-quotes are escaped."
