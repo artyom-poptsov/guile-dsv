@@ -35,11 +35,11 @@
   (regexp-substitute/global #f (string escape-char special-char) str
                             'pre (string special-char) 'post))
 
-(define (dsv-string->list/rfc4180 str delimiter)
+(define* (string-drop-both s n #:optional (n-right n))
+  "Drop N chars from a string S on the both left and right sides."
+  (string-drop-right (string-drop s n) n-right))
 
-  (define (string-drop-both s n)
-    "Drop N chars from a string S on the both left and right sides."
-    (string-drop-right (string-drop s n) n))
+(define (dsv-string->list/rfc4180 str delimiter)
 
   (define (quotation-status field)
     "Get quotation status for a FIELD."
@@ -53,17 +53,9 @@
      ((string=? "\"" field)
       'quote-begin-or-end)))
 
-  (define all-double-quotes-escaped?
-    (case-lambda
-      "Check if all the double-quotes are escaped."
-      ((field)
-       (even? (string-count field #\")))
-      ((field skip)
-       (even? (string-count (string-drop field skip) #\")))
-      ((field skip skip-right)
-       (even? (string-count (string-drop-right (string-drop field skip)
-                                               skip-right)
-                            #\")))))
+  (define* (all-double-quotes-escaped? field #:optional (skip 0) (skip-right 0))
+    "Check if all the double-quotes are escaped."
+    (even? (string-count (string-drop-both field skip skip-right) #\")))
 
   (let fold-fields ((fields (string-split str delimiter))
                     (prev   '())
