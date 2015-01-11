@@ -78,19 +78,18 @@
               ;;   "\"Hello World!\""
               ((quoted)
                (if (all-double-quotes-escaped? field)
-                   (let* ((unquoted-field  (string-drop-both field 1))
-                          (unescaped-field (unescape-special-char unquoted-field
-                                                                  #\" #\")))
+                   (let ((unquoted-field (string-drop-both field 1)))
                      (fold-fields (cdr fields)
-                                  (cons unescaped-field prev)
+                                  (cons (unescape-special-char unquoted-field
+                                                               #\" #\")
+                                        prev)
                                   'add))
                    (error "A field contains unescaped double-quotes" field)))
               ;; Handle the beginning of a double-quoted field:
               ;;   "\"Hello"
               ((quote-begin)
                (if (all-double-quotes-escaped? field 1)
-                     (fold-fields (cdr fields)
-                                (cons (string-drop field 1) prev)
+                   (fold-fields (cdr fields) (cons (string-drop field 1) prev)
                                 'append)
                    (error "A field contains unescaped double-quotes" field)))
               ((quote-begin-or-end)
@@ -111,7 +110,8 @@
                 ;;   "Hello World!"
                 (else
                  (let ((unescaped-field (unescape-special-char field #\" #\")))
-                   (fold-fields (cdr fields) (cons unescaped-field prev) 'add)))))))
+                   (fold-fields (cdr fields) (cons unescaped-field prev)
+                                'add)))))))
 
             ((append)
              (debug "append: quotation-status: ~a~%" (quotation-status field))
@@ -128,9 +128,7 @@
                    (error "A field contains unescaped double-quotes" field)))
               ((quote-begin-or-end)
                (let* ((prev-field (car prev))
-                      (field (string-append prev-field
-                                            (string delimiter)
-                                            "")))
+                      (field (string-append prev-field (string delimiter) "")))
                  (fold-fields (cdr fields) (cons field (drop prev 1))
                               'add)))
               (else
