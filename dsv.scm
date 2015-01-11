@@ -127,10 +127,10 @@
           (debug "field: ~a~%" field)
           (case state
             ((add)
-             (cond
+             (case (quotation-status field)
               ;; Handle a properly double-quoted field, such as:
               ;;   "\"Hello World!\""
-              ((equal? (quotation-status field) 'quoted)
+              ((quoted)
                (if (all-double-quotes-escaped? field)
                    (fold-fields (cdr fields)
                                 (cons (string-drop-both field 1) prev)
@@ -138,35 +138,36 @@
                    (error "A field contains unescaped double-quotes" field)))
               ;; Handle the beginning of a double-quoted field:
               ;;   "\"Hello"
-              ((or (equal? (quotation-status field) 'quote-begin)
-                   (equal? (quotation-status field) 'quote-begin-or-end))
+              ((quote-begin)
                (if (all-double-quotes-escaped? field 1)
-                   (fold-fields (cdr fields)
+                     (fold-fields (cdr fields)
                                 (cons (string-drop field 1) prev)
                                 'append)
                    (error "A field contains unescaped double-quotes" field)))
-              ;; Handle an unquoted field with double-quotes inside it:
-              ;;   "Hello World\""
-              ((string-index field #\")
-               (error "Unexpected double-quote inside of an unquoted field"
-                      field))
-              ;; Handle line breaks inside of an unquoted field:
-              ;;   "Hello\r\nWorld!"
-              ((string-contains field "\r\n")
-               (error "Unexpected line break (CRLF) inside of an unquoted field"
-                      field))
-              ;; Handle unquoted fields:
-              ;;   "Hello World!"
+              ((quote-begin-or-end)
+               (fold-fields (cdr fields) (cons "" prev) 'append))
               (else
-               (let ((unescaped-field (unescape-special-char field #\" #\")))
-                 (fold-fields (cdr fields) (cons unescaped-field prev) 'add)))))
+               (cond
+                ;; Handle an unquoted field with double-quotes inside it:
+                ;;   "Hello World\""
+                ((string-index field #\")
+                 (error "Unexpected double-quote inside of an unquoted field"
+                        field))
+                ;; Handle line breaks inside of an unquoted field:
+                ;;   "Hello\r\nWorld!"
+                ((string-contains field "\r\n")
+                 (error "Unexpected line break (CRLF) inside of an unquoted field"
+                        field))
+                ;; Handle unquoted fields:
+                ;;   "Hello World!"
+                (else
+                 (let ((unescaped-field (unescape-special-char field #\" #\")))
+                   (fold-fields (cdr fields) (cons unescaped-field prev) 'add)))))))
 
             ((append)
              (debug "append: quotation-status: ~a~%" (quotation-status field))
-             (cond
-              ((or (equal? (quotation-status field) 'quote-end)
-                   (equal? (quotation-status field) 'quoted)
-                   (equal? (quotation-status field) 'quote-begin-or-end))
+             (case (quotation-status field)
+              ((quote-end quoted)
                (if (all-double-quotes-escaped? field 0 1)
                    (let* ((prev-field (car prev))
                           (field (string-append prev-field
@@ -176,6 +177,13 @@
                      (fold-fields (cdr fields) (cons field (drop prev 1))
                                   'add))
                    (error "A field contains unescaped double-quotes" field)))
+              ((quote-begin-or-end)
+               (let* ((prev-field (car prev))
+                      (field (string-append prev-field
+                                            (string delimiter)
+                                            "")))
+                 (fold-fields (cdr fields) (cons field (drop prev 1))
+                              'add)))
               (else
                (if (all-double-quotes-escaped? field)
                    (let* ((prev-field (car prev))
