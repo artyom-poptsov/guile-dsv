@@ -1,9 +1,9 @@
 ## Makefile.am -- Config file for GNU Automake.
 ##
-## Copyright (C) 2013, 2014 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+## Copyright (C) 2015 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ##
 ## This file is part of Guile-DSV.
-## 
+##
 ## Guile-DSV is free software: you can redistribute it and/or
 ## modify it under the terms of the GNU General Public License as
 ## published by the Free Software Foundation, either version 3 of the
@@ -19,22 +19,13 @@
 
 include $(top_srcdir)/am/guilec
 
-ACLOCAL_AMFLAGS = -I build-aux
-
-SUBDIRS = am build-aux tests doc m4 dsv
-
-EXTRA_DIST = \
-	srfi/srfi-64.scm		\
-	srfi/srfi-64.upstream.scm
-
-SOURCES = dsv.scm
+SOURCES = rfc4180.scm
 
 GOBJECTS = $(SOURCES:%.scm=%.go)
-
-moddir=$(guilesitedir)
+moddir=$(guilesitedir)/dsv
 nobase_dist_mod_DATA = $(SOURCES)
 
-ccachedir=$(libdir)/guile/$(GUILE_EFFECTIVE_VERSION)/site-ccache
+ccachedir=$(libdir)/guile/$(GUILE_EFFECTIVE_VERSION)/site-ccache/dsv
 nobase_nodist_ccache_DATA = $(GOBJECTS)
 
 # Make sure source files are installed first, so that the mtime of
@@ -51,17 +42,6 @@ SUFFIXES = .scm .go
 .scm.go:
 	$(AM_V_GUILEC)$(guilec_env) $(GUILEC) $(guilec_opts) \
 	--output=$@ $<
-
-gen-ChangeLog:
-	if test -d .git; then				\
-	  $(top_srcdir)/build-aux/gitlog-to-changelog	\
-	    2bea8c70..HEAD > $(distdir)/cl-t;		\
-	  rm -f $(distdir)/ChangeLog;			\
-	  mv $(distdir)/cl-t $(distdir)/ChangeLog;	\
-	fi
-
-dist-hook: gen-ChangeLog
-.PHONY: gen-ChangeLog
 
 clean-go:
 	-$(RM) $(GOBJECTS)
