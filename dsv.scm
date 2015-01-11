@@ -132,9 +132,12 @@
               ;;   "\"Hello World!\""
               ((quoted)
                (if (all-double-quotes-escaped? field)
-                   (fold-fields (cdr fields)
-                                (cons (string-drop-both field 1) prev)
-                                'add)
+                   (let* ((unquoted-field  (string-drop-both field 1))
+                          (unescaped-field (unescape-special-char unquoted-field
+                                                                  #\" #\")))
+                     (fold-fields (cdr fields)
+                                  (cons unescaped-field prev)
+                                  'add))
                    (error "A field contains unescaped double-quotes" field)))
               ;; Handle the beginning of a double-quoted field:
               ;;   "\"Hello"
