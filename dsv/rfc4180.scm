@@ -23,6 +23,8 @@
 
 (define-module (dsv rfc4180)
   #:use-module (ice-9 regex)
+  #:use-module ((string transform)
+                #:select (escape-special-chars))
   #:export (dsv-string->list/rfc4180
             list->dsv-string/rfc4180))
 
@@ -51,7 +53,7 @@
 
 (define (dsv-string->list/rfc4180 str delimiter)
 
-  (define (quotation-status field)
+  (define (get-quotation-status field)
     "Get quotation status for a FIELD."
     (case-pred (lambda (field regexp) (regexp-match? (string-match regexp field)))
                field
@@ -60,88 +62,64 @@
      ((".+\"$")    'quote-end)
      (("^\"$")     'quote-begin-or-end)))
 
-  (define* (all-double-quotes-escaped? field #:optional (skip 0) (skip-right 0))
+  (define* (all-double-quotes-escaped? field)
     "Check if all the double-quotes are escaped."
-    (even? (string-count (string-drop-both field skip skip-right) #\")))
+    (even? (string-count field #\")))
 
-  (let fold-fields ((fields (string-split str delimiter))
+  (let fold-fields ((record (string-split str delimiter))
+                    (buffer '())
                     (prev   '())
-                    (state  'add))
+                    (state  'read))
     (debug "state: ~a~%" state)
-    (if (not (null? fields))
-        (let ((field (car fields)))
-          (debug "field: ~a~%" field)
-          (case state
-            ((add)
-             (case (quotation-status field)
-              ;; Handle a properly double-quoted field, such as:
-              ;;   "\"Hello World!\""
-              ((quoted)
-               (if (all-double-quotes-escaped? field)
-                   (let ((unquoted-field (string-drop-both field 1)))
-                     (fold-fields (cdr fields)
-                                  (cons (unescape-special-char unquoted-field
-                                                               #\" #\")
-                                        prev)
-                                  'add))
-                   (error "A field contains unescaped double-quotes" field)))
-              ;; Handle the beginning of a double-quoted field:
-              ;;   "\"Hello"
-              ((quote-begin)
-               (if (all-double-quotes-escaped? field 1)
-                   (fold-fields (cdr fields) (cons (string-drop field 1) prev)
-                                'append)
-                   (error "A field contains unescaped double-quotes" field)))
-              ((quote-begin-or-end)
-               (fold-fields (cdr fields) (cons "" prev) 'append))
-              (else
-               (cond
-                ;; Handle an unquoted field with double-quotes inside it:
-                ;;   "Hello World\""
-                ((string-index field #\")
-                 (error "Unexpected double-quote inside of an unquoted field"
-                        field))
-                ;; Handle line breaks inside of an unquoted field:
-                ;;   "Hello\r\nWorld!"
-                ((string-contains field "\r\n")
-                 (error "Unexpected line break (CRLF) inside of an unquoted field"
-                        field))
-                ;; Handle unquoted fields:
-                ;;   "Hello World!"
-                (else
-                 (let ((unescaped-field (unescape-special-char field #\" #\")))
-                   (fold-fields (cdr fields) (cons unescaped-field prev)
-                                'add)))))))
+    (case state
 
-            ((append)
-             (debug "append: quotation-status: ~a~%" (quotation-status field))
-             (case (quotation-status field)
-              ((quote-end quoted)
-               (if (all-double-quotes-escaped? field 0 1)
-                   (let* ((prev-field (car prev))
-                          (field (string-append prev-field
-                                                (string delimiter)
-                                                (string-drop-right field 1)))
-                          (field (unescape-special-char field #\" #\")))
-                     (fold-fields (cdr fields) (cons field (drop prev 1))
-                                  'add))
-                   (error "A field contains unescaped double-quotes" field)))
-              ((quote-begin-or-end)
-               (let* ((prev-field (car prev))
-                      (field (string-append prev-field (string delimiter) "")))
-                 (fold-fields (cdr fields) (cons field (drop prev 1))
-                              'add)))
-              (else
-               (if (all-double-quotes-escaped? field)
-                   (let* ((prev-field (car prev))
-                          (field      (string-append prev-field
-                                                     (string delimiter)
-                                                     field))
-                          (field      (unescape-special-char field #\" #\")))
-                     (fold-fields (cdr fields) (cons field (drop prev 1))
-                                  'append))
-                   (error "A field contains unescaped double-quotes" field)))))))
-        (reverse prev))))
+      ((read)
+       (let ((field (or (null? record) (car record))))
+         (debug "field: ~a; buffer: ~a~%" field buffer)
+         (cond
+          ((null? record)
+           (fold-fields record buffer prev 'end))
+          ((null? buffer)
+           (case (get-quotation-status field)
+             ((quote-begin quote-begin-or-end)
+              (fold-fields (cdr record) (cons field buffer) prev 'read))
+             (else
+              (fold-fields (cdr record) (cons field buffer) prev 'join))))
+          (else
+           (case (get-quotation-status field)
+             ((quote-end quote-begin-or-end)
+              (fold-fields (cdr record) (cons field buffer) prev 'join))
+             (else
+              (fold-fields (cdr record) (cons field buffer) prev 'read)))))))
+
+      ((join)
+       (fold-fields record (string-join (reverse buffer) (string delimiter))
+                    prev 'validate))
+
+      ((validate)
+       (case (get-quotation-status buffer)
+         ((quoted)
+          (cond
+           ((not (all-double-quotes-escaped? buffer))
+            (error "A field contains unescaped double-quotes" buffer))))
+         (else
+          (cond
+           ((string-index buffer #\")
+            (error "A field contains unescaped double-quotes" buffer))
+           ((string-contains buffer "\r\n")
+            (error "Unexpected line break (CRLF) inside of an unquoted field"
+                   buffer)))))
+       (fold-fields record buffer prev 'add))
+
+      ((add)
+       (let* ((buffer (if (eq? (get-quotation-status buffer) 'quoted)
+                          (string-drop-both buffer 1)
+                          buffer))
+              (buffer (unescape-special-char buffer #\" #\")))
+         (fold-fields record '() (cons buffer prev) 'read)))
+
+      ((end)
+       (reverse prev)))))
 
 
 (define (list->dsv-string/rfc4180 lst delimiter)
