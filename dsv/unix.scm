@@ -23,6 +23,8 @@
 
 (define-module (dsv unix)
   #:use-module (srfi  srfi-26)
+  #:use-module ((string transform)
+                #:select (escape-special-chars))
   #:export (dsv-string->list/unix
             string-split/escaped
             list->dsv-string/unix))
