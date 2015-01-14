@@ -121,6 +121,7 @@ Example:
                    (port      (current-input-port))
                    (delimiter %default-delimiter)
                    #:key
+                   (format         'unix)
                    (comment-symbol #\#))
   "Read DSV data from a PORT.  If the PORT is not set, read from the default
 input port.  If a DELIMITER is not set, use the default delimiter (colon).
@@ -130,15 +131,24 @@ Skip lines commented with a COMMENT-SYMBOL.  Return a list of values."
     "Check if the LINE is commented."
     (string-prefix? (string comment-symbol) (string-trim line)))
 
-  (let parse ((dsv-list '())
-              (line     (read-line port)))
-    (if (not (eof-object? line))
-        (if (not (commented? line))
-            (parse (cons (string-split/escaped line delimiter) dsv-list)
-                   (read-line port))
-            (parse dsv-list (read-line port)))
-        (reverse dsv-list))))
-
+  (case format
+    ((unix)
+     (let parse ((dsv-list '())
+                 (line     (read-line port)))
+       (if (not (eof-object? line))
+           (if (not (commented? line))
+               (parse (cons (dsv-string->list/unix line delimiter) dsv-list)
+                      (read-line port))
+               (parse dsv-list (read-line port)))
+           (reverse dsv-list))))
+    ((rfc4180)
+     (let parse ((dsv-list '())
+                 (line     (read-line port)))
+       (if (not (eof-object? line))
+           (parse (dsv-string->list/rfc4180 line delimiter) (read-line port))
+           (reverse dsv-list))))
+    (else
+     (error "Unknown format" format))))
 
 (define* (dsv-write lst
                     #:optional
