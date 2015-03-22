@@ -17,7 +17,9 @@
 ## You should have received a copy of the GNU General Public License
 ## along with Guile-DSV.  If not, see <http://www.gnu.org/licenses/>.
 
-SCM_TESTS = dsv.scm
+SCM_TESTS = \
+	dsv.scm		\
+	rfc4180.scm
 
 TESTS = ${SCM_TESTS}
 
