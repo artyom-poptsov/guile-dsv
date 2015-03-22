@@ -25,8 +25,10 @@
   #:use-module (ice-9 regex)
   #:use-module ((string transform)
                 #:select (escape-special-chars))
+  #:use-module (ice-9 rdelim)
   #:export (dsv-string->list/rfc4180
-            list->dsv-string/rfc4180))
+            list->dsv-string/rfc4180
+            dsv-read/rfc4180))
 
 (define (debug fmt . args)
   (let ((fmt (string-append "DEBUG: " fmt)))
@@ -144,5 +146,14 @@
                                  field)))
                          lst)))
     (string-append (string-join quoted-lst (string delimiter)) (string #\cr))))
+
+
+;; XXX: COMMENT-SYMBOL is not used.
+(define* (dsv-read/rfc4180 port delimiter comment-symbol)
+  (let parse ((dsv-list '())
+              (line     (read-line port)))
+       (if (not (eof-object? line))
+           (parse (dsv-string->list/rfc4180 line delimiter) (read-line port))
+           (reverse dsv-list))))
 
 ;;; rfc4180.scm ends here

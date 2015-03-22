@@ -142,11 +142,7 @@ Skip lines commented with a COMMENT-SYMBOL.  Return a list of values."
                (parse dsv-list (read-line port)))
            (reverse dsv-list))))
     ((rfc4180)
-     (let parse ((dsv-list '())
-                 (line     (read-line port)))
-       (if (not (eof-object? line))
-           (parse (dsv-string->list/rfc4180 line delimiter) (read-line port))
-           (reverse dsv-list))))
+     (dsv-read/rfc4180 port delimiter comment-symbol))
     (else
      (error "Unknown format" format))))
 
