@@ -63,6 +63,10 @@
         (debug "[~a]---> ~a~%" from to))
        (else
         (debug "[~a]--->[~a]~%" from to))))))
+
+(define (debug-fsm-error state)
+  (debug-fsm-transition state 'ERROR 'final))
+
 
 (define (unescape-special-char str special-char escape-char)
   (regexp-substitute/global #f (string escape-char special-char) str
@@ -101,15 +105,15 @@
     ((quoted)
      (cond
       ((not (all-double-quotes-escaped? field))
-       (debug-fsm-transition state 'ERROR 'final)
+       (debug-fsm-error state)
        (error "A field contains unescaped double-quotes" field))))
     (else
      (cond
       ((string-index field #\")
-       (debug-fsm-transition state 'ERROR 'final)
+       (debug-fsm-error state)
        (error "A field contains unescaped double-quotes" field))
       ((string-contains field "\r\n")
-       (debug-fsm-transition state 'ERROR 'final)
+       (debug-fsm-error state)
        (error "Unexpected line break (CRLF) inside of an unquoted field"
               field))))))
 
