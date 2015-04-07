@@ -23,6 +23,7 @@
 
 (define-module (dsv rfc4180)
   #:use-module (ice-9 regex)
+  #:use-module (srfi srfi-1)
   #:use-module ((string transform)
                 #:select (escape-special-chars))
   #:use-module (ice-9 rdelim)
@@ -34,6 +35,23 @@
   (let ((fmt (string-append "DEBUG: " fmt)))
     (apply format #t fmt args)))
 
+(define (debug-fsm state fmt . args)
+  "Format and print a debug message from a finite-state machine (FSM)."
+  (apply debug (format #f "[~a]: ~a" state fmt) args))
+
+(define debug-fsm-transition
+  (case-lambda
+    "Debug a finite-state machine (FSM) transition."
+    ((to)
+     (debug "--->[~a]~%" to))
+    ((from to)
+     (debug "[~a]--->[~a]~%" from to))
+    ((from to type)
+     (case type
+       ((final)
+        (debug "[~a]---> ~a~%" from to))
+       (else
+        (debug "[~a]--->[~a]~%" from to))))))
 
 (define (unescape-special-char str special-char escape-char)
   (regexp-substitute/global #f (string escape-char special-char) str
@@ -53,21 +71,32 @@
       ((or (pred key datum) ...) exp) ...
       (else else-exp)))))
 
+(define (get-quotation-status field)
+  "Get quotation status for a FIELD."
+  (case-pred (lambda (field regexp) (regexp-match? (string-match regexp field)))
+             field
+    (("^\".*\"$") 'quoted)
+    (("^\".+")    'quote-begin)
+    ((".+\"$")    'quote-end)
+    (("^\"$")     'quote-begin-or-end)))
+
+(define* (all-double-quotes-escaped? field)
+  "Check if all the double-quotes are escaped."
+  (even? (string-count field #\")))
+
+;; State machine:
+;;
+;;                 ,---------------------------------------.
+;;                 |                                       |
+;;                 v                                       |
+;;  START ----->[read]--->[join]--->[validate]--->[add]----'
+;;          A    | |                    |
+;;          |    | |                    `--------> ERROR --.
+;;          '----' |                                       |
+;;                 |                                       v
+;;                 `------------------------------[end]-------> STOP
+;;
 (define (dsv-string->list/rfc4180 str delimiter)
-
-  (define (get-quotation-status field)
-    "Get quotation status for a FIELD."
-    (case-pred (lambda (field regexp) (regexp-match? (string-match regexp field)))
-               field
-     (("^\".*\"$") 'quoted)
-     (("^\".+")    'quote-begin)
-     ((".+\"$")    'quote-end)
-     (("^\"$")     'quote-begin-or-end)))
-
-  (define* (all-double-quotes-escaped? field)
-    "Check if all the double-quotes are escaped."
-    (even? (string-count field #\")))
-
   (let fold-fields ((record (string-split str delimiter))
                     (buffer '())
                     (prev   '())
@@ -147,13 +176,194 @@
                          lst)))
     (string-append (string-join quoted-lst (string delimiter)) (string #\cr))))
 
+(define* (splice lst-1 lst-2 #:optional (delimiter ""))
+  (format #t "splice: lst-1: ~a; lst-2: ~a~%" lst-1 lst-2)
+  (cond
+   ((null? lst-1)
+    lst-2)
+   ((null? lst-2)
+    lst-1)
+   ((and (null? lst-1) (null? lst-2))
+    '())
+   (else
+    (append (drop-right lst-1 1)
+            (list (string-append (car (reverse lst-1)) delimiter (car lst-2)))
+            (drop lst-2 1)))))
+
 
 ;; XXX: COMMENT-SYMBOL is not used.
-(define* (dsv-read/rfc4180 port delimiter comment-symbol)
-  (let parse ((dsv-list '())
-              (line     (read-line port)))
-       (if (not (eof-object? line))
-           (parse (dsv-string->list/rfc4180 line delimiter) (read-line port))
-           (reverse dsv-list))))
+;;
+;; State machine:
+;;
+;;                 ,----------------------------------------------------------.
+;;                 |            ,---.                                         |
+;;                 v            V   |                                         |
+;;  START ----->[read-ln]--->[read]-+->[join]----->[validate]--->[add-field]--'
+;;                 |  A         |   |                    |
+;;                 |  |         |   '->[add-record]-.    `-> ERROR --.
+;;                 |  |         |                   |                |
+;;                 |  '---------'<------------------'                v
+;;                 `--------------------------------------->[end]--------> STOP
+;;
+(define (dsv-read/rfc4180 port delimiter comment-symbol)
+  (define* (fold-file #:key
+                      (dsv-list     '())
+                      (buffer       '())
+                      (field-buffer '())
+                      (record       '())
+                      (field        #f)
+                      (line         #f)
+                      (state        'read-ln))
+
+    (debug-fsm-transition state)
+
+    (case state
+
+      ;;   [read-ln]-+->[read]
+      ;;             |
+      ;;             '->[end]
+      ((read-ln)
+       (debug-fsm state "dsv-list: ~s~%" dsv-list)
+       (debug-fsm state "buffer:   ~s~%" buffer)
+       (let ((line (read-line port)))
+         (debug-fsm state "line: ~s~%" line)
+         (if (not (eof-object? line))
+             (begin
+               (debug-fsm-transition state 'read)
+               (fold-file #:dsv-list     dsv-list
+                          #:buffer       buffer
+                          #:field-buffer field-buffer
+                          #:record       (string-split line delimiter)
+                          #:line         line
+                          #:state        'read))
+             ;; TODO: Handle a premature end of a file (eg. when 'buffer' is
+             ;; not null)
+             (begin
+               (debug-fsm-transition state 'end)
+               (fold-file #:dsv-list     dsv-list
+                          #:buffer       buffer
+                          #:field-buffer field-buffer
+                          #:record       record
+                          #:line         line
+                          #:state        'end)))))
+
+      ((read)
+       (let ((field (or (null? record) (car record))))
+         (debug-fsm state "field: ~s; field-buffer: ~s~%" field field-buffer)
+         (cond
+          ((null? record)
+           (if (null? field-buffer)
+               (begin
+                 (debug-fsm-transition state 'add-record)
+                 (fold-file #:dsv-list     dsv-list
+                            #:buffer       buffer
+                            #:field-buffer field-buffer
+                            #:record       record
+                            #:line         line
+                            #:state        'add-record))
+               ;; A field contains '\n'.
+               ;;   [read]--->[read-ln]
+               (begin
+                 (debug-fsm-transition state 'read-ln)
+                 (fold-file #:dsv-list     dsv-list
+                            #:buffer       buffer
+                            #:field-buffer field-buffer
+                            #:record       record
+                            #:line         line
+                            #:state        'read-ln))))
+
+          ;;      ,---.
+          ;;      V   |
+          ;;   [read]-+->[join]
+          ((null? field-buffer)
+           (fold-file #:dsv-list     dsv-list
+                      #:buffer       buffer
+                      #:field-buffer (list field)
+                      #:record       (cdr record)
+                      #:line         line
+                      #:state        (case (get-quotation-status field)
+                                       ((quote-begin quote-begin-or-end)
+                                        (debug-fsm-transition state 'read)
+                                        'read)
+                                       (else
+                                        (debug-fsm-transition state 'join)
+                                        'join))))
+          (else
+           (fold-file #:dsv-list     dsv-list
+                      #:buffer       buffer
+                      #:field-buffer (cons field field-buffer)
+                      #:record       (cdr record)
+                      #:line         line
+                      #:state        (case (get-quotation-status field)
+                                       ((quote-end quote-begin-or-end)
+                                        (debug-fsm-transition state 'join)
+                                        'join)
+                                       (else
+                                        (debug-fsm-transition state 'read)
+                                        'read)))))))
+
+      ;;   [join]--->[validate]
+      ((join)
+       (debug-fsm-transition state 'validate)
+       (fold-file #:dsv-list     dsv-list
+                  #:buffer       buffer
+                  #:field-buffer (string-join (reverse field-buffer) (string delimiter))
+                  #:record       record
+                  #:line         line
+                  #:state        'validate))
+
+      ;;   [validate]-+->[add-field]
+      ;;              |
+      ;;              '-> ERROR
+      ((validate)
+       (case (get-quotation-status field-buffer)
+         ((quoted)
+          (cond
+           ((not (all-double-quotes-escaped? field-buffer))
+            (debug-fsm-transition state 'error 'final)
+            (error "A field contains unescaped double-quotes" field-buffer))))
+         (else
+          (cond
+           ((string-index field-buffer #\")
+            (debug-fsm-transition state 'error 'final)
+            (error "A field contains unescaped double-quotes" field-buffer))
+           ((string-contains field-buffer "\r\n")
+            (debug-fsm-transition state 'error 'final)
+            (error "Unexpected line break (CRLF) inside of an unquoted field"
+                   field-buffer)))))
+       (debug-fsm-transition state 'add-field)
+       (fold-file #:dsv-list     dsv-list
+                  #:buffer       buffer
+                  #:field-buffer field-buffer
+                  #:record       record
+                  #:line         line
+                  #:state        'add-field))
+
+      ;;   [add-field]--->[read]
+      ((add-field)
+       (debug-fsm-transition state 'read)
+       (fold-file #:dsv-list     dsv-list
+                  #:buffer       (cons field-buffer buffer)
+                  #:field-buffer '()
+                  #:record       record
+                  #:line         line
+                  #:state        'read))
+
+      ;;   [add-record]--->[read-ln]
+      ((add-record)
+       (debug-fsm-transition state 'read-ln)
+       (fold-file #:dsv-list     (cons buffer dsv-list)
+                  #:buffer       '()
+                  #:field-buffer field-buffer
+                  #:record       record
+                  #:line         line
+                  #:state        'read-ln))
+
+      ;;   [end]---> STOP
+      ((end)
+       (debug-fsm-transition state 'STOP 'final)
+       (reverse (map reverse dsv-list)))))
+
+  (fold-file))
 
 ;;; rfc4180.scm ends here
