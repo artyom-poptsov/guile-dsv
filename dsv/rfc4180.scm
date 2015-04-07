@@ -101,29 +101,37 @@
                     (buffer '())
                     (prev   '())
                     (state  'read))
-    (debug "state: ~a~%" state)
+
+    (debug-fsm-transition state)
+
     (case state
 
       ((read)
        (let ((field (or (null? record) (car record))))
-         (debug "field: ~a; buffer: ~a~%" field buffer)
+         (debug-fsm state "field: ~s; buffer: ~s~%" field buffer)
          (cond
           ((null? record)
+           (debug-fsm-transition state 'end)
            (fold-fields record buffer prev 'end))
           ((null? buffer)
            (case (get-quotation-status field)
              ((quote-begin quote-begin-or-end)
+              (debug-fsm-transition state 'read)
               (fold-fields (cdr record) (cons field buffer) prev 'read))
              (else
+              (debug-fsm-transition state 'join)
               (fold-fields (cdr record) (cons field buffer) prev 'join))))
           (else
            (case (get-quotation-status field)
              ((quote-end quote-begin-or-end)
+              (debug-fsm-transition state 'join)
               (fold-fields (cdr record) (cons field buffer) prev 'join))
              (else
+              (debug-fsm-transition state 'read)
               (fold-fields (cdr record) (cons field buffer) prev 'read)))))))
 
       ((join)
+       (debug-fsm-transition state 'validate)
        (fold-fields record (string-join (reverse buffer) (string delimiter))
                     prev 'validate))
 
@@ -132,14 +140,18 @@
          ((quoted)
           (cond
            ((not (all-double-quotes-escaped? buffer))
+            (debug-fsm-transition state 'ERROR 'final)
             (error "A field contains unescaped double-quotes" buffer))))
          (else
           (cond
            ((string-index buffer #\")
+            (debug-fsm-transition state 'ERROR 'final)
             (error "A field contains unescaped double-quotes" buffer))
            ((string-contains buffer "\r\n")
+            (debug-fsm-transition state 'ERROR 'final)
             (error "Unexpected line break (CRLF) inside of an unquoted field"
                    buffer)))))
+       (debug-fsm-transition state 'add)
        (fold-fields record buffer prev 'add))
 
       ((add)
@@ -147,9 +159,11 @@
                           (string-drop-both buffer 1)
                           buffer))
               (buffer (unescape-special-char buffer #\" #\")))
+         (debug-fsm-transition state 'read)
          (fold-fields record '() (cons buffer prev) 'read)))
 
       ((end)
+       (debug-fsm-transition state 'STOP 'final)
        (reverse prev)))))
 
 
