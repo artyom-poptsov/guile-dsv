@@ -281,7 +281,8 @@
                  (debug-fsm-transition state 'read-ln)
                  (fold-file #:dsv-list     dsv-list
                             #:buffer       buffer
-                            #:field-buffer field-buffer
+                            ;; XXX: Does it handles all the cases?
+                            #:field-buffer (cons "\n" field-buffer)
                             #:record       record
                             #:line         line
                             #:state        'read-ln))))
@@ -319,12 +320,28 @@
       ;;   [join]--->[validate]
       ((join)
        (debug-fsm-transition state 'validate)
-       (fold-file #:dsv-list     dsv-list
-                  #:buffer       buffer
-                  #:field-buffer (string-join (reverse field-buffer) (string delimiter))
-                  #:record       record
-                  #:line         line
-                  #:state        'validate))
+       (debug-fsm state "field-buffer: ~s~%" field-buffer)
+       (let* ((delimiter  (string delimiter))
+              ;; XXX: Looks too hacky.  Should be rewritten in a more
+              ;; elegant way.
+              (join-field (lambda (field-elements)
+                            (fold (lambda (elem prev)
+                                    (cond
+                                     ((not prev)
+                                      elem)
+                                     ((or (string=? "\n" elem)
+                                          (string-suffix? "\n" prev))
+                                      (string-append prev elem))
+                                     (else
+                                      (string-append prev delimiter elem))))
+                                  #f
+                                  (reverse field-elements)))))
+         (fold-file #:dsv-list     dsv-list
+                    #:buffer       buffer
+                    #:field-buffer (join-field field-buffer)
+                    #:record       record
+                    #:line         line
+                    #:state        'validate)))
 
       ;;   [validate]-+->[add-field]
       ;;              |
