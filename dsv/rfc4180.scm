@@ -256,51 +256,51 @@
        (debug-fsm state "buffer:   ~s~%" buffer)
        (let ((line (read-line port)))
          (debug-fsm state "line: ~s~%" line)
-         (if (not (eof-object? line))
-             (begin
-               (debug-fsm-transition state 'read)
-               (fold-file #:dsv-list     dsv-list
-                          #:buffer       buffer
-                          #:field-buffer field-buffer
-                          #:record       (string-split line delimiter)
-                          #:line         line
-                          #:state        'read))
-             ;; TODO: Handle a premature end of a file (eg. when 'buffer' is
-             ;; not null)
-             (begin
-               (debug-fsm-transition state 'end)
-               (fold-file #:dsv-list     dsv-list
-                          #:buffer       buffer
-                          #:field-buffer field-buffer
-                          #:record       record
-                          #:line         line
-                          #:state        'end)))))
+         (cond
+          ((not (eof-object? line))
+           (debug-fsm-transition state 'read)
+           (fold-file #:dsv-list     dsv-list
+                      #:buffer       buffer
+                      #:field-buffer field-buffer
+                      #:record       (string-split line delimiter)
+                      #:line         line
+                      #:state        'read))
+          ;; TODO: Handle a premature end of a file (eg. when 'buffer' is
+          ;; not null)
+          (else
+           (debug-fsm-transition state 'end)
+           (fold-file #:dsv-list     dsv-list
+                      #:buffer       buffer
+                      #:field-buffer field-buffer
+                      #:record       record
+                      #:line         line
+                      #:state        'end)))))
 
       ((read)
        (let ((field (or (null? record) (car record))))
          (debug-fsm state "field: ~s; field-buffer: ~s~%" field field-buffer)
          (cond
           ((null? record)
-           (if (null? field-buffer)
-               (begin
-                 (debug-fsm-transition state 'add-record)
-                 (fold-file #:dsv-list     dsv-list
-                            #:buffer       buffer
-                            #:field-buffer field-buffer
-                            #:record       record
-                            #:line         line
-                            #:state        'add-record))
-               ;; A field contains '\n'.
-               ;;   [read]--->[read-ln]
-               (begin
-                 (debug-fsm-transition state 'read-ln)
-                 (fold-file #:dsv-list     dsv-list
-                            #:buffer       buffer
-                            ;; XXX: Does it handles all the cases?
-                            #:field-buffer (cons "\n" field-buffer)
-                            #:record       record
-                            #:line         line
-                            #:state        'read-ln))))
+           (cond
+            ((null? field-buffer)
+             (debug-fsm-transition state 'add-record)
+             (fold-file #:dsv-list     dsv-list
+                        #:buffer       buffer
+                        #:field-buffer field-buffer
+                        #:record       record
+                        #:line         line
+                        #:state        'add-record))
+            ;; A field contains '\n'.
+            ;;   [read]--->[read-ln]
+            (else
+             (debug-fsm-transition state 'read-ln)
+             (fold-file #:dsv-list     dsv-list
+                        #:buffer       buffer
+                        ;; XXX: Does it handles all the cases?
+                        #:field-buffer (cons "\n" field-buffer)
+                        #:record       record
+                        #:line         line
+                        #:state        'read-ln))))
 
           ;;      ,---.
           ;;      V   |
