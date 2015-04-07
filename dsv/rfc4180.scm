@@ -29,11 +29,22 @@
   #:use-module (ice-9 rdelim)
   #:export (dsv-string->list/rfc4180
             list->dsv-string/rfc4180
-            dsv-read/rfc4180))
+            dsv-read/rfc4180
+            ;; Debugging
+            set-debug!))
+
+
+(define *debug?* #f)                    ;Does debug mode enabled?
+
+
+(define (set-debug! enabled?)
+  "Set debug mode to an ENABLED? value."
+  (set! *debug?* enabled?))
 
 (define (debug fmt . args)
-  (let ((fmt (string-append "DEBUG: " fmt)))
-    (apply format #t fmt args)))
+  (and *debug?*
+       (let ((fmt (string-append "DEBUG: " fmt)))
+         (apply format #t fmt args))))
 
 (define (debug-fsm state fmt . args)
   "Format and print a debug message from a finite-state machine (FSM)."
