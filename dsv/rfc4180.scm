@@ -95,6 +95,24 @@
   "Check if all the double-quotes are escaped."
   (even? (string-count field #\")))
 
+(define (validate-field state field)
+  "Validate a FIELD."
+  (case (get-quotation-status field)
+    ((quoted)
+     (cond
+      ((not (all-double-quotes-escaped? field))
+       (debug-fsm-transition state 'ERROR 'final)
+       (error "A field contains unescaped double-quotes" field))))
+    (else
+     (cond
+      ((string-index field #\")
+       (debug-fsm-transition state 'ERROR 'final)
+       (error "A field contains unescaped double-quotes" field))
+      ((string-contains field "\r\n")
+       (debug-fsm-transition state 'ERROR 'final)
+       (error "Unexpected line break (CRLF) inside of an unquoted field"
+              field))))))
+
 ;; State machine:
 ;;
 ;;                 ,---------------------------------------.
@@ -147,21 +165,7 @@
                     prev 'validate))
 
       ((validate)
-       (case (get-quotation-status buffer)
-         ((quoted)
-          (cond
-           ((not (all-double-quotes-escaped? buffer))
-            (debug-fsm-transition state 'ERROR 'final)
-            (error "A field contains unescaped double-quotes" buffer))))
-         (else
-          (cond
-           ((string-index buffer #\")
-            (debug-fsm-transition state 'ERROR 'final)
-            (error "A field contains unescaped double-quotes" buffer))
-           ((string-contains buffer "\r\n")
-            (debug-fsm-transition state 'ERROR 'final)
-            (error "Unexpected line break (CRLF) inside of an unquoted field"
-                   buffer)))))
+       (validate-field state buffer)
        (debug-fsm-transition state 'add)
        (fold-fields record buffer prev 'add))
 
@@ -358,21 +362,7 @@
       ;;              |
       ;;              '-> ERROR
       ((validate)
-       (case (get-quotation-status field-buffer)
-         ((quoted)
-          (cond
-           ((not (all-double-quotes-escaped? field-buffer))
-            (debug-fsm-transition state 'error 'final)
-            (error "A field contains unescaped double-quotes" field-buffer))))
-         (else
-          (cond
-           ((string-index field-buffer #\")
-            (debug-fsm-transition state 'error 'final)
-            (error "A field contains unescaped double-quotes" field-buffer))
-           ((string-contains field-buffer "\r\n")
-            (debug-fsm-transition state 'error 'final)
-            (error "Unexpected line break (CRLF) inside of an unquoted field"
-                   field-buffer)))))
+       (validate-field state field-buffer)
        (debug-fsm-transition state 'add-field)
        (fold-file #:dsv-list     dsv-list
                   #:buffer       buffer
