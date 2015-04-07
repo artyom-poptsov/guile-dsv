@@ -205,20 +205,6 @@
                          lst)))
     (string-append (string-join quoted-lst (string delimiter)) (string #\cr))))
 
-(define* (splice lst-1 lst-2 #:optional (delimiter ""))
-  (format #t "splice: lst-1: ~a; lst-2: ~a~%" lst-1 lst-2)
-  (cond
-   ((null? lst-1)
-    lst-2)
-   ((null? lst-2)
-    lst-1)
-   ((and (null? lst-1) (null? lst-2))
-    '())
-   (else
-    (append (drop-right lst-1 1)
-            (list (string-append (car (reverse lst-1)) delimiter (car lst-2)))
-            (drop lst-2 1)))))
-
 
 ;; XXX: COMMENT-SYMBOL is not used.
 ;;
