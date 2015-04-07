@@ -356,12 +356,15 @@
       ;;   [add-field]--->[read]
       ((add-field)
        (debug-fsm-transition state 'read)
-       (fold-file #:dsv-list     dsv-list
-                  #:buffer       (cons field-buffer buffer)
-                  #:field-buffer '()
-                  #:record       record
-                  #:line         line
-                  #:state        'read))
+       (let ((field (if (eq? (get-quotation-status field-buffer) 'quoted)
+                        (string-drop-both field-buffer 1)
+                        field-buffer)))
+         (fold-file #:dsv-list     dsv-list
+                    #:buffer       (cons field buffer)
+                    #:field-buffer '()
+                    #:record       record
+                    #:line         line
+                    #:state        'read)))
 
       ;;   [add-record]--->[read-ln]
       ((add-record)
