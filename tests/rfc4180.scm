@@ -29,6 +29,16 @@
        (equal? '("a,b\nc" "d")
                (dsv-string->list "\"a,b\nc\",d" #\, #:format 'rfc4180))))
 
+(test-assert "dsv-read"
+  (and (equal? '(("a" "b" "c\nd,e" "f"))
+               (call-with-input-string
+                "a,b,\"c\nd,e\",f"
+                (cut dsv-read <> #\, #:format 'rfc4180)))
+       (equal? '(("a\nb\nc\nd"))
+               (call-with-input-string
+                "\"a\nb\nc\nd\""
+                (cut dsv-read <> #\, #:format 'rfc4180)))))
+
 
 (test-end "rfc4180")
 
