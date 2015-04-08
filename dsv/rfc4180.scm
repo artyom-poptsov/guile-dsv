@@ -24,6 +24,7 @@
 (define-module (dsv rfc4180)
   #:use-module (ice-9 regex)
   #:use-module (srfi srfi-1)
+  #:use-module (srfi srfi-26)
   #:use-module ((string transform)
                 #:select (escape-special-chars))
   #:use-module (ice-9 rdelim)
@@ -126,74 +127,6 @@ it as a debug message.."
        (dsv-error state
                   "Unexpected line break (CRLF) inside of an unquoted field"
                   field))))))
-
-;; State machine:
-;;
-;;                 ,---------------------------------------.
-;;                 |                                       |
-;;                 v                                       |
-;;  START ----->[read]--->[join]--->[validate]--->[add]----'
-;;          A    | |                    |
-;;          |    | |                    `--------> ERROR --.
-;;          '----' |                                       |
-;;                 |                                       v
-;;                 `------------------------------[end]-------> STOP
-;;
-(define (dsv-string->list/rfc4180 str delimiter)
-  (let fold-fields ((record (string-split str delimiter))
-                    (buffer '())
-                    (prev   '())
-                    (state  'read))
-
-    (debug-fsm-transition state)
-
-    (case state
-
-      ((read)
-       (let ((field (or (null? record) (car record))))
-         (debug-fsm state "field: ~s; buffer: ~s~%" field buffer)
-         (cond
-          ((null? record)
-           (debug-fsm-transition state 'end)
-           (fold-fields record buffer prev 'end))
-          ((null? buffer)
-           (case (get-quotation-status field)
-             ((quote-begin quote-begin-or-end)
-              (debug-fsm-transition state 'read)
-              (fold-fields (cdr record) (cons field buffer) prev 'read))
-             (else
-              (debug-fsm-transition state 'join)
-              (fold-fields (cdr record) (cons field buffer) prev 'join))))
-          (else
-           (case (get-quotation-status field)
-             ((quote-end quote-begin-or-end)
-              (debug-fsm-transition state 'join)
-              (fold-fields (cdr record) (cons field buffer) prev 'join))
-             (else
-              (debug-fsm-transition state 'read)
-              (fold-fields (cdr record) (cons field buffer) prev 'read)))))))
-
-      ((join)
-       (debug-fsm-transition state 'validate)
-       (fold-fields record (string-join (reverse buffer) (string delimiter))
-                    prev 'validate))
-
-      ((validate)
-       (validate-field state buffer)
-       (debug-fsm-transition state 'add)
-       (fold-fields record buffer prev 'add))
-
-      ((add)
-       (let* ((buffer (if (eq? (get-quotation-status buffer) 'quoted)
-                          (string-drop-both buffer 1)
-                          buffer))
-              (buffer (unescape-special-char buffer #\" #\")))
-         (debug-fsm-transition state 'read)
-         (fold-fields record '() (cons buffer prev) 'read)))
-
-      ((end)
-       (debug-fsm-transition state 'STOP 'final)
-       (reverse prev)))))
 
 
 (define (list->dsv-string/rfc4180 lst delimiter)
@@ -400,5 +333,10 @@ it as a debug message.."
        (reverse (map reverse dsv-list)))))
 
   (fold-file))
+
+(define (dsv-string->list/rfc4180 str delimiter)
+  (car (call-with-input-string
+        str
+        (cut dsv-read/rfc4180 <> delimiter #f))))
 
 ;;; rfc4180.scm ends here
