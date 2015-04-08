@@ -68,6 +68,18 @@
   (debug-fsm-transition state 'ERROR 'final))
 
 
+(define dsv-error
+  (case-lambda
+    "Throw 'dsv-parser exception with the given MESSAGE and arguments ARGS.
+The procedure optionally takes STATE of FSM as the first argument and prints
+it as a debug message.."
+    ((state message . args)
+     (debug-fsm-error state)
+     (throw 'dsv-parser message args))
+    ((message . args)
+     (throw 'dsv-parser message args))))
+
+
 (define (unescape-special-char str special-char escape-char)
   (regexp-substitute/global #f (string escape-char special-char) str
                             'pre (string special-char) 'post))
@@ -105,17 +117,15 @@
     ((quoted)
      (cond
       ((not (all-double-quotes-escaped? field))
-       (debug-fsm-error state)
-       (error "A field contains unescaped double-quotes" field))))
+       (dsv-error state "A field contains unescaped double-quotes" field))))
     (else
      (cond
       ((string-index field #\")
-       (debug-fsm-error state)
-       (error "A field contains unescaped double-quotes" field))
+       (dsv-error state "A field contains unescaped double-quotes" field))
       ((string-contains field "\r\n")
-       (debug-fsm-error state)
-       (error "Unexpected line break (CRLF) inside of an unquoted field"
-              field))))))
+       (dsv-error state
+                  "Unexpected line break (CRLF) inside of an unquoted field"
+                  field))))))
 
 ;; State machine:
 ;;
