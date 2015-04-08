@@ -39,6 +39,22 @@
                 "\"a\nb\nc\nd\""
                 (cut dsv-read <> #\, #:format 'rfc4180)))))
 
+(test-assert "dsv-read, error handling"
+  (and (catch 'dsv-parser
+         (lambda ()
+          (call-with-input-string
+           "\"a"
+           (cut dsv-read <> #\, #:format 'rfc4180))
+          #f)
+         (const #t))
+       (catch 'dsv-parser
+         (lambda ()
+          (call-with-input-string
+           "\"a\nb"
+           (cut dsv-read <> #\, #:format 'rfc4180))
+          #f)
+         (const #t))))
+
 
 (test-end "rfc4180")
 
