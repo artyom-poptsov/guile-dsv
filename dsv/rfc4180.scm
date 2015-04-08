@@ -265,16 +265,16 @@ it as a debug message.."
                       #:record       (string-split line delimiter)
                       #:line         line
                       #:state        'read))
-          ;; TODO: Handle a premature end of a file (eg. when 'buffer' is
-          ;; not null)
-          (else
+          ((and (eof-object? line) (null? buffer) (null? field-buffer))
            (debug-fsm-transition state 'end)
            (fold-file #:dsv-list     dsv-list
                       #:buffer       buffer
                       #:field-buffer field-buffer
                       #:record       record
                       #:line         line
-                      #:state        'end)))))
+                      #:state        'end))
+          (else
+           (dsv-error state "Premature end of file" port)))))
 
       ((read)
        (let ((field (or (null? record) (car record))))
