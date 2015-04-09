@@ -36,6 +36,8 @@
             set-debug!))
 
 
+(define %default-line-break "\r\n")
+
 (define *debug?* #f)                    ;Does debug mode enabled?
 
 
@@ -138,12 +140,12 @@ it as a debug message.."
   "Quote a FIELD with double-quotes."
   (string-append (string #\") field (string #\")))
 
-(define (scm->dsv scm port delimiter)
+(define* (scm->dsv scm port delimiter #:key (line-break %default-line-break))
 
   (define (should-be-enclosed? field)
     "Check if a FIELD should be enclosed in double-quotes."
     (or (string-index    field (char-set delimiter #\" #\newline))
-        (string-contains field (string #\cr #\newline))))
+        (string-contains field line-break)))
 
   (for-each
    (lambda (row)
@@ -157,12 +159,12 @@ it as a debug message.."
             row)
        (string delimiter))
       port)
-     (display (string #\cr #\newline) port))
+     (display line-break port))
    scm))
 
-(define (scm->dsv-string scm delimiter)
+(define* (scm->dsv-string scm delimiter #:key (line-break %default-line-break))
   (call-with-output-string
-   (cut scm->dsv scm <> delimiter)))
+   (cut scm->dsv scm <> delimiter #:line-break line-break)))
 
 
 ;; XXX: COMMENT-SYMBOL is not used.
