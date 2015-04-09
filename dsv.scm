@@ -20,24 +20,27 @@
 
 ;;
 ;; Procedures for working with delimiter-separated values (DSV) format that is
-;; widespread in the Unix world.  Notable examples of DSV are /etc/passwd and
-;; /etc/inittab files.  Default delimiter is set to a colon.
+;; widespread in the Unix world.  Notable examples of DSV are '/etc/passwd' and
+;; '/etc/inittab' files.
+;;
+;; Most of the procedures take an optinal #:format argument that specifies the
+;; format of DSV.  Default value of the #:format is 'unix'.
 ;;
 ;; Some examples:
 ;;
-;;   (dsv-string->list "a:b:c")
-;;   => '("a" "b" "c")
+;;   (dsv-string->scm "a:b:c")
+;;   => '(("a" "b" "c"))
 ;;
-;;   (dsv-string->list "a;b;c" #\;)
-;;   => '("a" "b" "c")
+;;   (dsv-string->scm "a;b;c" #\;)
+;;   => '(("a" "b" "c"))
 ;;
-;;   (dsv-string->list "a,b\\,c" #\,)
-;;   => '("a" "b,c")
+;;   (dsv-string->scm "a,b\\,c" #\,)
+;;   => '(("a" "b,c"))
 ;;
-;;   (list->dsv-string '("a" "b" "c"))
+;;   (scm->dsv-string '(("a" "b" "c")))
 ;;   => "a:b:c"
 ;;
-;;   (dsv-read (open-input-file "/etc/passwd"))
+;;   (dsv->scm (open-input-file "/etc/passwd"))
 ;;   => (...
 ;;       ("news" "x" "9" "13" "news" "/usr/lib/news" "/bin/false")
 ;;       ("root" "x" "0" "0" "root" "/root" "/bin/zsh"))
@@ -47,11 +50,11 @@
 ;;
 ;; These procedures are exported:
 ;;
-;;   dsv-string->list string [delimiter]
-;;   list->dsv-string list [delimiter]
-;;   dsv-read [port [delimiter]]
-;;   dsv-write [port [delimiter]]
-;;   guess-delimiter string
+;;   dsv-string->scm string [delimiter] [#:format 'unix]
+;;   scm->dsv-string list [delimiter] [#:format 'unix]
+;;   dsv->scm [port [delimiter]] [#:format 'unix] [#:comment-symbol #\#]
+;;   scm->dsv [port [delimiter]] [#:format 'unix]
+;;   guess-delimiter string [#:format 'unix]
 ;;
 
 
