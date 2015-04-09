@@ -18,6 +18,9 @@
 
 ;;; Commentary:
 
+;; A parser of RFC 4180 <https://tools.ietf.org/html/rfc4180> data format
+;; (Comma-Separated Values, CSV).
+
 
 ;;; Code:
 
@@ -37,6 +40,8 @@
             set-debug!))
 
 
+;;; Global variables
+
 (define-with-docs %default-line-break
   "Default line break style as described in the RFC."
   "\r\n")
@@ -46,6 +51,8 @@
   #f)
 
 
+;;; Helper procedures
+
 (define (set-debug! enabled?)
   "Set debug mode to an ENABLED? value."
   (set! *debug?* enabled?))
@@ -137,6 +144,9 @@ it as a debug message.."
                   field))))))
 
 
+;;; Writing
+
+
 (define (escape-double-quotes field)
   "Escape each double-quote in a FIELD with additional double-quote."
   (escape-special-chars field #\" #\"))
@@ -177,6 +187,9 @@ DELIMITER.  Optionally accept LINE-BREAK argument which specifies the style of
 line breaks; default value is CRLF.  Return a DSV string."
   (call-with-output-string
    (cut scm->dsv scm <> delimiter #:line-break line-break)))
+
+
+;;; Reading
 
 
 ;; XXX: COMMENT-SYMBOL is not used.
