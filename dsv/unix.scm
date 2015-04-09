@@ -22,6 +22,7 @@
 ;;; Code:
 
 (define-module (dsv unix)
+  #:use-module (srfi  srfi-1)
   #:use-module (srfi  srfi-26)
   #:use-module ((string transform)
                 #:select (escape-special-chars))
