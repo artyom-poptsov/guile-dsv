@@ -337,8 +337,6 @@ it as a debug message.."
   (fold-file))
 
 (define (dsv-string->list/rfc4180 str delimiter)
-  (car (call-with-input-string
-        str
-        (cut dsv-read/rfc4180 <> delimiter #f))))
+  (call-with-input-string str (cut dsv-read/rfc4180 <> delimiter #f)))
 
 ;;; rfc4180.scm ends here

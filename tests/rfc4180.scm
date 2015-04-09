@@ -22,11 +22,11 @@
 (test-begin "rfc4180")
 
 (test-assert "dsv-string->list"
-  (and (equal? '("a" "b")
+  (and (equal? '(("a" "b"))
                (dsv-string->list "a,b" #\, #:format 'rfc4180))
-       (equal? '("a,b" "c")
+       (equal? '(("a,b" "c"))
                (dsv-string->list "\"a,b\",c" #\, #:format 'rfc4180))
-       (equal? '("a,b\nc" "d")
+       (equal? '(("a,b\nc" "d"))
                (dsv-string->list "\"a,b\nc\",d" #\, #:format 'rfc4180))))
 
 (test-assert "dsv-read"
