@@ -95,10 +95,10 @@ it as a debug message.."
     ((_ pred key ((datum ...) exp) ...)
      (cond
       ((or (pred key datum) ...) exp) ...))
-    ((_ pred key ((datum ...) exp) ... (else else-exp))
+    ((_ pred key ((datum ...) exp) ... (else else-exp ...))
      (cond
       ((or (pred key datum) ...) exp) ...
-      (else else-exp)))))
+      (else else-exp ...)))))
 
 (define (get-quotation-status field)
   "Get quotation status for a FIELD."
