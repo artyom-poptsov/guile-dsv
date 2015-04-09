@@ -308,7 +308,9 @@ it as a debug message.."
       ((add-field)
        (debug-fsm-transition state 'read)
        (let ((field (if (eq? (get-quotation-status field-buffer) 'quoted)
-                        (string-drop-both field-buffer 1)
+                        (string-drop-both (unescape-special-char
+                                           field-buffer #\" #\")
+                                          1)
                         field-buffer)))
          (fold-file #:dsv-list     dsv-list
                     #:buffer       (cons field buffer)

@@ -37,6 +37,10 @@
        (equal? '(("a\nb\nc\nd"))
                (call-with-input-string
                 "\"a\nb\nc\nd\""
+                (cut dsv-read <> #\, #:format 'rfc4180)))
+       (equal? '(("aaa" "b\"bb" "ccc"))
+               (call-with-input-string
+                "\"aaa\",\"b\"\"bb\",\"ccc\""
                 (cut dsv-read <> #\, #:format 'rfc4180)))))
 
 (test-assert "dsv-read, error handling"
