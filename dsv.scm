@@ -69,7 +69,7 @@
 
   ;; DSV
   #:use-module ((dsv rfc4180) #:renamer (symbol-prefix-proc 'rfc4180:))
-  #:use-module (dsv unix)
+  #:use-module ((dsv unix)    #:renamer (symbol-prefix-proc 'unix:))
 
   #:export (dsv-string->list
             list->dsv-string
@@ -91,7 +91,7 @@ DELIMITER is not set, use the default delimiter (colon).  Return a list of
 values."
   (case format
     ((unix)
-     (dsv-string->list/unix str delimiter))
+     (unix:dsv-string->scm str delimiter))
     ((rfc4180)
      (rfc4180:dsv-string->scm str delimiter))
     (else
@@ -110,7 +110,7 @@ Example:
 "
   (case format
     ((unix)
-     (list->dsv-string/unix lst delimiter))
+     (unix:scm->dsv-string lst delimiter))
     ((rfc4180)
      (rfc4180:scm->dsv-string lst delimiter))
     (else
@@ -137,7 +137,7 @@ Skip lines commented with a COMMENT-SYMBOL.  Return a list of values."
                  (line     (read-line port)))
        (if (not (eof-object? line))
            (if (not (commented? line))
-               (parse (cons (dsv-string->list/unix line delimiter) dsv-list)
+               (parse (cons (unix:dsv-string->scm line delimiter) dsv-list)
                       (read-line port))
                (parse dsv-list (read-line port)))
            (reverse dsv-list))))
@@ -170,7 +170,7 @@ format style."
   "Guess a DSV string STR delimiter."
   (let* ((delimiter-list
           (map (lambda (d)
-                 (cons d (length (string-split/escaped str d))))
+                 (cons d (length (unix:string-split/escaped str d))))
                %known-delimiters))
          (guessed-delimiter-list
           (fold (lambda (a prev)

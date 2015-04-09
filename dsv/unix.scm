@@ -26,9 +26,9 @@
   #:use-module (srfi  srfi-26)
   #:use-module ((string transform)
                 #:select (escape-special-chars))
-  #:export (dsv-string->list/unix
-            string-split/escaped
-            list->dsv-string/unix))
+  #:export (dsv-string->scm
+            scm->dsv-string
+            string-split/escaped))
 
 
 (define (string-split/escaped str delimiter)
@@ -55,10 +55,10 @@ escaped delimiter -- that is, skips it.  E.g.:
           fields)))
 
 
-(define (dsv-string->list/unix str delimiter)
+(define (dsv-string->scm str delimiter)
     (string-split/escaped str delimiter))
 
-(define (list->dsv-string/unix lst delimiter)
+(define (scm->dsv-string lst delimiter)
   (let ((escaped-list (map (cut escape-special-chars <> delimiter #\\)
                            lst)))
     (string-join escaped-list (string delimiter))))
