@@ -295,10 +295,14 @@ it as a debug message.."
                                      (else
                                       (string-append prev delimiter elem))))
                                   #f
-                                  (reverse field-elements)))))
+                                  (reverse field-elements))))
+              (drop-cr    (lambda (s)
+                            (if (string-suffix? "\r" s)
+                                (string-drop-right s 1)
+                                s))))
          (fold-file #:dsv-list     dsv-list
                     #:buffer       buffer
-                    #:field-buffer (join-field field-buffer)
+                    #:field-buffer (drop-cr (join-field field-buffer))
                     #:record       record
                     #:line         line
                     #:state        'validate)))
