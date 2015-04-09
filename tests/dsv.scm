@@ -32,22 +32,6 @@
          (equal? expected-list1 (dsv-string->list test-string1 #\,))
          (equal? expected-list2 (dsv-string->list test-string2)))))
 
-(test-assert "dsv-string->list, rfc4180"
-  (and (equal? '("a" "b")
-               (dsv-string->list "a,b" #\, #:format 'rfc4180))
-       (equal? '("" "b")
-               (dsv-string->list "\"\",b" #\, #:format 'rfc4180))
-       (equal? '(",a" "b")
-               (dsv-string->list "\",a\",b" #\, #:format 'rfc4180))
-       (equal? '("a," "b")
-               (dsv-string->list "\"a,\",b" #\, #:format 'rfc4180))
-       (equal? '("a" "b")
-               (dsv-string->list "\"a\",b" #\, #:format 'rfc4180))
-       (equal? '("a,b" "c")
-               (dsv-string->list "\"a,b\",c" #\, #:format 'rfc4180))
-       (equal? '("\"a\"" "b")
-               (dsv-string->list "\"\"\"a\"\"\",b" #\, #:format 'rfc4180))))
-
 (test-assert "list->dsv-string"
   (let ((test-list0       '("a" "b" "c"))
         (expected-string0 "a:b:c")
@@ -57,14 +41,6 @@
     (and (equal? expected-string0 (list->dsv-string test-list0))
          (equal? expected-string1 (list->dsv-string test-list0 #\,))
          (equal? expected-string2 (list->dsv-string test-list1)))))
-
-(test-assert "list->dsv-string, rfc4180"
-  (and (equal? "a,b\r"
-               (list->dsv-string '("a" "b") #\, #:format 'rfc4180))
-       (equal? "\"a,b\"\r"
-               (list->dsv-string '("a,b") #\, #:format 'rfc4180))
-       (equal? "\"\"\"a\"\"\",b\r"
-               (list->dsv-string '("\"a\"" "b") #\, #:format 'rfc4180))))
 
 (test-assert "guess-delimiter"
   (and (equal? #\,     (guess-delimiter "a,b,c"))
