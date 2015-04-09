@@ -161,7 +161,9 @@ format style."
     ((rfc4180)
      (rfc4180:scm->dsv lst port (if (equal? delimiter 'default)
                                  rfc4180:%default-delimiter
-                                 delimiter)))))
+                                 delimiter)))
+    (else
+     (error "Unknown format" format))))
 
 
 (define* (guess-delimiter str #:key (format 'unix))
