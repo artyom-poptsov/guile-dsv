@@ -133,14 +133,7 @@ Skip lines commented with a COMMENT-SYMBOL.  Return a list of values."
 
   (case format
     ((unix)
-     (let parse ((dsv-list '())
-                 (line     (read-line port)))
-       (if (not (eof-object? line))
-           (if (not (commented? line))
-               (parse (cons (unix:dsv-string->scm line delimiter) dsv-list)
-                      (read-line port))
-               (parse dsv-list (read-line port)))
-           (reverse dsv-list))))
+     (unix:dsv->scm port delimiter comment-symbol))
     ((rfc4180)
      (rfc4180:dsv->scm port delimiter comment-symbol))
     (else

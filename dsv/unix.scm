@@ -22,11 +22,13 @@
 ;;; Code:
 
 (define-module (dsv unix)
+  #:use-module (ice-9 rdelim)
   #:use-module (srfi  srfi-1)
   #:use-module (srfi  srfi-26)
   #:use-module ((string transform)
                 #:select (escape-special-chars))
-  #:export (dsv-string->scm
+  #:export (dsv->scm
+            dsv-string->scm
             scm->dsv-string
             string-split/escaped))
 
@@ -57,6 +59,21 @@ escaped delimiter -- that is, skips it.  E.g.:
 
 (define (dsv-string->scm str delimiter)
     (string-split/escaped str delimiter))
+
+(define (dsv->scm port delimiter comment-symbol)
+
+  (define (commented? line)
+    "Check if the LINE is commented."
+    (string-prefix? (string comment-symbol) (string-trim line)))
+
+  (let parse ((dsv-list '())
+              (line     (read-line port)))
+    (if (not (eof-object? line))
+        (if (not (commented? line))
+            (parse (cons (dsv-string->scm line delimiter) dsv-list)
+                   (read-line port))
+            (parse dsv-list (read-line port)))
+        (reverse dsv-list))))
 
 (define (scm->dsv-string lst delimiter)
   (let ((escaped-list (map (cut escape-special-chars <> delimiter #\\)
