@@ -130,11 +130,6 @@ it as a debug message.."
                   field))))))
 
 
-(define (should-be-enclosed? field)
-  "Check if a FIELD should be enclosed in double-quotes."
-  (or (string-index    field (char-set delimiter #\" #\newline))
-      (string-contains field (string #\cr #\newline))))
-
 (define (escape-double-quotes field)
   "Escape each double-quote in a FIELD with additional double-quote."
   (escape-special-chars field #\" #\"))
@@ -144,6 +139,12 @@ it as a debug message.."
   (string-append (string #\") field (string #\")))
 
 (define (scm->dsv scm port delimiter)
+
+  (define (should-be-enclosed? field)
+    "Check if a FIELD should be enclosed in double-quotes."
+    (or (string-index    field (char-set delimiter #\" #\newline))
+        (string-contains field (string #\cr #\newline))))
+
   (for-each
    (lambda (row)
      (display
