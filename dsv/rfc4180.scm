@@ -84,9 +84,9 @@ The procedure optionally takes STATE of FSM as the first argument and prints
 it as a debug message.."
     ((state message . args)
      (debug-fsm-error state)
-     (throw 'dsv-parser message args))
+     (throw 'dsv-parser-error message args))
     ((message . args)
-     (throw 'dsv-parser message args))))
+     (throw 'dsv-parser-error message args))))
 
 
 (define (unescape-special-char str special-char escape-char)
@@ -195,7 +195,7 @@ line breaks; default value is CRLF.  Return a DSV string."
 ;;
 (define (dsv->scm port delimiter comment-symbol)
   "Read DSV data from a PORT using a DELIMITER.  Return a native SCM list.
-Throw a 'dsv-parser' exception on an error."
+Throw a 'dsv-parser-error' on an error."
   (define* (fold-file #:key
                       (dsv-list     '())
                       (buffer       '())
