@@ -58,15 +58,6 @@
 ;;; Code:
 
 (define-module (dsv)
-  #:use-module (ice-9 rdelim)
-  #:use-module (ice-9 regex)
-  #:use-module (ice-9 rdelim)
-  #:use-module (srfi  srfi-1)
-  #:use-module (srfi  srfi-26)
-
-  ;; escape-special-chars
-  #:use-module (string transform)
-
   ;; DSV
   #:use-module ((dsv rfc4180) #:renamer (symbol-prefix-proc 'rfc4180:))
   #:use-module ((dsv unix)    #:renamer (symbol-prefix-proc 'unix:))
