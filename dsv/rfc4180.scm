@@ -157,7 +157,7 @@ it as a debug message.."
             row)
        (string delimiter))
       port)
-     (display (string #\cr) port))
+     (display (string #\cr #\newline) port))
    scm))
 
 (define (scm->dsv-string scm delimiter)
