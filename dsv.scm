@@ -77,25 +77,26 @@
             dsv-write
             guess-delimiter))
 
-;; Default delimiter for DSV
-(define %default-delimiter #\:)
-
 (define* (dsv-string->list str
-                           #:optional (delimiter %default-delimiter)
+                           #:optional (delimiter 'default)
                            #:key (format 'unix))
   "Convert a DSV string STR to a list of values using a DELIMITER.  If the
 DELIMITER is not set, use the default delimiter (colon).  Return a list of
 values."
   (case format
     ((unix)
-     (unix:dsv-string->scm str delimiter))
+     (unix:dsv-string->scm str (if (equal? delimiter 'default)
+                                   unix:%default-delimiter
+                                   delimiter)))
     ((rfc4180)
-     (rfc4180:dsv-string->scm str delimiter))
+     (rfc4180:dsv-string->scm str (if (equal? delimiter 'default)
+                                      rfc4180:%default-delimiter
+                                      delimiter)))
     (else
      (error "Unknown format" format))))
 
 (define* (list->dsv-string lst
-                           #:optional (delimiter %default-delimiter)
+                           #:optional (delimiter 'default)
                            #:key (format 'unix))
   "Convert a list LST to a DSV string using a DELIMITER.  If the DELIMITER is
 not set, use the default delimiter (colon).  Return a DSV string.
@@ -107,16 +108,20 @@ Example:
 "
   (case format
     ((unix)
-     (unix:scm->dsv-string lst delimiter))
+     (unix:scm->dsv-string lst (if (equal? delimiter 'default)
+                                   unix:%default-delimiter
+                                   delimiter)))
     ((rfc4180)
-     (rfc4180:scm->dsv-string lst delimiter))
+     (rfc4180:scm->dsv-string lst (if (equal? delimiter 'default)
+                                   rfc4180:%default-delimiter
+                                   delimiter)))
     (else
      (error "Unknown format" format))))
 
 
 (define* (dsv-read #:optional
                    (port      (current-input-port))
-                   (delimiter %default-delimiter)
+                   (delimiter 'default)
                    #:key
                    (format         'unix)
                    (comment-symbol #\#))
@@ -126,16 +131,22 @@ Skip lines commented with a COMMENT-SYMBOL.  Return a list of values."
 
   (case format
     ((unix)
-     (unix:dsv->scm port delimiter comment-symbol))
+     (unix:dsv->scm port (if (equal? delimiter 'default)
+                             unix:%default-delimiter
+                             delimiter)
+                    comment-symbol))
     ((rfc4180)
-     (rfc4180:dsv->scm port delimiter comment-symbol))
+     (rfc4180:dsv->scm port (if (equal? delimiter 'default)
+                             rfc4180:%default-delimiter
+                             delimiter)
+                       comment-symbol))
     (else
      (error "Unknown format" format))))
 
 (define* (dsv-write lst
                     #:optional
                     (port      (current-output-port))
-                    (delimiter %default-delimiter)
+                    (delimiter 'default)
                     #:key
                     (format    'unix))
   "Write a list of values LST as a sequence of DSV strings to a PORT.
@@ -144,9 +155,13 @@ not set, use the default delimiter (colon).  FORMAT allows to specify a DSV
 format style."
   (case format
     ((unix)
-     (unix:scm->dsv lst port delimiter))
+     (unix:scm->dsv lst port (if (equal? delimiter 'default)
+                                 unix:%default-delimiter
+                                 delimiter)))
     ((rfc4180)
-     (rfc4180:scm->dsv lst port delimiter))))
+     (rfc4180:scm->dsv lst port (if (equal? delimiter 'default)
+                                 rfc4180:%default-delimiter
+                                 delimiter)))))
 
 
 (define* (guess-delimiter str #:key (format 'unix))

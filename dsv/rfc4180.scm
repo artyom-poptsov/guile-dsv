@@ -36,6 +36,8 @@
             scm->dsv-string
             dsv->scm
             dsv-string->scm
+            ;; Variables
+            %default-delimiter
             ;; Debugging
             set-debug!))
 
@@ -45,6 +47,10 @@
 (define-with-docs %default-line-break
   "Default line break style as described in the RFC."
   "\r\n")
+
+(define-with-docs %default-delimiter
+  "Default field delimiter."
+  #\,)
 
 (define-with-docs *debug?*
   "Does debug mode enabled?"

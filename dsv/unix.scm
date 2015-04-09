@@ -31,10 +31,15 @@
             dsv-string->scm
             scm->dsv
             scm->dsv-string
-            guess-delimiter))
+            guess-delimiter
+            ;; Variables
+            %default-delimiter))
 
 ;; List of known delimiters
 (define %known-delimiters '(#\, #\: #\; #\| #\tab #\space))
+
+;; Default delimiter for DSV
+(define %default-delimiter #\:)
 
 
 (define (string-split/escaped str delimiter)

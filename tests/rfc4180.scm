@@ -41,21 +41,21 @@
        (equal? '(("aaa" "b\"bb" "ccc"))
                (call-with-input-string
                 "\"aaa\",\"b\"\"bb\",\"ccc\""
-                (cut dsv-read <> #\, #:format 'rfc4180)))))
+                (cut dsv-read <> #:format 'rfc4180)))))
 
 (test-assert "dsv-read, error handling"
   (and (catch 'dsv-parser-error
          (lambda ()
           (call-with-input-string
            "\"a"
-           (cut dsv-read <> #\, #:format 'rfc4180))
+           (cut dsv-read <> #:format 'rfc4180))
           #f)
          (const #t))
        (catch 'dsv-parser-error
          (lambda ()
           (call-with-input-string
            "\"a\nb"
-           (cut dsv-read <> #\, #:format 'rfc4180))
+           (cut dsv-read <> #:format 'rfc4180))
           #f)
          (const #t))))
 
@@ -63,7 +63,7 @@
   (and (let ((data '(("aaa" "b\"bb" "ccc"))))
          (equal? data
                  (dsv-string->list
-                  (list->dsv-string data #\, #:format 'rfc4180)
+                  (list->dsv-string data #:format 'rfc4180)
                   #\,
                   #:format 'rfc4180)))))
 
