@@ -156,10 +156,14 @@ Skip lines commented with a COMMENT-SYMBOL.  Return a list of values."
 If the PORT is not set, write to the default output port.  If a DELIMITER is
 not set, use the default delimiter (colon).  FORMAT allows to specify a DSV
 format style."
-  (let ((dsv-record-list (map (cut list->dsv-string <> delimiter #:format format)
-                              lst)))
-    (for-each (cut write-line <> port)
-              dsv-record-list)))
+  (case format
+    ((unix)
+     (let ((dsv-record-list (map (cut list->dsv-string <> delimiter #:format format)
+                                 lst)))
+       (for-each (cut write-line <> port)
+                 dsv-record-list)))
+    ((rfc4180)
+     (scm->dsv lst port delimiter))))
 
 
 (define (guess-delimiter str)
