@@ -93,7 +93,7 @@ values."
     ((unix)
      (dsv-string->list/unix str delimiter))
     ((rfc4180)
-     (dsv-string->list/rfc4180 str delimiter))
+     (dsv-string->scm str delimiter))
     (else
      (error "Unknown format" format))))
 
@@ -112,7 +112,7 @@ Example:
     ((unix)
      (list->dsv-string/unix lst delimiter))
     ((rfc4180)
-     (list->dsv-string/rfc4180 lst delimiter))
+     (scm->dsv-string lst delimiter))
     (else
      (error "Unknown format" format))))
 
@@ -142,7 +142,7 @@ Skip lines commented with a COMMENT-SYMBOL.  Return a list of values."
                (parse dsv-list (read-line port)))
            (reverse dsv-list))))
     ((rfc4180)
-     (dsv-read/rfc4180 port delimiter comment-symbol))
+     (dsv->scm port delimiter comment-symbol))
     (else
      (error "Unknown format" format))))
 

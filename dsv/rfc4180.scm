@@ -28,9 +28,9 @@
   #:use-module ((string transform)
                 #:select (escape-special-chars))
   #:use-module (ice-9 rdelim)
-  #:export (dsv-string->list/rfc4180
-            list->dsv-string/rfc4180
-            dsv-read/rfc4180
+  #:export (scm->dsv-string
+            dsv->scm
+            dsv-string->scm
             ;; Debugging
             set-debug!))
 
@@ -129,7 +129,7 @@ it as a debug message.."
                   field))))))
 
 
-(define (list->dsv-string/rfc4180 lst delimiter)
+(define (scm->dsv-string lst delimiter)
 
   (define (should-be-enclosed? field)
     "Check if a FIELD should be enclosed in double-quotes."
@@ -167,7 +167,7 @@ it as a debug message.."
 ;;                 |  '---------'<------------------'                v
 ;;                 `--------------------------------------->[end]--------> STOP
 ;;
-(define (dsv-read/rfc4180 port delimiter comment-symbol)
+(define (dsv->scm port delimiter comment-symbol)
   (define* (fold-file #:key
                       (dsv-list     '())
                       (buffer       '())
@@ -336,7 +336,7 @@ it as a debug message.."
 
   (fold-file))
 
-(define (dsv-string->list/rfc4180 str delimiter)
-  (call-with-input-string str (cut dsv-read/rfc4180 <> delimiter #f)))
+(define (dsv-string->scm str delimiter)
+  (call-with-input-string str (cut dsv->scm <> delimiter #f)))
 
 ;;; rfc4180.scm ends here
