@@ -28,6 +28,7 @@
   #:use-module ((string transform)
                 #:select (escape-special-chars))
   #:use-module (ice-9 rdelim)
+  #:use-module (scheme documentation)
   #:export (scm->dsv
             scm->dsv-string
             dsv->scm
@@ -36,9 +37,13 @@
             set-debug!))
 
 
-(define %default-line-break "\r\n")
+(define-with-docs %default-line-break
+  "Default line break style as described in the RFC."
+  "\r\n")
 
-(define *debug?* #f)                    ;Does debug mode enabled?
+(define-with-docs *debug?*
+  "Does debug mode enabled?"
+  #f)
 
 
 (define (set-debug! enabled?)
