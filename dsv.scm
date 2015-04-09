@@ -68,7 +68,7 @@
   #:use-module (string transform)
 
   ;; DSV
-  #:use-module (dsv rfc4180)
+  #:use-module ((dsv rfc4180) #:renamer (symbol-prefix-proc 'rfc4180:))
   #:use-module (dsv unix)
 
   #:export (dsv-string->list
@@ -93,7 +93,7 @@ values."
     ((unix)
      (dsv-string->list/unix str delimiter))
     ((rfc4180)
-     (dsv-string->scm str delimiter))
+     (rfc4180:dsv-string->scm str delimiter))
     (else
      (error "Unknown format" format))))
 
@@ -112,7 +112,7 @@ Example:
     ((unix)
      (list->dsv-string/unix lst delimiter))
     ((rfc4180)
-     (scm->dsv-string lst delimiter))
+     (rfc4180:scm->dsv-string lst delimiter))
     (else
      (error "Unknown format" format))))
 
@@ -142,7 +142,7 @@ Skip lines commented with a COMMENT-SYMBOL.  Return a list of values."
                (parse dsv-list (read-line port)))
            (reverse dsv-list))))
     ((rfc4180)
-     (dsv->scm port delimiter comment-symbol))
+     (rfc4180:dsv->scm port delimiter comment-symbol))
     (else
      (error "Unknown format" format))))
 
@@ -163,7 +163,7 @@ format style."
        (for-each (cut write-line <> port)
                  dsv-record-list)))
     ((rfc4180)
-     (scm->dsv lst port delimiter))))
+     (rfc4180:scm->dsv lst port delimiter))))
 
 
 (define (guess-delimiter str)
