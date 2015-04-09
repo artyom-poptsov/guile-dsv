@@ -29,6 +29,7 @@
                 #:select (escape-special-chars))
   #:export (dsv->scm
             dsv-string->scm
+            scm->dsv
             scm->dsv-string
             string-split/escaped))
 
@@ -75,9 +76,17 @@ escaped delimiter -- that is, skips it.  E.g.:
             (parse dsv-list (read-line port)))
         (reverse dsv-list))))
 
+(define (scm->dsv scm port delimiter)
+
+  (define (->dsv lst)
+    (string-join (map (cut escape-special-chars <> delimiter #\\)
+                      lst)
+                 (string delimiter)))
+
+  (for-each (cut write-line <> port)
+            (map ->dsv scm)))
+
 (define (scm->dsv-string lst delimiter)
-  (let ((escaped-list (map (cut escape-special-chars <> delimiter #\\)
-                           lst)))
-    (string-join escaped-list (string delimiter))))
+  (call-with-output-string (cut scm->dsv lst <> delimiter)))
 
 ;;; unix.scm ends here

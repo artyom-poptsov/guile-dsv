@@ -147,10 +147,7 @@ not set, use the default delimiter (colon).  FORMAT allows to specify a DSV
 format style."
   (case format
     ((unix)
-     (let ((dsv-record-list (map (cut list->dsv-string <> delimiter #:format format)
-                                 lst)))
-       (for-each (cut write-line <> port)
-                 dsv-record-list)))
+     (unix:scm->dsv lst port delimiter))
     ((rfc4180)
      (rfc4180:scm->dsv lst port delimiter))))
 

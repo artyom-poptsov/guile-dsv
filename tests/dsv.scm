@@ -23,20 +23,20 @@
 
 (test-assert "dsv-string->list"
   (let ((test-string0   "a:b:c")
-        (expected-list0 '("a" "b" "c"))
+        (expected-list0 '(("a" "b" "c")))
         (test-string1   "a,b,c")
-        (expected-list1 '("a" "b" "c"))
+        (expected-list1 '(("a" "b" "c")))
         (test-string2   "a:b:")
-        (expected-list2 '("a" "b" "")))
+        (expected-list2 '(("a" "b" ""))))
     (and (equal? expected-list0 (dsv-string->list test-string0))
          (equal? expected-list1 (dsv-string->list test-string1 #\,))
          (equal? expected-list2 (dsv-string->list test-string2)))))
 
 (test-assert "list->dsv-string"
-  (let ((test-list0       '("a" "b" "c"))
+  (let ((test-list0       '(("a" "b" "c")))
         (expected-string0 "a:b:c")
         (expected-string1 "a,b,c")
-        (test-list1       '("a" "b" ""))
+        (test-list1       '(("a" "b" "")))
         (expected-string2 "a:b:"))
     (and (equal? expected-string0 (list->dsv-string test-list0))
          (equal? expected-string1 (list->dsv-string test-list0 #\,))
