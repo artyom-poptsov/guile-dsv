@@ -59,6 +59,14 @@
           #f)
          (const #t))))
 
+(test-assert "scm->dsv-string"
+  (and (let ((data '(("aaa" "b\"bb" "ccc"))))
+         (equal? data
+                 (dsv-string->list
+                  (list->dsv-string data #\, #:format 'rfc4180)
+                  #\,
+                  #:format 'rfc4180)))))
+
 
 (test-end "rfc4180")
 
