@@ -141,6 +141,10 @@ it as a debug message.."
   (string-append (string #\") field (string #\")))
 
 (define* (scm->dsv scm port delimiter #:key (line-break %default-line-break))
+  "Create a DSV document from a native SCM list.  Separate fields using a
+DELIMITER and print the document to a specified PORT.  Optionally accept
+LINE-BREAK argument which specifies the style of line breaks; default value is
+CRLF."
 
   (define (should-be-enclosed? field)
     "Check if a FIELD should be enclosed in double-quotes."
