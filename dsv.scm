@@ -80,9 +80,6 @@
 ;; Default delimiter for DSV
 (define %default-delimiter #\:)
 
-;; List of known delimiters
-(define %known-delimiters '(#\, #\: #\; #\| #\tab #\space))
-
 (define* (dsv-string->list str
                            #:optional (delimiter %default-delimiter)
                            #:key (format 'unix))
@@ -152,24 +149,14 @@ format style."
      (rfc4180:scm->dsv lst port delimiter))))
 
 
-(define (guess-delimiter str)
-  "Guess a DSV string STR delimiter."
-  (let* ((delimiter-list
-          (map (lambda (d)
-                 (cons d (length (unix:string-split/escaped str d))))
-               %known-delimiters))
-         (guessed-delimiter-list
-          (fold (lambda (a prev)
-                  (if (not (null? prev))
-                      (let ((a-count (cdr a))
-                            (b-count (cdar prev)))
-                        (cond ((> a-count b-count) (list a))
-                              ((= a-count b-count) (append (list a) prev))
-                              (else prev)))
-                      (list a)))
-                '()
-                delimiter-list)))
-    (and (= (length guessed-delimiter-list) 1)
-         (caar guessed-delimiter-list))))
+(define* (guess-delimiter str #:key (format 'unix))
+  (case format
+    ((unix)
+     (unix:guess-delimiter str))
+    ((rfc4180)
+     ;; FIXME: Implement this.
+     (error "Format is not supported yet." format))
+    (else
+     (error "Unknown format." format))))
 
 ;;; dsv.scm ends here.

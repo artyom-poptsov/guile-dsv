@@ -31,7 +31,10 @@
             dsv-string->scm
             scm->dsv
             scm->dsv-string
-            string-split/escaped))
+            guess-delimiter))
+
+;; List of known delimiters
+(define %known-delimiters '(#\, #\: #\; #\| #\tab #\space))
 
 
 (define (string-split/escaped str delimiter)
@@ -88,5 +91,26 @@ escaped delimiter -- that is, skips it.  E.g.:
 
 (define (scm->dsv-string lst delimiter)
   (call-with-output-string (cut scm->dsv lst <> delimiter)))
+
+
+(define (guess-delimiter str)
+  "Guess a DSV string STR delimiter."
+  (let* ((delimiter-list
+          (map (lambda (d)
+                 (cons d (length (string-split/escaped str d))))
+               %known-delimiters))
+         (guessed-delimiter-list
+          (fold (lambda (a prev)
+                  (if (not (null? prev))
+                      (let ((a-count (cdr a))
+                            (b-count (cdar prev)))
+                        (cond ((> a-count b-count) (list a))
+                              ((= a-count b-count) (append (list a) prev))
+                              (else prev)))
+                      (list a)))
+                '()
+                delimiter-list)))
+    (and (= (length guessed-delimiter-list) 1)
+         (caar guessed-delimiter-list))))
 
 ;;; unix.scm ends here
