@@ -172,6 +172,9 @@ CRLF."
    scm))
 
 (define* (scm->dsv-string scm delimiter #:key (line-break %default-line-break))
+  "Create a DSV string from a native SCM list.  Separate fields using a
+DELIMITER.  Optionally accept LINE-BREAK argument which specifies the style of
+line breaks; default value is CRLF.  Return a DSV string."
   (call-with-output-string
    (cut scm->dsv scm <> delimiter #:line-break line-break)))
 
@@ -191,6 +194,8 @@ CRLF."
 ;;                 `--------------------------------------->[end]--------> STOP
 ;;
 (define (dsv->scm port delimiter comment-symbol)
+  "Read DSV data from a PORT using a DELIMITER.  Return a native SCM list.
+Throw a 'dsv-parser' exception on an error."
   (define* (fold-file #:key
                       (dsv-list     '())
                       (buffer       '())
@@ -364,6 +369,7 @@ CRLF."
   (fold-file))
 
 (define (dsv-string->scm str delimiter)
+  "Convert a DSV string STR to a native list using a DELIMITER."
   (call-with-input-string str (cut dsv->scm <> delimiter #f)))
 
 ;;; rfc4180.scm ends here
