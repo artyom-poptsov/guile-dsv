@@ -23,47 +23,47 @@
 
 (test-assert "dsv-string->list"
   (and (equal? '(("a" "b"))
-               (dsv-string->list "a,b" #\, #:format 'rfc4180))
+               (dsv-string->scm "a,b" #\, #:format 'rfc4180))
        (equal? '(("a,b" "c"))
-               (dsv-string->list "\"a,b\",c" #\, #:format 'rfc4180))
+               (dsv-string->scm "\"a,b\",c" #\, #:format 'rfc4180))
        (equal? '(("a,b\nc" "d"))
-               (dsv-string->list "\"a,b\nc\",d" #\, #:format 'rfc4180))))
+               (dsv-string->scm "\"a,b\nc\",d" #\, #:format 'rfc4180))))
 
 (test-assert "dsv-read"
   (and (equal? '(("a" "b" "c\nd,e" "f"))
                (call-with-input-string
                 "a,b,\"c\nd,e\",f"
-                (cut dsv-read <> #\, #:format 'rfc4180)))
+                (cut dsv->scm <> #\, #:format 'rfc4180)))
        (equal? '(("a\nb\nc\nd"))
                (call-with-input-string
                 "\"a\nb\nc\nd\""
-                (cut dsv-read <> #\, #:format 'rfc4180)))
+                (cut dsv->scm <> #\, #:format 'rfc4180)))
        (equal? '(("aaa" "b\"bb" "ccc"))
                (call-with-input-string
                 "\"aaa\",\"b\"\"bb\",\"ccc\""
-                (cut dsv-read <> #:format 'rfc4180)))))
+                (cut dsv->scm <> #:format 'rfc4180)))))
 
 (test-assert "dsv-read, error handling"
   (and (catch 'dsv-parser-error
          (lambda ()
           (call-with-input-string
            "\"a"
-           (cut dsv-read <> #:format 'rfc4180))
+           (cut dsv->scm <> #:format 'rfc4180))
           #f)
          (const #t))
        (catch 'dsv-parser-error
          (lambda ()
           (call-with-input-string
            "\"a\nb"
-           (cut dsv-read <> #:format 'rfc4180))
+           (cut dsv->scm <> #:format 'rfc4180))
           #f)
          (const #t))))
 
 (test-assert "scm->dsv-string"
   (and (let ((data '(("aaa" "b\"bb" "ccc"))))
          (equal? data
-                 (dsv-string->list
-                  (list->dsv-string data #:format 'rfc4180)
+                 (dsv-string->scm
+                  (scm->dsv-string data #:format 'rfc4180)
                   #\,
                   #:format 'rfc4180)))))
 

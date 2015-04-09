@@ -62,15 +62,15 @@
   #:use-module ((dsv rfc4180) #:renamer (symbol-prefix-proc 'rfc4180:))
   #:use-module ((dsv unix)    #:renamer (symbol-prefix-proc 'unix:))
 
-  #:export (dsv-string->list
-            list->dsv-string
-            dsv-read
-            dsv-write
+  #:export (dsv-string->scm
+            scm->dsv-string
+            dsv->scm
+            scm->dsv
             guess-delimiter))
 
-(define* (dsv-string->list str
-                           #:optional (delimiter 'default)
-                           #:key (format 'unix))
+(define* (dsv-string->scm str
+                          #:optional (delimiter 'default)
+                          #:key (format 'unix))
   "Convert a DSV string STR to a list of values using a DELIMITER.  If the
 DELIMITER is not set, use the default delimiter (colon).  Return a list of
 values."
@@ -86,7 +86,7 @@ values."
     (else
      (error "Unknown format" format))))
 
-(define* (list->dsv-string lst
+(define* (scm->dsv-string lst
                            #:optional (delimiter 'default)
                            #:key (format 'unix))
   "Convert a list LST to a DSV string using a DELIMITER.  If the DELIMITER is
@@ -110,7 +110,7 @@ Example:
      (error "Unknown format" format))))
 
 
-(define* (dsv-read #:optional
+(define* (dsv->scm #:optional
                    (port      (current-input-port))
                    (delimiter 'default)
                    #:key
@@ -134,12 +134,12 @@ Skip lines commented with a COMMENT-SYMBOL.  Return a list of values."
     (else
      (error "Unknown format" format))))
 
-(define* (dsv-write lst
-                    #:optional
-                    (port      (current-output-port))
-                    (delimiter 'default)
-                    #:key
-                    (format    'unix))
+(define* (scm->dsv lst
+                   #:optional
+                   (port      (current-output-port))
+                   (delimiter 'default)
+                   #:key
+                   (format    'unix))
   "Write a list of values LST as a sequence of DSV strings to a PORT.
 If the PORT is not set, write to the default output port.  If a DELIMITER is
 not set, use the default delimiter (colon).  FORMAT allows to specify a DSV
