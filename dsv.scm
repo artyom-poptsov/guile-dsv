@@ -127,10 +127,6 @@ Example:
 input port.  If a DELIMITER is not set, use the default delimiter (colon).
 Skip lines commented with a COMMENT-SYMBOL.  Return a list of values."
 
-  (define (commented? line)
-    "Check if the LINE is commented."
-    (string-prefix? (string comment-symbol) (string-trim line)))
-
   (case format
     ((unix)
      (unix:dsv->scm port delimiter comment-symbol))
