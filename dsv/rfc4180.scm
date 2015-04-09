@@ -28,7 +28,8 @@
   #:use-module ((string transform)
                 #:select (escape-special-chars))
   #:use-module (ice-9 rdelim)
-  #:export (scm->dsv-string
+  #:export (scm->dsv
+            scm->dsv-string
             dsv->scm
             dsv-string->scm
             ;; Debugging
@@ -129,28 +130,38 @@ it as a debug message.."
                   field))))))
 
 
-(define (scm->dsv-string lst delimiter)
+(define (should-be-enclosed? field)
+  "Check if a FIELD should be enclosed in double-quotes."
+  (or (string-index    field (char-set delimiter #\" #\newline))
+      (string-contains field (string #\cr #\newline))))
 
-  (define (should-be-enclosed? field)
-    "Check if a FIELD should be enclosed in double-quotes."
-    (or (string-index    field (char-set delimiter #\" #\newline))
-        (string-contains field (string #\cr #\newline))))
+(define (escape-double-quotes field)
+  "Escape each double-quote in a FIELD with additional double-quote."
+  (escape-special-chars field #\" #\"))
 
-  (define (escape-double-quotes field)
-    "Escape each double-quote in a FIELD with additional double-quote."
-    (escape-special-chars field #\" #\"))
+(define (quote-field field)
+  "Quote a FIELD with double-quotes."
+  (string-append (string #\") field (string #\")))
 
-  (define (quote-field field)
-    "Quote a FIELD with double-quotes."
-    (string-append (string #\") field (string #\")))
+(define (scm->dsv scm port delimiter)
+  (for-each
+   (lambda (row)
+     (display
+      (string-join
+       (map (lambda (field)
+              (let ((escaped-field (escape-double-quotes field)))
+                (if (should-be-enclosed? escaped-field)
+                    (quote-field escaped-field)
+                    field)))
+            row)
+       (string delimiter))
+      port)
+     (display (string #\cr) port))
+   scm))
 
-  (let ((quoted-lst (map (lambda (field)
-                           (let ((escaped-field (escape-double-quotes field)))
-                             (if (should-be-enclosed? escaped-field)
-                                 (quote-field escaped-field)
-                                 field)))
-                         lst)))
-    (string-append (string-join quoted-lst (string delimiter)) (string #\cr))))
+(define (scm->dsv-string scm delimiter)
+  (call-with-output-string
+   (cut scm->dsv scm <> delimiter)))
 
 
 ;; XXX: COMMENT-SYMBOL is not used.
