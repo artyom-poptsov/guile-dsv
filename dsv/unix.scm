@@ -67,7 +67,8 @@ escaped delimiter -- that is, skips it.  E.g.:
 
 
 (define (dsv-string->scm str delimiter)
-    (string-split/escaped str delimiter))
+  ;; FIXME: Handle line breaks
+  (list (string-split/escaped str delimiter)))
 
 (define (dsv->scm port delimiter comment-symbol)
 
