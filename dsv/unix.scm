@@ -27,6 +27,7 @@
   #:use-module (srfi  srfi-26)
   #:use-module ((string transform)
                 #:select (escape-special-chars))
+  #:use-module (scheme documentation)
   #:use-module (dsv common)
   #:export (dsv->scm
             dsv-string->scm
@@ -36,8 +37,9 @@
             ;; Variables
             %default-delimiter))
 
-;; Default delimiter for DSV
-(define %default-delimiter #\:)
+(define-with-docs %default-delimiter
+  "Default delimiter for DSV"
+  #\:)
 
 
 (define (string-split/escaped str delimiter)
