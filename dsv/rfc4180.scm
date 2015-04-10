@@ -32,10 +32,12 @@
                 #:select (escape-special-chars))
   #:use-module (ice-9 rdelim)
   #:use-module (scheme documentation)
+  #:use-module (dsv common)
   #:export (scm->dsv
             scm->dsv-string
             dsv->scm
             dsv-string->scm
+            guess-delimiter
             ;; Variables
             %default-delimiter
             ;; Debugging
@@ -390,5 +392,7 @@ Throw a 'dsv-parser-error' on an error."
 (define (dsv-string->scm str delimiter)
   "Convert a DSV string STR to a native list using a DELIMITER."
   (call-with-input-string str (cut dsv->scm <> delimiter #f)))
+
+(define guess-delimiter (make-delimiter-guesser dsv-string->scm))
 
 ;;; rfc4180.scm ends here

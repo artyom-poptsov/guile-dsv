@@ -27,6 +27,7 @@
   #:use-module (srfi  srfi-26)
   #:use-module ((string transform)
                 #:select (escape-special-chars))
+  #:use-module (dsv common)
   #:export (dsv->scm
             dsv-string->scm
             scm->dsv
@@ -99,24 +100,6 @@ escaped delimiter -- that is, skips it.  E.g.:
   (call-with-output-string (cut scm->dsv lst <> delimiter)))
 
 
-(define (guess-delimiter str)
-  "Guess a DSV string STR delimiter."
-  (let* ((delimiter-list
-          (map (lambda (d)
-                 (cons d (length (string-split/escaped str d))))
-               %known-delimiters))
-         (guessed-delimiter-list
-          (fold (lambda (a prev)
-                  (if (not (null? prev))
-                      (let ((a-count (cdr a))
-                            (b-count (cdar prev)))
-                        (cond ((> a-count b-count) (list a))
-                              ((= a-count b-count) (append (list a) prev))
-                              (else prev)))
-                      (list a)))
-                '()
-                delimiter-list)))
-    (and (= (length guessed-delimiter-list) 1)
-         (caar guessed-delimiter-list))))
+(define guess-delimiter (make-delimiter-guesser dsv-string->scm))
 
 ;;; unix.scm ends here

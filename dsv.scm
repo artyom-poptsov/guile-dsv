@@ -166,13 +166,17 @@ format style."
        (error "Unknown format" format)))))
 
 
-(define* (guess-delimiter str #:key (format 'unix))
+(define* (guess-delimiter str #:optional known-delimiters
+                          #:key (format 'unix))
   (case format
     ((unix)
-     (unix:guess-delimiter str))
+     (if known-delimiters
+         (unix:guess-delimiter str known-delimiters)
+         (unix:guess-delimiter str)))
     ((rfc4180)
-     ;; FIXME: Implement this.
-     (error "Format is not supported yet." format))
+     (if known-delimiters
+         (rfc4180:guess-delimiter str known-delimiters)
+         (rfc4180:guess-delimiter str)))
     (else
      (error "Unknown format." format))))
 
