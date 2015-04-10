@@ -231,9 +231,16 @@ root:x:0:0:root:/root:/bin/zsh
 
 @end deffn
 
-@deffn {Scheme Procedure} guess-delimiter string [#:format='unix]
-Guess a DSV @var{string} delimiter.  Known delimiters are: @code{#\,},
-@code{#\:}, @code{#\;}, @code{#\|}, @code{#\tab}, @code{#\space}.
+@deffn {Scheme Procedure} guess-delimiter string [known-delimiters] [#:format='unix]
+Guess a DSV @var{string} delimiter.  Optionally accept list of
+@var{known-delimiters} as an argument.  Default known delimiters are:
+@code{#\,}, @code{#\:}, @code{#\;}, @code{#\|}, @code{#\tab}, @code{#\space}.
+
+The procedure returns @code{#f} if it cannot determine a delimiter based on
+the given arguments.
+
+Note that when @var{known-delimiters} list contains less than two elements,
+the procedure returns @code{#f}.
 
 Examples:
 
@@ -243,6 +250,13 @@ Examples:
 
 (guess-delimiter "a,b:c")
 @result{} #f
+
+(guess-delimiter "a,b,c" #:format 'rfc4180)
+@result{} #\,
+
+;; Using custom known delimiters list:
+(guess-delimiter "a-b-c" '(#\- #\,))
+@result{} #\-
 @end lisp
 
 @end deffn
