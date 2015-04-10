@@ -97,20 +97,23 @@ it as a debug message.."
     (lambda* (str #:optional (known-delimiters %known-delimiters))
       "Guess a DSV string STR delimiter.  Optionally accept KNOWN-DELIMITERS
 list for guessing."
-      (let* ((delimiter-list (map (lambda (d) (cons d (get-length str d)))
-                                  known-delimiters))
-             (guessed-delimiter-list
-              (fold (lambda (a prev)
-                      (if (not (null? prev))
-                          (let ((a-count (cdr a))
-                                (b-count (cdar prev)))
-                            (cond ((> a-count b-count) (list a))
-                                  ((= a-count b-count) (append (list a) prev))
-                                  (else prev)))
-                          (list a)))
-                    '()
-                    delimiter-list)))
-        (and (= (length guessed-delimiter-list) 1)
-             (caar guessed-delimiter-list))))))
+
+      (and (> (length known-delimiters) 1)
+           (let* ((delimiter-list (map (lambda (d) (cons d (get-length str d)))
+                                       known-delimiters))
+                  (guessed-delimiter-list
+                   (fold (lambda (a prev)
+                           (if (not (null? prev))
+                               (let ((a-count (cdr a))
+                                     (b-count (cdar prev)))
+                                 (cond ((> a-count b-count) (list a))
+                                       ((= a-count b-count) (append (list a)
+                                                                    prev))
+                                       (else prev)))
+                               (list a)))
+                         '()
+                         delimiter-list)))
+             (and (= (length guessed-delimiter-list) 1)
+                  (caar guessed-delimiter-list)))))))
 
 ;;; common.scm ends here
