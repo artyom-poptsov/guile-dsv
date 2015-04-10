@@ -41,6 +41,10 @@
   "Default delimiter for DSV"
   #\:)
 
+(define-with-docs %default-line-break
+  "Default line break for DSV"
+  "\n")
+
 
 (define (string-split/escaped str delimiter)
   "Split a string STR into the list of the substrings delimited by appearances
@@ -85,18 +89,18 @@ escaped delimiter -- that is, skips it.  E.g.:
             (parse dsv-list (read-line port)))
         (reverse dsv-list))))
 
-(define (scm->dsv scm port delimiter)
+(define* (scm->dsv scm port delimiter #:key (line-break %default-line-break))
 
   (define (->dsv lst)
     (string-join (map (cut escape-special-chars <> delimiter #\\)
                       lst)
                  (string delimiter)))
 
-  (for-each (cut write-line <> port)
+  (for-each (cut format port "~a~a" <> line-break)
             (map ->dsv scm)))
 
-(define (scm->dsv-string lst delimiter)
-  (call-with-output-string (cut scm->dsv lst <> delimiter)))
+(define* (scm->dsv-string lst delimiter #:key (line-break %default-line-break))
+  (call-with-output-string (cut scm->dsv lst <> delimiter line-break)))
 
 
 (define guess-delimiter (make-delimiter-guesser dsv-string->scm))
