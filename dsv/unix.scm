@@ -36,9 +36,6 @@
             ;; Variables
             %default-delimiter))
 
-;; List of known delimiters
-(define %known-delimiters '(#\, #\: #\; #\| #\tab #\space))
-
 ;; Default delimiter for DSV
 (define %default-delimiter #\:)
 
