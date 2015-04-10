@@ -21,7 +21,7 @@
 
 (test-begin "rfc4180")
 
-(test-assert "dsv-string->list"
+(test-assert "dsv-string->scm"
   (and (equal? '(("a" "b"))
                (dsv-string->scm "a,b" #\, #:format 'rfc4180))
        (equal? '(("a,b" "c"))
@@ -29,7 +29,7 @@
        (equal? '(("a,b\nc" "d"))
                (dsv-string->scm "\"a,b\nc\",d" #\, #:format 'rfc4180))))
 
-(test-assert "dsv-read"
+(test-assert "dsv->scm"
   (and (equal? '(("a" "b" "c\nd,e" "f"))
                (call-with-input-string
                 "a,b,\"c\nd,e\",f"
@@ -43,7 +43,7 @@
                 "\"aaa\",\"b\"\"bb\",\"ccc\""
                 (cut dsv->scm <> #:format 'rfc4180)))))
 
-(test-assert "dsv-read, error handling"
+(test-assert "dsv->scm, error handling"
   (and (catch 'dsv-parser-error
          (lambda ()
           (call-with-input-string
