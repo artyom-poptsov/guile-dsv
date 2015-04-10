@@ -76,6 +76,11 @@
        (equal? #\,     (guess-delimiter "a,b,c,d:e"))
        (equal? #f      (guess-delimiter "a,b:c"))))
 
+(test-assert "guess-delimiter, custom delimiters"
+  (and (equal? #\-     (guess-delimiter "a-b-c" '(#\- #\,)))
+       (equal? #f      (guess-delimiter "a,b,c" '(#\-)))
+       (equal? #f      (guess-delimiter "a,b,c" '()))))
+
 
 (test-end "rfc4180")
 
