@@ -208,10 +208,10 @@ line breaks; default value is CRLF.  Return a DSV string."
 ;;                 |            ,---.                                         |
 ;;                 v            V   |                                         |
 ;;  START ----->[read-ln]--->[read]-+->[join]----->[validate]--->[add-field]--'
-;;                 |  A         |   |                    |
-;;                 |  |         |   '->[add-record]-.    `-> ERROR --.
-;;                 |  |         |                   |                |
-;;                 |  '---------'<------------------'                v
+;;                 |  A         |   |
+;;                 |  |         |   '->[add-record]-.
+;;                 |  |         |                   |
+;;                 |  '---------'<------------------'
 ;;                 `--------------------------------------->[end]--------> STOP
 ;;
 (define (dsv->scm port delimiter comment-symbol)
