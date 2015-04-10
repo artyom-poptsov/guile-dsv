@@ -22,25 +22,14 @@
 (test-begin "dsv")
 
 (test-assert "dsv-string->scm"
-  (let ((test-string0   "a:b:c")
-        (expected-list0 '(("a" "b" "c")))
-        (test-string1   "a,b,c")
-        (expected-list1 '(("a" "b" "c")))
-        (test-string2   "a:b:")
-        (expected-list2 '(("a" "b" ""))))
-    (and (equal? expected-list0 (dsv-string->scm test-string0))
-         (equal? expected-list1 (dsv-string->scm test-string1 #\,))
-         (equal? expected-list2 (dsv-string->scm test-string2)))))
+  (and (equal? '(("a" "b" "c")) (dsv-string->scm "a:b:c"))
+       (equal? '(("a" "b" "c")) (dsv-string->scm "a,b,c" #\,))
+       (equal? '(("a" "b" ""))  (dsv-string->scm "a:b:"))))
 
 (test-assert "scm->dsv-string"
-  (let ((test-list0       '(("a" "b" "c")))
-        (expected-string0 "a:b:c")
-        (expected-string1 "a,b,c")
-        (test-list1       '(("a" "b" "")))
-        (expected-string2 "a:b:"))
-    (and (equal? expected-string0 (scm->dsv-string test-list0))
-         (equal? expected-string1 (scm->dsv-string test-list0 #\,))
-         (equal? expected-string2 (scm->dsv-string test-list1)))))
+  (and (equal? "a:b:c" (scm->dsv-string '(("a" "b" "c"))))
+       (equal? "a,b,c" (scm->dsv-string '(("a" "b" "")) #\,))
+       (equal? "a:b:"  (scm->dsv-string '(("a" "b" ""))))))
 
 (test-assert "guess-delimiter"
   (and (equal? #\,     (guess-delimiter "a,b,c"))
@@ -52,32 +41,26 @@
        (equal? #f      (guess-delimiter "a,b:c"))))
 
 (test-assert "dsv->scm"
-  (let ((test-data0     "a:b:c")
-        (expected-list0 '(("a" "b" "c")))
-        (test-data1     "a\\:b:c")
-        (expected-list1 '(("a:b" "c")))
-        (test-data2     "a\\,b,c")
-        (expected-list2 '(("a,b" "c"))))
-    (and (equal? expected-list0 (call-with-input-string test-data0
+  (and (equal? '(("a" "b" "c")) (call-with-input-string "a:b:c"
                                   (cut dsv->scm <>)))
-         (equal? expected-list1 (call-with-input-string test-data1
+       (equal? '(("a:b" "c"))   (call-with-input-string "a\\:b:c"
                                   (cut dsv->scm <>)))
-         (equal? expected-list2 (call-with-input-string test-data2
+       (equal? '(("a,b" "c"))   (call-with-input-string "a\\,b,c"
                                   (cut dsv->scm <> #\,)))
-         ;; Check order of read records
-         (equal? '(("1") ("2"))
-                 (call-with-input-string
-                  "1\n2\n"
-                  (cut dsv->scm <>)))
-         ;; Handling of commented lines
-         (equal? '(("a" "b" "c"))
-                 (call-with-input-string
-                  "# this is a comment\na:b:c\n"
-                  (cut dsv->scm <>)))
-         (equal? '(("a" "b" "c"))
-                 (call-with-input-string
-                  "; this is a comment\na:b:c\n"
-                  (cut dsv->scm <> #:comment-symbol #\;))))))
+       ;; Check order of read records
+       (equal? '(("1") ("2"))
+               (call-with-input-string
+                   "1\n2\n"
+                 (cut dsv->scm <>)))
+       ;; Handling of commented lines
+       (equal? '(("a" "b" "c"))
+               (call-with-input-string
+                   "# this is a comment\na:b:c\n"
+                 (cut dsv->scm <>)))
+       (equal? '(("a" "b" "c"))
+               (call-with-input-string
+                   "; this is a comment\na:b:c\n"
+                 (cut dsv->scm <> #:comment-symbol #\;)))))
 
 (test-assert "scm->dsv"
   (and (string=? "a:b:c\n"
