@@ -39,8 +39,9 @@
   "Does debug mode enabled?"
   #f)
 
-;; List of known delimiters
-(define %known-delimiters '(#\, #\: #\; #\| #\tab #\space))
+(define-with-docs %known-delimiters
+  "List of known delimiters"
+  '(#\, #\: #\; #\| #\tab #\space))
 
 
 (define (set-debug! enabled?)
