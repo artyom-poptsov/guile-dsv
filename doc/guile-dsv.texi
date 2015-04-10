@@ -75,8 +75,8 @@ delimiter-separated values} (DSV) format for programs written in
 
 Currently Guile-DSV supports
 @url{http://www.catb.org/~esr/writings/taoup/html/ch05s02.html#id2901882, the
-Unix-style DSV format}; support of @url{https://tools.ietf.org/html/rfc4180,
-RFC4180} is planned.
+Unix-style DSV format} and  @url{https://tools.ietf.org/html/rfc4180,
+RFC 4180}.
 
 @node Installation
 @chapter Installation
@@ -132,55 +132,68 @@ and it will give you a suggestion.
 
 These procedures are provided by @code{(dsv)} module.
 
-@deffn {Scheme Procedure} dsv-string->list string [delimiter]
-Convert a DSV @var{string} to a list of values using a @var{delimiter}.  If
-the @var{delimiter} is not set, use the default delimiter (colon).  Return a
-list of values.
+Many of the procedures accept an optional @var{format} argument that specifies
+the format of DSV data.  Allowed formats are the following symbols:
+
+@table @samp
+@item unix
+@url{http://www.catb.org/~esr/writings/taoup/html/ch05s02.html#id2901882, the
+Unix-style DSV format}
+@item rfc4180
+@url{https://tools.ietf.org/html/rfc4180, RFC 4180}
+@end table
+
+By default @var{format} is set to @code{'unix}.
+
+@deffn {Scheme Procedure} dsv-string->scm string [delimiter] [#:format='unix]
+Convert a DSV @var{string} to a list of values using a specified @var{format}
+and a @var{delimiter}.  If the @var{delimiter} is not set, use the default
+delimiter for the specified format.  Return a list of values.
 
 Examples:
 
 @lisp
-(dsv-string->list "a:b:c")
-@result{} '("a" "b" "c")
+(dsv-string->scm "a:b:c")
+@result{} '(("a" "b" "c"))
 
-(dsv-string->list "a;b;c" #\;)
-@result{} '("a" "b" "c")
+(dsv-string->scm "a;b;c" #\;)
+@result{} '(("a" "b" "c"))
 
-(dsv-string->list "a,b\\,c" #\,)
-@result{} '("a" "b,c")
+(dsv-string->scm "a,b\\,c" #\,)
+@result{} '(("a" "b,c"))
 @end lisp
 @end deffn
 
-@deffn {Scheme Procedure} list->dsv-string list [delimiter]
-Convert a @var{list} to a DSV string using a @var{delimiter}.  If the
-@var{delimiter} is not set, use the default delimiter (colon).  Return a DSV
-string.
+@deffn {Scheme Procedure} scm->dsv-string list [delimiter] [#:format='unix]
+Convert a @var{list} to a DSV string using a specified @var{format} and a
+@var{delimiter}.  If the @var{delimiter} is not set, use the default delimite
+for the specified format.  Return a DSV string.
 
 Example:
 
 @lisp
-(list->dsv-string '("a" "b" "c"))
+(scm->dsv-string '(("a" "b" "c")))
 @result{} "a:b:c"
 
-(list->dsv-string '("a" "b" "c") #\,)
+(scm->dsv-string '(("a" "b" "c")) #\,)
 @result{} "a,b,c"
 
-(list->dsv-string '("a" "b,c") #\,)
+(scm->dsv-string '(("a" "b,c")) #\,)
 @result{} "a,b\\,c"
 @end lisp
 
 @end deffn
 
-@deffn {Scheme Procedure} dsv-read [port [delimiter]] [#:comment-symbol=#\#]
-Read DSV data from a @var{port}.  If the @var{port} is not set, read from the
-default input port.  If a @var{delimiter} is not set, use the default
-delimiter (colon).  Skip lines commented with a @var{comment-symbol}.  Return
-a list of values.
+@deffn {Scheme Procedure} dsv->scm [port [delimiter]] [#:format='unix] [#:comment-symbol=#\#]
+Read DSV data in a specified @var{format} from a @var{port}.  If the
+@var{port} is not set, read from the default input port.  If a @var{delimiter}
+is not set, use the default delimiter for the format.  Skip lines commented
+with a @var{comment-symbol}.  Return a list of values.
 
 Example:
 
 @lisp
-(dsv-read (open-input-file "/etc/passwd"))
+(dsv->scm (open-input-file "/etc/passwd"))
 @result{}
 (...
  ("news" "x" "9" "13" "news" "/usr/lib/news" "/bin/false")
@@ -189,24 +202,25 @@ Example:
 
 @end deffn
 
-@deffn {Scheme Procedure} dsv-write list [port [delimiter]]
-Write a list of values @var{list} as a sequence of DSV strings to a
-@var{port}.  If the @var{port} is not set, write to the default output port.
-If a @var{delimiter} is not set, use the default delimiter (colon).
+@deffn {Scheme Procedure} scm->dsv list [port [delimiter]] [#:format='unix]
+Write a list of values @var{list} as a sequence of DSV strings in a specified
+@var{format} to a @var{port}.  If the @var{port} is not set, write to the
+default output port.  If a @var{delimiter} is not set, use the default
+delimiter (colon).
 
 Example:
 
 @lisp
-(dsv-write '(("news" "x" "9" "13" "news" "/usr/lib/news" "/bin/false")
-             ("root" "x" "0" "0" "root" "/root" "/bin/zsh")))
-@result{}
+(scm->dsv '(("news" "x" "9" "13" "news" "/usr/lib/news" "/bin/false")
+            ("root" "x" "0" "0" "root" "/root" "/bin/zsh")))
+@print{}
 news:x:9:13:news:/usr/lib/news:/bin/false
 root:x:0:0:root:/root:/bin/zsh
 @end lisp
 
 @end deffn
 
-@deffn {Scheme Procedure} guess-delimiter string
+@deffn {Scheme Procedure} guess-delimiter string [#:format='unix]
 Guess a DSV @var{string} delimiter.  Known delimiters are: @code{#\,},
 @code{#\:}, @code{#\;}, @code{#\|}, @code{#\tab}, @code{#\space}.
 
