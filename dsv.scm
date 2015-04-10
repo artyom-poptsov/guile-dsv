@@ -168,6 +168,12 @@ format style."
 
 (define* (guess-delimiter str #:optional known-delimiters
                           #:key (format 'unix))
+  "Guess a DSV string STR delimiter.  Optionally accept list of
+KNOWN-DELIMITERS as an argument.  The procedure returns guessed delimiter or
+'#f' if it cannot determine a delimiter based on the given arguments.
+
+Note that when KNOWN-DELIMITERS list contains less than two elements, the
+procedure returns '#f'."
   (case format
     ((unix)
      (if known-delimiters
