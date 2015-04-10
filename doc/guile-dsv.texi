@@ -169,16 +169,20 @@ Convert a @var{list} to a DSV string using a specified @var{format} and a
 @var{delimiter}.  If the @var{delimiter} is not set, use the default delimite
 for the specified format.  Return a DSV string.
 
+A DSV table can be passed to the procedure as a two-dimensional @var{list};
+respectively an one-dimensional @var{list} (that is, list of strings) will be
+printed as a single table row.
+
 Example:
 
 @lisp
-(scm->dsv-string '(("a" "b" "c")))
+(scm->dsv-string '("a" "b" "c"))
 @result{} "a:b:c"
 
-(scm->dsv-string '(("a" "b" "c")) #\,)
+(scm->dsv-string '("a" "b" "c") #\,)
 @result{} "a,b,c"
 
-(scm->dsv-string '(("a" "b,c")) #\,)
+(scm->dsv-string '("a" "b,c") #\,)
 @result{} "a,b\\,c"
 @end lisp
 
@@ -208,9 +212,16 @@ Write a list of values @var{list} as a sequence of DSV strings in a specified
 default output port.  If a @var{delimiter} is not set, use the default
 delimiter (colon).
 
-Example:
+A DSV table can be passed to the procedure as a two-dimensional @var{list};
+respectively an one-dimensional @var{list} (that is, list of strings) will be
+printed as a single table row.
+
+Examples:
 
 @lisp
+(scm->dsv '("news" "x" "9" "13" "news" "/usr/lib/news" "/bin/false"))
+@print{} news:x:9:13:news:/usr/lib/news:/bin/false
+
 (scm->dsv '(("news" "x" "9" "13" "news" "/usr/lib/news" "/bin/false")
             ("root" "x" "0" "0" "root" "/root" "/bin/zsh")))
 @print{}

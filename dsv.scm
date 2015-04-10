@@ -100,17 +100,20 @@ Example:
   (list->dsv-string '(\"a\" \"b\" \"c\"))
   => \"a:b:c\"
 "
-  (case format
-    ((unix)
-     (unix:scm->dsv-string lst (if (equal? delimiter 'default)
-                                   unix:%default-delimiter
-                                   delimiter)))
-    ((rfc4180)
-     (rfc4180:scm->dsv-string lst (if (equal? delimiter 'default)
-                                   rfc4180:%default-delimiter
-                                   delimiter)))
-    (else
-     (error "Unknown format" format))))
+  (let ((lst (if (or (null? lst) (list? (car lst)))
+                 lst
+                 (list lst))))
+    (case format
+      ((unix)
+       (unix:scm->dsv-string lst (if (equal? delimiter 'default)
+                                     unix:%default-delimiter
+                                     delimiter)))
+      ((rfc4180)
+       (rfc4180:scm->dsv-string lst (if (equal? delimiter 'default)
+                                        rfc4180:%default-delimiter
+                                        delimiter)))
+      (else
+       (error "Unknown format" format)))))
 
 
 (define* (dsv->scm #:optional
@@ -147,17 +150,20 @@ Skip lines commented with a COMMENT-SYMBOL.  Return a list of values."
 If the PORT is not set, write to the default output port.  If a DELIMITER is
 not set, use the default delimiter (colon).  FORMAT allows to specify a DSV
 format style."
-  (case format
-    ((unix)
-     (unix:scm->dsv lst port (if (equal? delimiter 'default)
-                                 unix:%default-delimiter
-                                 delimiter)))
-    ((rfc4180)
-     (rfc4180:scm->dsv lst port (if (equal? delimiter 'default)
-                                 rfc4180:%default-delimiter
-                                 delimiter)))
-    (else
-     (error "Unknown format" format))))
+  (let ((lst (if (or (null? lst) (list? (car lst)))
+                 lst
+                 (list lst))))
+    (case format
+      ((unix)
+       (unix:scm->dsv lst port (if (equal? delimiter 'default)
+                                   unix:%default-delimiter
+                                   delimiter)))
+      ((rfc4180)
+       (rfc4180:scm->dsv lst port (if (equal? delimiter 'default)
+                                      rfc4180:%default-delimiter
+                                      delimiter)))
+      (else
+       (error "Unknown format" format)))))
 
 
 (define* (guess-delimiter str #:key (format 'unix))
