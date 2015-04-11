@@ -70,6 +70,9 @@
                  (call-with-output-string
                   (cut scm->dsv '(("a" "b" "c") ("d" "e" "f")) <>)))))
 
+(test-assert "scm->dsv-string"
+  (string=? "a:b:c" (scm->dsv-string '((a b c)))))
+
 (test-end "dsv")
 
 (exit (= (test-runner-fail-count (test-runner-current)) 0))

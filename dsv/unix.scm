@@ -100,7 +100,8 @@ escaped delimiter -- that is, skips it.  E.g.:
             (map ->dsv scm)))
 
 (define* (scm->dsv-string lst delimiter #:key (line-break %default-line-break))
-  (call-with-output-string (cut scm->dsv lst <> delimiter line-break)))
+  (call-with-output-string
+   (cut scm->dsv lst <> delimiter #:line-break line-break)))
 
 
 (define guess-delimiter (make-delimiter-guesser dsv-string->scm))
