@@ -29,7 +29,10 @@
                 #:select (escape-special-chars))
   #:use-module (scheme documentation)
   #:use-module (dsv common)
-  #:export (dsv->scm
+  #:use-module (dsv parser)
+  #:export (make-parser
+            make-string-parser
+            dsv->scm
             dsv-string->scm
             scm->dsv
             scm->dsv-string
@@ -44,6 +47,18 @@
 (define-with-docs %default-line-break
   "Default line break for DSV"
   "\n")
+
+
+(define (make-parser port delimiter comment-symbol)
+  (%make-parser port
+                'unix
+                (if (eq? delimiter 'default)
+                    %default-delimiter
+                    delimiter)
+                comment-symbol))
+
+(define (make-string-parser str delimiter comment-symbol)
+  (call-with-input-string str (cut make-parser <> delimiter comment-symbol)))
 
 
 (define (string-split/escaped str delimiter)
@@ -70,24 +85,21 @@ escaped delimiter -- that is, skips it.  E.g.:
           fields)))
 
 
-(define (dsv->scm port delimiter comment-symbol)
+(define (dsv->scm parser)
 
   (define (commented? line)
     "Check if the LINE is commented."
-    (string-prefix? (string comment-symbol) (string-trim line)))
+    (string-prefix? (parser-comment-symbol->string parser) (string-trim line)))
 
   (let parse ((dsv-list '())
-              (line     (read-line port)))
+              (line     (parser-read-line parser)))
     (if (not (eof-object? line))
         (if (not (commented? line))
-            (parse (cons (string-split/escaped line delimiter) dsv-list)
-                   (read-line port))
-            (parse dsv-list (read-line port)))
+            (parse (cons (string-split/escaped line (parser-delimiter parser))
+                         dsv-list)
+                   (parser-read-line parser))
+            (parse dsv-list (parser-read-line parser)))
         (reverse dsv-list))))
-
-(define (dsv-string->scm str delimiter)
-  ;; FIXME: Handle line breaks
-  (call-with-input-string str (cut dsv->scm <> delimiter #\#)))
 
 (define* (scm->dsv scm port delimiter #:key (line-break %default-line-break))
 
@@ -104,6 +116,6 @@ escaped delimiter -- that is, skips it.  E.g.:
    (cut scm->dsv lst <> delimiter #:line-break line-break)))
 
 
-(define guess-delimiter (make-delimiter-guesser dsv-string->scm))
+;(define guess-delimiter (make-delimiter-guesser dsv-string->scm))
 
 ;;; unix.scm ends here

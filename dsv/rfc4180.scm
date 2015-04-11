@@ -33,11 +33,14 @@
   #:use-module (ice-9 rdelim)
   #:use-module (scheme documentation)
   #:use-module (dsv common)
-  #:export (scm->dsv
+  #:use-module (dsv parser)
+  #:export (make-parser
+            make-string-parser
+            scm->dsv
             scm->dsv-string
             dsv->scm
             dsv-string->scm
-            guess-delimiter
+;            guess-delimiter
             ;; Variables
             %default-delimiter))
 
@@ -150,6 +153,17 @@ line breaks; default value is CRLF.  Return a DSV string."
 
 ;;; Reading
 
+(define (make-parser port delimiter comment-symbol)
+  (%make-parser port
+                'rfc4180
+                (if (eq? delimiter 'default)
+                    %default-delimiter
+                    delimiter)
+                comment-symbol))
+
+(define (make-string-parser str delimiter comment-symbol)
+  (call-with-input-string str (cut make-parser <> delimiter comment-symbol)))
+
 
 ;; XXX: COMMENT-SYMBOL is not used.
 ;;
@@ -165,7 +179,7 @@ line breaks; default value is CRLF.  Return a DSV string."
 ;;                 |  '---------'<------------------'
 ;;                 `--------------------------------------->[end]--------> STOP
 ;;
-(define (dsv->scm port delimiter comment-symbol)
+(define (dsv->scm parser)
   "Read DSV data from a PORT using a DELIMITER.  Return a native SCM list.
 Throw a 'dsv-parser-error' on an error."
   (define* (fold-file #:key
@@ -187,7 +201,7 @@ Throw a 'dsv-parser-error' on an error."
       ((read-ln)
        (debug-fsm state "dsv-list: ~s~%" dsv-list)
        (debug-fsm state "buffer:   ~s~%" buffer)
-       (let ((line (read-line port)))
+       (let ((line (parser-read-line parser)))
          (debug-fsm state "line: ~s~%" line)
          (cond
           ((not (eof-object? line))
@@ -195,7 +209,7 @@ Throw a 'dsv-parser-error' on an error."
            (fold-file #:dsv-list     dsv-list
                       #:buffer       buffer
                       #:field-buffer field-buffer
-                      #:record       (string-split line delimiter)
+                      #:record       (parser-string-split parser line)
                       #:line         line
                       #:state        'read))
           ((and (eof-object? line) (null? buffer) (null? field-buffer))
@@ -207,7 +221,7 @@ Throw a 'dsv-parser-error' on an error."
                       #:line         line
                       #:state        'end))
           (else
-           (dsv-error state "Premature end of file" port)))))
+           (dsv-error state "Premature end of file" (parser-port parser))))))
 
       ((read)
        (let ((field (or (null? record) (car record))))
@@ -269,7 +283,7 @@ Throw a 'dsv-parser-error' on an error."
       ((join)
        (debug-fsm-transition state 'validate)
        (debug-fsm state "field-buffer: ~s~%" field-buffer)
-       (let* ((delimiter  (string delimiter))
+       (let* ((delimiter  (parser-delimiter->string parser))
               ;; XXX: Looks too hacky.  Should be rewritten in a more
               ;; elegant way.
               (join-field (lambda (field-elements)
@@ -340,10 +354,7 @@ Throw a 'dsv-parser-error' on an error."
 
   (fold-file))
 
-(define (dsv-string->scm str delimiter)
-  "Convert a DSV string STR to a native list using a DELIMITER."
-  (call-with-input-string str (cut dsv->scm <> delimiter #f)))
-
-(define guess-delimiter (make-delimiter-guesser dsv-string->scm))
+;; TODO: Fix it
+;(define guess-delimiter (make-delimiter-guesser dsv-string->scm))
 
 ;;; rfc4180.scm ends here

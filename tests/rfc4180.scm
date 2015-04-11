@@ -67,19 +67,19 @@
                   #\,
                   #:format 'rfc4180)))))
 
-(test-assert "guess-delimiter"
-  (and (equal? #\,     (guess-delimiter "a,b,c"))
-       (equal? #\:     (guess-delimiter "a:b:c"))
-       (equal? #\tab   (guess-delimiter "a	b	c"))
-       (equal? #\space (guess-delimiter "a b c"))
-       (equal? #\:     (guess-delimiter "a,b:c:d:e"))
-       (equal? #\,     (guess-delimiter "a,b,c,d:e"))
-       (equal? #f      (guess-delimiter "a,b:c"))))
+;; (test-assert "guess-delimiter"
+;;   (and (equal? #\,     (guess-delimiter "a,b,c"))
+;;        (equal? #\:     (guess-delimiter "a:b:c"))
+;;        (equal? #\tab   (guess-delimiter "a	b	c"))
+;;        (equal? #\space (guess-delimiter "a b c"))
+;;        (equal? #\:     (guess-delimiter "a,b:c:d:e"))
+;;        (equal? #\,     (guess-delimiter "a,b,c,d:e"))
+;;        (equal? #f      (guess-delimiter "a,b:c"))))
 
-(test-assert "guess-delimiter, custom delimiters"
-  (and (equal? #\-     (guess-delimiter "a-b-c" '(#\- #\,)))
-       (equal? #f      (guess-delimiter "a,b,c" '(#\-)))
-       (equal? #f      (guess-delimiter "a,b,c" '()))))
+;; (test-assert "guess-delimiter, custom delimiters"
+;;   (and (equal? #\-     (guess-delimiter "a-b-c" '(#\- #\,)))
+;;        (equal? #f      (guess-delimiter "a,b,c" '(#\-)))
+;;        (equal? #f      (guess-delimiter "a,b,c" '()))))
 
 
 (test-end "rfc4180")

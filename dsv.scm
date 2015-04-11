@@ -79,13 +79,11 @@ DELIMITER is not set, use the default delimiter (colon).  Return a list of
 values."
   (case format
     ((unix)
-     (unix:dsv-string->scm str (if (equal? delimiter 'default)
-                                   unix:%default-delimiter
-                                   delimiter)))
+     (let ((parser (unix:make-string-parser str delimiter #\#)))
+       (unix:dsv->scm parser)))
     ((rfc4180)
-     (rfc4180:dsv-string->scm str (if (equal? delimiter 'default)
-                                      rfc4180:%default-delimiter
-                                      delimiter)))
+     (let ((parser (rfc4180:make-string-parser str delimiter #f))) ;comment-symbol)))
+       (rfc4180:dsv->scm parser)))
     (else
      (error "Unknown format" format))))
 
@@ -128,15 +126,11 @@ Skip lines commented with a COMMENT-SYMBOL.  Return a list of values."
 
   (case format
     ((unix)
-     (unix:dsv->scm port (if (equal? delimiter 'default)
-                             unix:%default-delimiter
-                             delimiter)
-                    comment-symbol))
+     (let ((parser (unix:make-parser port delimiter comment-symbol)))
+       (unix:scm->dsv parser)))
     ((rfc4180)
-     (rfc4180:dsv->scm port (if (equal? delimiter 'default)
-                             rfc4180:%default-delimiter
-                             delimiter)
-                       comment-symbol))
+     (let ((parser (rfc4180:make-parser port delimiter comment-symbol)))
+       (rfc4180:dsv->scm parser)))
     (else
      (error "Unknown format" format))))
 
@@ -176,13 +170,15 @@ Note that when KNOWN-DELIMITERS list contains less than two elements, the
 procedure returns '#f'."
   (case format
     ((unix)
-     (if known-delimiters
-         (unix:guess-delimiter str known-delimiters)
-         (unix:guess-delimiter str)))
+     #f)
+     ;; (if known-delimiters
+     ;;     (unix:guess-delimiter str known-delimiters)
+     ;;     (unix:guess-delimiter str)))
     ((rfc4180)
-     (if known-delimiters
-         (rfc4180:guess-delimiter str known-delimiters)
-         (rfc4180:guess-delimiter str)))
+     #f)
+     ;; (if known-delimiters
+     ;;     (rfc4180:guess-delimiter str known-delimiters)
+     ;;     (rfc4180:guess-delimiter str)))
     (else
      (error "Unknown format." format))))
 
