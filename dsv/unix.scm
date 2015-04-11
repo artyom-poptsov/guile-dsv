@@ -70,10 +70,6 @@ escaped delimiter -- that is, skips it.  E.g.:
           fields)))
 
 
-(define (dsv-string->scm str delimiter)
-  ;; FIXME: Handle line breaks
-  (list (string-split/escaped str delimiter)))
-
 (define (dsv->scm port delimiter comment-symbol)
 
   (define (commented? line)
@@ -84,10 +80,14 @@ escaped delimiter -- that is, skips it.  E.g.:
               (line     (read-line port)))
     (if (not (eof-object? line))
         (if (not (commented? line))
-            (parse (cons (dsv-string->scm line delimiter) dsv-list)
+            (parse (cons (string-split/escaped line delimiter) dsv-list)
                    (read-line port))
             (parse dsv-list (read-line port)))
         (reverse dsv-list))))
+
+(define (dsv-string->scm str delimiter)
+  ;; FIXME: Handle line breaks
+  (call-with-input-string str (cut dsv->scm <> delimiter #\#)))
 
 (define* (scm->dsv scm port delimiter #:key (line-break %default-line-break))
 
