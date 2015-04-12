@@ -96,15 +96,10 @@ escaped delimiter -- that is, skips it.  E.g.:
 
 
 (define (dsv->scm parser)
-
-  (define (commented? line)
-    "Check if the LINE is commented."
-    (string-prefix? (parser-comment-prefix parser) (string-trim line)))
-
   (let parse ((dsv-list '())
               (line     (parser-read-line parser)))
     (if (not (eof-object? line))
-        (if (not (commented? line))
+        (if (not (parser-commented? parser line))
             (parse (cons (string-split/escaped line (parser-delimiter parser))
                          dsv-list)
                    (parser-read-line parser))

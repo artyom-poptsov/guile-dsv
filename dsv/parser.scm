@@ -32,6 +32,7 @@
             parser-string-split
             parser-delimiter->string
             parser-comment-symbol->string
+            parser-commented?
 
             ;; Variables
             %known-delimiters))
@@ -57,6 +58,10 @@
 
 (define (parser-delimiter->string parser)
   (string (parser-delimiter parser)))
+
+(define (parser-commented? parser str)
+  "Check if a string STR is commented."
+  (string-prefix? (parser-comment-prefix parser) (string-trim str)))
 
 (define (make-delimiter-guesser parser-proc)
   (lambda (parser)
