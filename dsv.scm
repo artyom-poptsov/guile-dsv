@@ -52,7 +52,7 @@
 ;;
 ;;   dsv-string->scm string [delimiter] [#:format 'unix]
 ;;   scm->dsv-string list [delimiter] [#:format 'unix]
-;;   dsv->scm [port [delimiter]] [#:format 'unix] [#:comment-symbol #\#]
+;;   dsv->scm [port [delimiter]] [#:format 'unix] [#:comment-prefix #\#]
 ;;   scm->dsv [port [delimiter]] [#:format 'unix]
 ;;   guess-delimiter string [#:format 'unix]
 ;;
@@ -75,16 +75,16 @@
                           #:optional (delimiter 'default)
                           #:key
                           (format 'unix)
-                          (comment-symbol 'default))
+                          (comment-prefix 'default))
   "Convert a DSV string STR to a list of values using a DELIMITER.  If the
-DELIMITER is not set, use the default delimiter (colon).  Return a list of
-values."
+DELIMITER is not set, use the default delimiter for a FORMAT.  Return a list
+of values."
   (case format
     ((unix)
-     (let ((parser (unix:make-string-parser str delimiter 'default comment-symbol)))
+     (let ((parser (unix:make-string-parser str delimiter 'default comment-prefix)))
        (unix:dsv->scm parser)))
     ((rfc4180)
-     (let ((parser (rfc4180:make-string-parser str delimiter 'default comment-symbol)))
+     (let ((parser (rfc4180:make-string-parser str delimiter 'default comment-prefix)))
        (rfc4180:dsv->scm parser)))
     (else
      (error "Unknown format" format))))
@@ -121,19 +121,19 @@ Example:
                    (delimiter 'default)
                    #:key
                    (format         'unix)
-                   (comment-symbol #\#))
+                   (comment-prefix #\#))
   "Read DSV data from a PORT.  If the PORT is not set, read from the default
 input port.  If a DELIMITER is not set, use the default delimiter (colon).
-Skip lines commented with a COMMENT-SYMBOL.  Return a list of values."
+Skip lines commented with a COMMENT-PREFIX.  Return a list of values."
 
   (case format
     ((unix)
      (let ((parser (unix:make-parser port delimiter 'default
-                                     comment-symbol)))
+                                     comment-prefix)))
        (unix:scm->dsv parser)))
     ((rfc4180)
      (let ((parser (rfc4180:make-parser port delimiter 'default
-                                        comment-symbol)))
+                                        comment-prefix)))
        (rfc4180:dsv->scm parser)))
     (else
      (error "Unknown format" format))))
