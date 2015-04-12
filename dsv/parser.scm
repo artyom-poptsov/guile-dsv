@@ -31,7 +31,6 @@
             parser-read-line
             parser-string-split
             parser-delimiter->string
-            parser-comment-symbol->string
             parser-commented?
             value-or-default
 
