@@ -40,7 +40,7 @@
             scm->dsv-string
             dsv->scm
             dsv-string->scm
-;            guess-delimiter
+            guess-delimiter
             ;; Variables
             %default-delimiter))
 
