@@ -27,7 +27,9 @@
   #:use-module ((srfi srfi-1) #:select (fold))
   #:use-module (scheme documentation)
   #:export (set-debug! debug debug-fsm debug-fsm-transition debug-fsm-error
-            dsv-error))
+            dsv-error
+
+            value-or-default))
 
 
 (define-with-docs *debug?*
@@ -76,5 +78,12 @@ it as a debug message.."
      (throw 'dsv-parser-error message args))
     ((message . args)
      (throw 'dsv-parser-error message args))))
+
+
+(define (value-or-default value default-value)
+  "Return a VALUE if it is not 'default, else return DEFAULT-VALUE."
+  (if (eq? value 'default)
+      default-value
+      value))
 
 ;;; common.scm ends here

@@ -32,7 +32,6 @@
             parser-string-split
             parser-delimiter->string
             parser-commented?
-            value-or-default
 
             ;; Variables
             %known-delimiters))
@@ -59,12 +58,6 @@
            (parser-type      parser)
            (parser-delimiter parser)
            (number->string (object-address parser) 16))))
-
-(define (value-or-default value default-value)
-  "Return a VALUE if it is not 'default, else return DEFAULT-VALUE."
-  (if (eq? value 'default)
-      default-value
-      value))
 
 (define (parser-read-line parser)
   (read-line (parser-port parser)))
