@@ -164,7 +164,7 @@ format style."
        (error "Unknown format" format)))))
 
 
-(define* (guess-delimiter str #:optional known-delimiters
+(define* (guess-delimiter str #:optional (known-delimiters 'default)
                           #:key (format 'unix))
   "Guess a DSV string STR delimiter.  Optionally accept list of
 KNOWN-DELIMITERS as an argument.  The procedure returns guessed delimiter or
