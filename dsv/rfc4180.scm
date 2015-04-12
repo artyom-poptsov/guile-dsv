@@ -167,7 +167,9 @@ line breaks; default value is CRLF.  Return a DSV string."
                                    comment-prefix)))
 
 
-;; XXX: COMMENT-SYMBOL is not used.
+;; XXX: The procedure does not handle comments.  Although the RFC 4180 says
+;; nothing about comments inside CSV data, it might be useful to handle
+;; comments in some way if it is explicitly requested by the user.
 ;;
 ;; State machine:
 ;;
@@ -311,9 +313,7 @@ Throw a 'dsv-parser-error' on an error."
                     #:line         line
                     #:state        'validate)))
 
-      ;;   [validate]-+->[add-field]
-      ;;              |
-      ;;              '-> ERROR
+      ;;   [validate]--->[add-field]
       ((validate)
        (validate-field parser state field-buffer)
        (debug-fsm-transition state 'add-field)
@@ -356,7 +356,6 @@ Throw a 'dsv-parser-error' on an error."
 
   (fold-file))
 
-;; TODO: Fix it
 (define guess-delimiter (make-delimiter-guesser dsv->scm))
 
 ;;; rfc4180.scm ends here
