@@ -158,12 +158,8 @@ line breaks; default value is CRLF.  Return a DSV string."
 (define (make-parser port delimiter known-delimiters comment-prefix)
   (%make-parser port
                 'rfc4180
-                (if (eq? delimiter 'default)
-                    %default-delimiter
-                    delimiter)
-                (if (eq? known-delimiters 'default)
-                    %known-delimiters
-                    known-delimiters)
+                (value-or-default delimiter        %default-delimiter)
+                (value-or-default known-delimiters %known-delimiters)
                 comment-prefix))
 
 (define (make-string-parser str delimiter known-delimiters comment-prefix)
