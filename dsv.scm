@@ -79,8 +79,9 @@
                    (format         'unix)
                    (comment-prefix #\#))
   "Read DSV data from a PORT.  If the PORT is not set, read from the default
-input port.  If a DELIMITER is not set, use the default delimiter (colon).
-Skip lines commented with a COMMENT-PREFIX.  Return a list of values."
+input port.  If a DELIMITER is not set, use the default delimiter for a
+FORMAT.  Skip lines commented with a COMMENT-PREFIX.  Return a list of
+values."
 
   (case format
     ((unix)
@@ -100,8 +101,8 @@ Skip lines commented with a COMMENT-PREFIX.  Return a list of values."
                           (format 'unix)
                           (comment-prefix 'default))
   "Convert a DSV string STR to a list of values using a DELIMITER.  If the
-DELIMITER is not set, use the default delimiter for a FORMAT.  Return a list
-of values."
+DELIMITER is not set, use the default delimiter for a FORMAT.  Skip lines
+commented with a COMMENT-PREFIX.  Return a list of values."
   (case format
     ((unix)
      (let ((parser (unix:make-string-parser str delimiter 'default comment-prefix)))
@@ -119,10 +120,9 @@ of values."
                    (delimiter 'default)
                    #:key
                    (format    'unix))
-  "Write a list of values LST as a sequence of DSV strings to a PORT.
-If the PORT is not set, write to the default output port.  If a DELIMITER is
-not set, use the default delimiter (colon).  FORMAT allows to specify a DSV
-format style."
+  "Write a list of values LST as a sequence of DSV strings to a PORT using a
+specified DSV FORMAT.  If the PORT is not set, write to the default output
+port.  If a DELIMITER is not set, use the default delimiter for a FORMAT."
   (let ((lst (if (or (null? lst) (list? (car lst)))
                  lst
                  (list lst))))
@@ -141,14 +141,9 @@ format style."
 (define* (scm->dsv-string lst
                            #:optional (delimiter 'default)
                            #:key (format 'unix))
-  "Convert a list LST to a DSV string using a DELIMITER.  If the DELIMITER is
-not set, use the default delimiter (colon).  Return a DSV string.
-
-Example:
-
-  (list->dsv-string '(\"a\" \"b\" \"c\"))
-  => \"a:b:c\"
-"
+  "Convert a list LST to a DSV string using a specified DSV FORMAT.  If the
+DELIMITER is not set, use the default delimiter for a FORMAT.  Return a DSV
+string."
   (let ((lst (if (or (null? lst) (list? (car lst)))
                  lst
                  (list lst))))
