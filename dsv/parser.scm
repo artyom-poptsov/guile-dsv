@@ -50,6 +50,16 @@
   (known-delimiters parser-known-delimiters)
   (comment-prefix   parser-comment-prefix))         ; string | 'none
 
+(set-record-type-printer!
+ <dsv-parser>
+ (lambda (parser port)
+   "Print information about a PARSER to a PORT."
+   (format port "#<dsv-parser port: ~a type: ~a delim: ~s ~a>"
+           (parser-port      parser)
+           (parser-type      parser)
+           (parser-delimiter parser)
+           (number->string (object-address parser) 16))))
+
 (define (parser-read-line parser)
   (read-line (parser-port parser)))
 
