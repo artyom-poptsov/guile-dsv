@@ -89,21 +89,23 @@
   "Check if all the double-quotes are escaped."
   (even? (string-count field #\")))
 
-(define (validate-field state field)
+(define (validate-field parser state field)
   "Validate a FIELD."
   (case (get-quotation-status field)
     ((quoted)
      (cond
       ((not (all-double-quotes-escaped? field))
-       (dsv-error state "A field contains unescaped double-quotes" field))))
+       (dsv-error state "A field contains unescaped double-quotes"
+                  parser field))))
     (else
      (cond
       ((string-index field #\")
-       (dsv-error state "A field contains unescaped double-quotes" field))
+       (dsv-error state "A field contains unescaped double-quotes"
+                  parser field))
       ((string-contains field "\r\n")
        (dsv-error state
                   "Unexpected line break (CRLF) inside of an unquoted field"
-                  field))))))
+                  parser field))))))
 
 
 ;;; Writing
@@ -225,7 +227,7 @@ Throw a 'dsv-parser-error' on an error."
                       #:line         line
                       #:state        'end))
           (else
-           (dsv-error state "Premature end of file" (parser-port parser))))))
+           (dsv-error state "Premature end of file" parser)))))
 
       ((read)
        (let ((field (or (null? record) (car record))))
@@ -317,7 +319,7 @@ Throw a 'dsv-parser-error' on an error."
       ;;              |
       ;;              '-> ERROR
       ((validate)
-       (validate-field state field-buffer)
+       (validate-field parser state field-buffer)
        (debug-fsm-transition state 'add-field)
        (fold-file #:dsv-list     dsv-list
                   #:buffer       buffer
