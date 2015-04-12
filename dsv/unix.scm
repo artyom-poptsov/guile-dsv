@@ -62,7 +62,7 @@
                 (if (eq? known-delimiters 'default)
                     %known-delimiters
                     known-delimiters)
-                (if (eq? comment-symbol 'default)
+                (if (eq? comment-prefix 'default)
                     %default-comment-prefix
                     comment-prefix)))
 
