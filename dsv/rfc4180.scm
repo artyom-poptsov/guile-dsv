@@ -153,7 +153,7 @@ line breaks; default value is CRLF.  Return a DSV string."
 
 ;;; Reading
 
-(define (make-parser port delimiter known-delimiters comment-symbol)
+(define (make-parser port delimiter known-delimiters comment-prefix)
   (%make-parser port
                 'rfc4180
                 (if (eq? delimiter 'default)
@@ -162,11 +162,11 @@ line breaks; default value is CRLF.  Return a DSV string."
                 (if (eq? known-delimiters 'default)
                     %known-delimiters
                     known-delimiters)
-                comment-symbol))
+                comment-prefix))
 
-(define (make-string-parser str delimiter known-delimiters comment-symbol)
+(define (make-string-parser str delimiter known-delimiters comment-prefix)
   (call-with-input-string str (cut make-parser <> delimiter known-delimiters
-                                   comment-symbol)))
+                                   comment-prefix)))
 
 
 ;; XXX: COMMENT-SYMBOL is not used.

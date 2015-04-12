@@ -46,14 +46,14 @@
 
 (define-with-docs %default-comment-prefix
   "Default comment prefix for DSV"
-  #\#)
+  "#")
 
 (define-with-docs %default-line-break
   "Default line break for DSV"
   "\n")
 
 
-(define (make-parser port delimiter known-delimiters comment-symbol)
+(define (make-parser port delimiter known-delimiters comment-prefix)
   (%make-parser port
                 'unix
                 (if (eq? delimiter 'default)
@@ -64,11 +64,11 @@
                     known-delimiters)
                 (if (eq? comment-symbol 'default)
                     %default-comment-prefix
-                    comment-symbol)))   ;FIXME: Use a string
+                    comment-prefix)))
 
-(define (make-string-parser str delimiter known-delimiters comment-symbol)
+(define (make-string-parser str delimiter known-delimiters comment-prefix)
   (call-with-input-string str (cut make-parser <> delimiter known-delimiters
-                                   comment-symbol)))
+                                   comment-prefix)))
 
 
 (define (string-split/escaped str delimiter)
@@ -99,7 +99,7 @@ escaped delimiter -- that is, skips it.  E.g.:
 
   (define (commented? line)
     "Check if the LINE is commented."
-    (string-prefix? (parser-comment-symbol->string parser) (string-trim line)))
+    (string-prefix? (parser-comment-prefix parser) (string-trim line)))
 
   (let parse ((dsv-list '())
               (line     (parser-read-line parser)))

@@ -27,7 +27,7 @@
             parser-port
             parser-type
             parser-delimiter
-            parser-comment-symbol
+            parser-comment-prefix
             parser-read-line
             parser-string-split
             parser-delimiter->string
@@ -41,13 +41,13 @@
   '(#\, #\: #\; #\| #\tab #\space))
 
 (define-immutable-record-type <dsv-parser>
-  (%make-parser port type delimiter known-delimiters comment-symbol)
+  (%make-parser port type delimiter known-delimiters comment-prefix)
   dsv-parser?
   (port             parser-port)
   (type             parser-type)
   (delimiter        parser-delimiter set-delimiter)
   (known-delimiters parser-known-delimiters)
-  (comment-symbol   parser-comment-symbol))
+  (comment-prefix   parser-comment-prefix))
 
 (define (parser-read-line parser)
   (read-line (parser-port parser)))
@@ -57,9 +57,6 @@
 
 (define (parser-delimiter->string parser)
   (string (parser-delimiter parser)))
-
-(define (parser-comment-symbol->string parser)
-  (string (parser-comment-symbol parser)))
 
 (define (make-delimiter-guesser parser-proc)
   (lambda (parser)
