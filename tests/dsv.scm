@@ -31,14 +31,14 @@
        (equal? "a,b,c" (scm->dsv-string '(("a" "b" "")) #\,))
        (equal? "a:b:"  (scm->dsv-string '(("a" "b" ""))))))
 
-;; (test-assert "guess-delimiter"
-;;   (and (equal? #\,     (guess-delimiter "a,b,c"))
-;;        (equal? #\:     (guess-delimiter "a:b:c"))
-;;        (equal? #\tab   (guess-delimiter "a	b	c"))
-;;        (equal? #\space (guess-delimiter "a b c"))
-;;        (equal? #\:     (guess-delimiter "a,b:c:d:e"))
-;;        (equal? #\,     (guess-delimiter "a,b,c,d:e"))
-;;        (equal? #f      (guess-delimiter "a,b:c"))))
+(test-assert "guess-delimiter"
+  (and (equal? #\,     (guess-delimiter "a,b,c"))
+       (equal? #\:     (guess-delimiter "a:b:c"))
+       (equal? #\tab   (guess-delimiter "a	b	c"))
+       (equal? #\space (guess-delimiter "a b c"))
+       (equal? #\:     (guess-delimiter "a,b:c:d:e"))
+       (equal? #\,     (guess-delimiter "a,b,c,d:e"))
+       (equal? #f      (guess-delimiter "a,b:c"))))
 
 (test-assert "dsv->scm"
   (and (equal? '(("a" "b" "c")) (call-with-input-string "a:b:c"

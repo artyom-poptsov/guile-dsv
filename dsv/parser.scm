@@ -16,10 +16,13 @@
 ;; along with the program.  If not, see <http://www.gnu.org/licenses/>.
 
 (define-module (dsv parser)
-  #:use-module (srfi srfi-9)
+  #:use-module (srfi srfi-1)
+  #:use-module (srfi srfi-9 gnu)
   #:use-module (ice-9 rdelim)
+  #:use-module (scheme documentation)
   #:export (<dsv-parser>
             %make-parser
+            make-delimiter-guesser
             dsv-parser?
             parser-port
             parser-type
@@ -28,15 +31,23 @@
             parser-read-line
             parser-string-split
             parser-delimiter->string
-            parser-comment-symbol->string))
+            parser-comment-symbol->string
 
-(define-record-type <dsv-parser>
-  (%make-parser port type delimiter comment-symbol)
+            ;; Variables
+            %known-delimiters))
+
+(define-with-docs %known-delimiters
+  "List of known delimiters"
+  '(#\, #\: #\; #\| #\tab #\space))
+
+(define-immutable-record-type <dsv-parser>
+  (%make-parser port type delimiter known-delimiters comment-symbol)
   dsv-parser?
-  (port           parser-port)
-  (type           parser-type)
-  (delimiter      parser-delimiter)
-  (comment-symbol parser-comment-symbol))
+  (port             parser-port)
+  (type             parser-type)
+  (delimiter        parser-delimiter set-delimiter)
+  (known-delimiters parser-known-delimiters)
+  (comment-symbol   parser-comment-symbol))
 
 (define (parser-read-line parser)
   (read-line (parser-port parser)))
@@ -49,5 +60,32 @@
 
 (define (parser-comment-symbol->string parser)
   (string (parser-comment-symbol parser)))
+
+(define (make-delimiter-guesser parser-proc)
+  (lambda (parser)
+    "Guess a DSV string delimiter."
+    (and (> (length (parser-known-delimiters parser)) 1)
+         (let* ((get-length (lambda (d)
+                              (let ((parser (set-delimiter parser d)))
+                                (seek (parser-port parser) 0 SEEK_SET)
+                                (catch #t
+                                  (lambda () (length (car (parser-proc parser))))
+                                  (const 0)))))
+                (delimiter-list (map (lambda (d) (cons d (get-length d)))
+                                     (parser-known-delimiters parser)))
+                (guessed-delimiter-list
+                 (fold (lambda (a prev)
+                         (if (not (null? prev))
+                             (let ((a-count (cdr a))
+                                   (b-count (cdar prev)))
+                               (cond ((> a-count b-count) (list a))
+                                     ((= a-count b-count) (append (list a)
+                                                                  prev))
+                                     (else prev)))
+                             (list a)))
+                       '()
+                       delimiter-list)))
+           (and (= (length guessed-delimiter-list) 1)
+                (caar guessed-delimiter-list))))))
 
 ;;; parser.scm ends here

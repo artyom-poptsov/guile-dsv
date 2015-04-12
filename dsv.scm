@@ -73,16 +73,18 @@
 
 (define* (dsv-string->scm str
                           #:optional (delimiter 'default)
-                          #:key (format 'unix))
+                          #:key
+                          (format 'unix)
+                          (comment-symbol 'default))
   "Convert a DSV string STR to a list of values using a DELIMITER.  If the
 DELIMITER is not set, use the default delimiter (colon).  Return a list of
 values."
   (case format
     ((unix)
-     (let ((parser (unix:make-string-parser str delimiter #\#)))
+     (let ((parser (unix:make-string-parser str delimiter 'default comment-symbol)))
        (unix:dsv->scm parser)))
     ((rfc4180)
-     (let ((parser (rfc4180:make-string-parser str delimiter #f))) ;comment-symbol)))
+     (let ((parser (rfc4180:make-string-parser str delimiter 'default comment-symbol)))
        (rfc4180:dsv->scm parser)))
     (else
      (error "Unknown format" format))))
@@ -126,10 +128,12 @@ Skip lines commented with a COMMENT-SYMBOL.  Return a list of values."
 
   (case format
     ((unix)
-     (let ((parser (unix:make-parser port delimiter comment-symbol)))
+     (let ((parser (unix:make-parser port delimiter 'default
+                                     comment-symbol)))
        (unix:scm->dsv parser)))
     ((rfc4180)
-     (let ((parser (rfc4180:make-parser port delimiter comment-symbol)))
+     (let ((parser (rfc4180:make-parser port delimiter 'default
+                                        comment-symbol)))
        (rfc4180:dsv->scm parser)))
     (else
      (error "Unknown format" format))))
@@ -170,15 +174,13 @@ Note that when KNOWN-DELIMITERS list contains less than two elements, the
 procedure returns '#f'."
   (case format
     ((unix)
-     #f)
-     ;; (if known-delimiters
-     ;;     (unix:guess-delimiter str known-delimiters)
-     ;;     (unix:guess-delimiter str)))
+     (let ((parser (unix:make-string-parser str 'default known-delimiters
+                                            'default)))
+       (unix:guess-delimiter parser)))
     ((rfc4180)
-     #f)
-     ;; (if known-delimiters
-     ;;     (rfc4180:guess-delimiter str known-delimiters)
-     ;;     (rfc4180:guess-delimiter str)))
+     (let ((parser (rfc4180:make-string-parser str 'default known-delimiters
+                                               'default)))
+       (rfc4180:guess-delimiter parser)))
     (else
      (error "Unknown format." format))))
 

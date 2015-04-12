@@ -153,16 +153,20 @@ line breaks; default value is CRLF.  Return a DSV string."
 
 ;;; Reading
 
-(define (make-parser port delimiter comment-symbol)
+(define (make-parser port delimiter known-delimiters comment-symbol)
   (%make-parser port
                 'rfc4180
                 (if (eq? delimiter 'default)
                     %default-delimiter
                     delimiter)
+                (if (eq? known-delimiters 'default)
+                    %known-delimiters
+                    known-delimiters)
                 comment-symbol))
 
-(define (make-string-parser str delimiter comment-symbol)
-  (call-with-input-string str (cut make-parser <> delimiter comment-symbol)))
+(define (make-string-parser str delimiter known-delimiters comment-symbol)
+  (call-with-input-string str (cut make-parser <> delimiter known-delimiters
+                                   comment-symbol)))
 
 
 ;; XXX: COMMENT-SYMBOL is not used.
@@ -355,6 +359,6 @@ Throw a 'dsv-parser-error' on an error."
   (fold-file))
 
 ;; TODO: Fix it
-;(define guess-delimiter (make-delimiter-guesser dsv-string->scm))
+(define guess-delimiter (make-delimiter-guesser dsv->scm))
 
 ;;; rfc4180.scm ends here

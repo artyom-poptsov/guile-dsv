@@ -26,22 +26,13 @@
 (define-module (dsv common)
   #:use-module ((srfi srfi-1) #:select (fold))
   #:use-module (scheme documentation)
-  #:export (make-delimiter-guesser
-
-            set-debug! debug debug-fsm debug-fsm-transition debug-fsm-error
-            dsv-error
-
-            ;; Variables
-            %known-delimiters))
+  #:export (set-debug! debug debug-fsm debug-fsm-transition debug-fsm-error
+            dsv-error))
 
 
 (define-with-docs *debug?*
   "Does debug mode enabled?"
   #f)
-
-(define-with-docs %known-delimiters
-  "List of known delimiters"
-  '(#\, #\: #\; #\| #\tab #\space))
 
 
 (define (set-debug! enabled?)
@@ -85,35 +76,5 @@ it as a debug message.."
      (throw 'dsv-parser-error message args))
     ((message . args)
      (throw 'dsv-parser-error message args))))
-
-
-(define* (make-delimiter-guesser parser)
-  "Make a delimiter guesser that uses a PARSER."
-  (let ((get-length (lambda (str d)
-                      "Get length of a parsed DSV data.  Return 0 on an error."
-                      (catch #t
-                        (lambda () (length (car (parser str d))))
-                        (const 0)))))
-    (lambda* (str #:optional (known-delimiters %known-delimiters))
-      "Guess a DSV string STR delimiter.  Optionally accept KNOWN-DELIMITERS
-list for guessing."
-
-      (and (> (length known-delimiters) 1)
-           (let* ((delimiter-list (map (lambda (d) (cons d (get-length str d)))
-                                       known-delimiters))
-                  (guessed-delimiter-list
-                   (fold (lambda (a prev)
-                           (if (not (null? prev))
-                               (let ((a-count (cdr a))
-                                     (b-count (cdar prev)))
-                                 (cond ((> a-count b-count) (list a))
-                                       ((= a-count b-count) (append (list a)
-                                                                    prev))
-                                       (else prev)))
-                               (list a)))
-                         '()
-                         delimiter-list)))
-             (and (= (length guessed-delimiter-list) 1)
-                  (caar guessed-delimiter-list)))))))
 
 ;;; common.scm ends here

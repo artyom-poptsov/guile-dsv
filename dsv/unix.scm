@@ -44,21 +44,31 @@
   "Default delimiter for DSV"
   #\:)
 
+(define-with-docs %default-comment-prefix
+  "Default comment prefix for DSV"
+  #\#)
+
 (define-with-docs %default-line-break
   "Default line break for DSV"
   "\n")
 
 
-(define (make-parser port delimiter comment-symbol)
+(define (make-parser port delimiter known-delimiters comment-symbol)
   (%make-parser port
                 'unix
                 (if (eq? delimiter 'default)
                     %default-delimiter
                     delimiter)
-                comment-symbol))
+                (if (eq? known-delimiters 'default)
+                    %known-delimiters
+                    known-delimiters)
+                (if (eq? comment-symbol 'default)
+                    %default-comment-prefix
+                    comment-symbol)))   ;FIXME: Use a string
 
-(define (make-string-parser str delimiter comment-symbol)
-  (call-with-input-string str (cut make-parser <> delimiter comment-symbol)))
+(define (make-string-parser str delimiter known-delimiters comment-symbol)
+  (call-with-input-string str (cut make-parser <> delimiter known-delimiters
+                                   comment-symbol)))
 
 
 (define (string-split/escaped str delimiter)
@@ -116,6 +126,6 @@ escaped delimiter -- that is, skips it.  E.g.:
    (cut scm->dsv lst <> delimiter #:line-break line-break)))
 
 
-;(define guess-delimiter (make-delimiter-guesser dsv-string->scm))
+(define guess-delimiter (make-delimiter-guesser dsv->scm))
 
 ;;; unix.scm ends here
