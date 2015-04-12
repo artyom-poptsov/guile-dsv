@@ -48,7 +48,7 @@
   (type             parser-type)
   (delimiter        parser-delimiter set-delimiter)
   (known-delimiters parser-known-delimiters)
-  (comment-prefix   parser-comment-prefix))
+  (comment-prefix   parser-comment-prefix))         ; string | 'none
 
 (define (parser-read-line parser)
   (read-line (parser-port parser)))
@@ -61,7 +61,8 @@
 
 (define (parser-commented? parser str)
   "Check if a string STR is commented."
-  (string-prefix? (parser-comment-prefix parser) (string-trim str)))
+  (and (not (eq? (parser-comment-prefix parser) 'none))
+       (string-prefix? (parser-comment-prefix parser) (string-trim str))))
 
 (define (make-delimiter-guesser parser-proc)
   (lambda (parser)
