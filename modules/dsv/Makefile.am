@@ -22,7 +22,7 @@ include $(top_srcdir)/am/guilec
 SOURCES = rfc4180.scm unix.scm parser.scm builder.scm common.scm
 
 GOBJECTS = $(SOURCES:%.scm=%.go)
-moddir=$(guilesitedir)/dsv
+moddir=$(guilesitedir)/modules/dsv
 nobase_dist_mod_DATA = $(SOURCES)
 
 ccachedir=$(libdir)/guile/$(GUILE_EFFECTIVE_VERSION)/site-ccache/dsv
@@ -39,7 +39,7 @@ $(guile_dsv_install_go_files): install-nobase_dist_modDATA
 GUILE_WARNINGS = -Wunbound-variable -Warity-mismatch -Wformat
 SUFFIXES = .scm .go
 
-guilec_opts = --load-path=$(abs_top_srcdir)
+guilec_opts = --load-path=$(abs_top_srcdir)/modules/
 .scm.go:
 	$(AM_V_GUILEC)$(guilec_env) $(GUILEC) $(guilec_opts) \
 	--output=$@ $<
