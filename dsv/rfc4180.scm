@@ -129,10 +129,7 @@
   (string-append (string #\") field (string #\")))
 
 (define* (scm->dsv builder)
-  "Create a DSV document from a native SCM list.  Separate fields using a
-DELIMITER and print the document to a specified PORT.  Optionally accept
-LINE-BREAK argument which specifies the style of line breaks; default value is
-CRLF."
+  "Create a DSV document from a data using a BUILDER."
 
   (define (should-be-enclosed? field)
     "Check if a FIELD should be enclosed in double-quotes."
@@ -184,8 +181,7 @@ CRLF."
 ;;                 `--------------------------------------->[end]--------> STOP
 ;;
 (define (dsv->scm parser)
-  "Read DSV data from a PORT using a DELIMITER.  Return a native SCM list.
-Throw a 'dsv-parser-error' on an error."
+  "Parse a DSV data with a PARSER.  Throw a 'dsv-parser-error' on an error."
   (define* (fold-file #:key
                       (dsv-list     '())
                       (buffer       '())
