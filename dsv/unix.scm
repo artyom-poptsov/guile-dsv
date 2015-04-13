@@ -107,8 +107,8 @@ escaped delimiter -- that is, skips it.  E.g.:
   (%make-builder input-data
                  port
                  'unix
-                 (value-or-default delimiter %default-delimiter)
-                 (value-or-default delimiter %default-line-break)))
+                 (value-or-default delimiter  %default-delimiter)
+                 (value-or-default line-break %default-line-break)))
 
 (define* (scm->dsv builder)
   (builder-build builder
