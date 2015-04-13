@@ -27,9 +27,9 @@
        (equal? '(("a" "b" ""))  (dsv-string->scm "a:b:"))))
 
 (test-assert "scm->dsv-string"
-  (and (equal? "a:b:c" (scm->dsv-string '(("a" "b" "c"))))
-       (equal? "a,b,c" (scm->dsv-string '(("a" "b" "")) #\,))
-       (equal? "a:b:"  (scm->dsv-string '(("a" "b" ""))))))
+  (and (equal? "a:b:c\n" (scm->dsv-string '(("a" "b" "c"))))
+       (equal? "a,b,\n"  (scm->dsv-string '(("a" "b" "")) #\,))
+       (equal? "a:b:\n"  (scm->dsv-string '(("a" "b" ""))))))
 
 (test-assert "guess-delimiter"
   (and (equal? #\,     (guess-delimiter "a,b,c"))
@@ -69,9 +69,6 @@
        (string=? "a:b:c\nd:e:f\n"
                  (call-with-output-string
                   (cut scm->dsv '(("a" "b" "c") ("d" "e" "f")) <>)))))
-
-(test-assert "scm->dsv-string"
-  (string=? "a:b:c" (scm->dsv-string '((a b c)))))
 
 (test-end "dsv")
 
