@@ -128,13 +128,11 @@ port.  If a DELIMITER is not set, use the default delimiter for a FORMAT."
                  (list lst))))
     (case format
       ((unix)
-       (unix:scm->dsv lst port (if (equal? delimiter 'default)
-                                   unix:%default-delimiter
-                                   delimiter)))
+       (let ((builder (unix:make-builder lst port delimiter 'default)))
+         (unix:scm->dsv builder)))
       ((rfc4180)
-       (rfc4180:scm->dsv lst port (if (equal? delimiter 'default)
-                                      rfc4180:%default-delimiter
-                                      delimiter)))
+       (let ((builder (rfc4180:make-builder lst port delimiter 'default)))
+         (rfc4180:scm->dsv builder)))
       (else
        (error "Unknown format" format)))))
 
@@ -149,13 +147,9 @@ string."
                  (list lst))))
     (case format
       ((unix)
-       (unix:scm->dsv-string lst (if (equal? delimiter 'default)
-                                     unix:%default-delimiter
-                                     delimiter)))
+       (unix:scm->dsv-string lst delimiter 'default))
       ((rfc4180)
-       (rfc4180:scm->dsv-string lst (if (equal? delimiter 'default)
-                                        rfc4180:%default-delimiter
-                                        delimiter)))
+       (rfc4180:scm->dsv-string lst delimiter 'default))
       (else
        (error "Unknown format" format)))))
 

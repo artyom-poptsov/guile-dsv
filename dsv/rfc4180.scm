@@ -34,8 +34,10 @@
   #:use-module (scheme documentation)
   #:use-module (dsv common)
   #:use-module (dsv parser)
+  #:use-module (dsv builder)
   #:export (make-parser
             make-string-parser
+            make-builder
             scm->dsv
             scm->dsv-string
             dsv->scm
@@ -110,6 +112,13 @@
 
 ;;; Writing
 
+(define (make-builder scm port delimiter line-break)
+  (%make-builder scm
+                 port
+                 'rfc4180
+                 (value-or-default delimiter  %default-delimiter)
+                 (value-or-default line-break %default-line-break)))
+
 
 (define (escape-double-quotes field)
   "Escape each double-quote in a FIELD with additional double-quote."
@@ -119,7 +128,7 @@
   "Quote a FIELD with double-quotes."
   (string-append (string #\") field (string #\")))
 
-(define* (scm->dsv scm port delimiter #:key (line-break %default-line-break))
+(define* (scm->dsv builder)
   "Create a DSV document from a native SCM list.  Separate fields using a
 DELIMITER and print the document to a specified PORT.  Optionally accept
 LINE-BREAK argument which specifies the style of line breaks; default value is
@@ -127,30 +136,21 @@ CRLF."
 
   (define (should-be-enclosed? field)
     "Check if a FIELD should be enclosed in double-quotes."
-    (or (string-index    field (char-set delimiter #\" #\newline))
-        (string-contains field line-break)))
+    (or (string-index field    (char-set (builder-delimiter builder)
+                                         #\" #\newline))
+        (string-contains field (builder-line-break builder))))
 
-  (for-each
-   (lambda (row)
-     (display
-      (string-join
-       (map (lambda (field)
-              (let ((escaped-field (escape-double-quotes field)))
-                (if (should-be-enclosed? escaped-field)
-                    (quote-field escaped-field)
-                    field)))
-            row)
-       (string delimiter))
-      port)
-     (display line-break port))
-   scm))
+  (builder-build builder
+                 (lambda (field)
+                   (let ((escaped-field (escape-double-quotes field)))
+                     (if (should-be-enclosed? escaped-field)
+                         (quote-field escaped-field)
+                         field)))))
 
-(define* (scm->dsv-string scm delimiter #:key (line-break %default-line-break))
-  "Create a DSV string from a native SCM list.  Separate fields using a
-DELIMITER.  Optionally accept LINE-BREAK argument which specifies the style of
-line breaks; default value is CRLF.  Return a DSV string."
+(define (scm->dsv-string scm delimiter line-break)
   (call-with-output-string
-   (cut scm->dsv scm <> delimiter #:line-break line-break)))
+   (lambda (port)
+     (scm->dsv (make-builder scm port delimiter line-break)))))
 
 
 ;;; Reading

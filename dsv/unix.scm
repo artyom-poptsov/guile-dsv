@@ -30,8 +30,10 @@
   #:use-module (scheme documentation)
   #:use-module (dsv common)
   #:use-module (dsv parser)
+  #:use-module (dsv builder)
   #:export (make-parser
             make-string-parser
+            make-builder
             dsv->scm
             dsv-string->scm
             scm->dsv
@@ -100,19 +102,22 @@ escaped delimiter -- that is, skips it.  E.g.:
             (parse dsv-list (parser-read-line parser)))
         (reverse dsv-list))))
 
-(define* (scm->dsv scm port delimiter #:key (line-break %default-line-break))
+
+(define (make-builder input-data port delimiter line-break)
+  (%make-builder input-data
+                 port
+                 'unix
+                 (value-or-default delimiter %default-delimiter)
+                 (value-or-default delimiter %default-line-break)))
 
-  (define (->dsv lst)
-    (string-join (map (cut escape-special-chars <> delimiter #\\)
-                      lst)
-                 (string delimiter)))
+(define* (scm->dsv builder)
+  (builder-build builder
+                 (cute escape-special-chars <> (builder-delimiter builder) #\\)))
 
-  (for-each (cut format port "~a~a" <> line-break)
-            (map ->dsv scm)))
-
-(define* (scm->dsv-string lst delimiter #:key (line-break %default-line-break))
+(define (scm->dsv-string scm delimiter line-break)
   (call-with-output-string
-   (cut scm->dsv lst <> delimiter #:line-break line-break)))
+   (lambda (port)
+     (scm->dsv (make-builder scm port delimiter line-break)))))
 
 
 (define guess-delimiter (make-delimiter-guesser dsv->scm))
