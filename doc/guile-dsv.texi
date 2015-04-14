@@ -73,10 +73,10 @@ Guile-DSV is a module that provides procedures for working with
 delimiter-separated values} (DSV) format for programs written in
 @url{https://www.gnu.org/software/guile/, GNU Guile}.
 
-Currently Guile-DSV supports
+Guile-DSV supports both
 @url{http://www.catb.org/~esr/writings/taoup/html/ch05s02.html#id2901882, the
-Unix-style DSV format} and  @url{https://tools.ietf.org/html/rfc4180,
-RFC 4180}.
+Unix-style DSV format} and @url{https://tools.ietf.org/html/rfc4180, RFC
+4180}.
 
 @node Installation
 @chapter Installation
@@ -92,7 +92,9 @@ Guile-DSV depends on the following packages:
 @item @url{http://www.nongnu.org/guile-lib/, Guile Library}, 0.1.9+
 @end itemize
 
-Get the sources of Guile-DSV from GitHub:
+Get the sources of Guile-DSV from GitHub using Git (a good introduction to Git
+is @url{https://git-scm.com/book/en/v2, Pro Git} book, which is available
+online):
 
 @example
 $ git clone git@@github.com:artyom-poptsov/guile-dsv.git
@@ -132,8 +134,8 @@ and it will give you a suggestion.
 
 These procedures are provided by @code{(dsv)} module.
 
-Many of the procedures accept an optional @var{format} argument that specifies
-the format of DSV data.  Allowed formats are the following symbols:
+All the procedures accept an optional @var{format} argument that specifies the
+format of DSV data.  Allowed formats are the following symbols:
 
 @table @samp
 @item unix
@@ -143,16 +145,38 @@ Unix-style DSV format}
 @url{https://tools.ietf.org/html/rfc4180, RFC 4180}
 @end table
 
-By default @var{format} is set to @code{'unix}.
+By default a @var{format} is set to @code{'unix}.
 
-@deffn {Scheme Procedure} dsv-string->scm string [delimiter] [#:format='unix]
-Convert a DSV @var{string} to a list of values using a specified @var{format}
-and a @var{delimiter}.  If the @var{delimiter} is not set, use the default
-delimiter for the specified format.  Return a list of values.
+@deffn {Scheme Procedure} dsv->scm [port [delimiter]] [#:format='unix] [#:comment-prefix='default]
+@deffnx {Scheme Procedure} dsv-string->scm string [delimiter] [#:format='unix] [#:comment-symbol='default]
+Read DSV data in a specified @var{format} from a @var{port}.  If the
+@var{port} is not set, read from the default input port.  If a @var{delimiter}
+is not set, use the default delimiter for the format.
+
+When a @var{format} is set to @code{'unix}, lines commented with a
+@var{comment-prefix} will be skipped.  @var{comment-prefix} is expected to be
+either a string or @code{'default} symbol (which means to use the default
+prefix for the format), or @code{'none} symbol (that tells the procedure not
+to skip anything); default value of @var{comment-prefix} for Unix format is
+``#''.
+
+Empty lines in DSV data will be converted to lists that contain one element
+(an empty string).
+
+The @code{dsv-string->scm} procedure works the same way as @code{dsv->scm},
+except it takes a DSV @var{string} instead of a port.
+
+The procedure returns a list of lists that represents a DSV table.
 
 Examples:
 
 @lisp
+(dsv->scm (open-input-file "/etc/passwd"))
+@result{}
+(...
+ ("news" "x" "9" "13" "news" "/usr/lib/news" "/bin/false")
+ ("root" "x" "0" "0" "root" "/root" "/bin/zsh"))
+
 (dsv-string->scm "a:b:c")
 @result{} '(("a" "b" "c"))
 
@@ -162,59 +186,21 @@ Examples:
 (dsv-string->scm "a,b\\,c" #\,)
 @result{} '(("a" "b,c"))
 @end lisp
-@end deffn
-
-@deffn {Scheme Procedure} scm->dsv-string list [delimiter] [#:format='unix]
-Convert a @var{list} to a DSV string using a specified @var{format} and a
-@var{delimiter}.  If the @var{delimiter} is not set, use the default delimite
-for the specified format.  Return a DSV string.
-
-A DSV table can be passed to the procedure as a two-dimensional @var{list};
-respectively an one-dimensional @var{list} (that is, list of strings) will be
-printed as a single table row.
-
-Example:
-
-@lisp
-(scm->dsv-string '("a" "b" "c"))
-@result{} "a:b:c"
-
-(scm->dsv-string '("a" "b" "c") #\,)
-@result{} "a,b,c"
-
-(scm->dsv-string '("a" "b,c") #\,)
-@result{} "a,b\\,c"
-@end lisp
-
-@end deffn
-
-@deffn {Scheme Procedure} dsv->scm [port [delimiter]] [#:format='unix] [#:comment-symbol=#\#]
-Read DSV data in a specified @var{format} from a @var{port}.  If the
-@var{port} is not set, read from the default input port.  If a @var{delimiter}
-is not set, use the default delimiter for the format.  Skip lines commented
-with a @var{comment-symbol}.  Return a list of values.
-
-Example:
-
-@lisp
-(dsv->scm (open-input-file "/etc/passwd"))
-@result{}
-(...
- ("news" "x" "9" "13" "news" "/usr/lib/news" "/bin/false")
- ("root" "x" "0" "0" "root" "/root" "/bin/zsh"))
-@end lisp
 
 @end deffn
 
 @deffn {Scheme Procedure} scm->dsv list [port [delimiter]] [#:format='unix]
+@deffnx {Scheme Procedure} scm->dsv-string list [delimiter] [#:format='unix]
 Write a list of values @var{list} as a sequence of DSV strings in a specified
 @var{format} to a @var{port}.  If the @var{port} is not set, write to the
 default output port.  If a @var{delimiter} is not set, use the default
-delimiter (colon).
+delimiter for a @var{format}.
 
-A DSV table can be passed to the procedure as a two-dimensional @var{list};
-respectively an one-dimensional @var{list} (that is, list of strings) will be
-printed as a single table row.
+The procedure accepts either a DSV table (as a two-dimensional @var{list}), or
+a single table row (as a one-dimesional @var{list} of strings).
+
+The @code{scm->dsv-string} procedure works the same way as @code{scm->dsv},
+except it returns DSV data as a string instead of printing it to a port.
 
 Examples:
 
@@ -227,12 +213,28 @@ Examples:
 @print{}
 news:x:9:13:news:/usr/lib/news:/bin/false
 root:x:0:0:root:/root:/bin/zsh
+
+(scm->dsv-string '("a" "b" "c"))
+@result{} "a:b:c\n"
+
+;; If a delimiter occures inside a field, it will be escaped with a backslash:
+(scm->dsv-string '("a" "b:c"))
+@result{} "a:b\\:c\n"
+
+;; Use a custom field delimiter:
+(scm->dsv-string '("a" "b" "c") #\,)
+@result{} "a,b,c\n"
+
+;; Make use of RFC 4180:
+(scm->dsv-string '("a" "b" "c,d") #:format 'rfc4180)
+@result{} "a,b,\"c,d\"\r\n"
+
 @end lisp
 
 @end deffn
 
 @deffn {Scheme Procedure} guess-delimiter string [known-delimiters] [#:format='unix]
-Guess a DSV @var{string} delimiter.  Optionally accept list of
+Guess a DSV @var{string} delimiter.  Optionally accept a list of
 @var{known-delimiters} as an argument.  Default known delimiters are:
 @code{#\,}, @code{#\:}, @code{#\;}, @code{#\|}, @code{#\tab}, @code{#\space}.
 
