@@ -87,7 +87,7 @@ values."
     ((unix)
      (let ((parser (unix:make-parser port delimiter 'default
                                      comment-prefix)))
-       (unix:scm->dsv parser)))
+       (unix:dsv->scm parser)))
     ((rfc4180)
      (let ((parser (rfc4180:make-parser port delimiter 'default
                                         comment-prefix)))
