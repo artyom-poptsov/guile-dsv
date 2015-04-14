@@ -77,7 +77,7 @@
                    (delimiter 'default)
                    #:key
                    (format         'unix)
-                   (comment-prefix #\#))
+                   (comment-prefix 'default))
   "Read DSV data from a PORT.  If the PORT is not set, read from the default
 input port.  If a DELIMITER is not set, use the default delimiter for a
 FORMAT.  Skip lines commented with a COMMENT-PREFIX.  Return a list of

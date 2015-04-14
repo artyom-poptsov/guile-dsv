@@ -119,14 +119,20 @@ escaped delimiter -- that is, skips it.  E.g.:
          (debug-fsm state "line: ~s~%" line)
          (cond
           ((not (eof-object? line))
-           (let ((rec (string-split/escaped line (parser-delimiter parser))))
-             (cond
-              ((string-suffix? "\\" (last rec))
-               (debug-fsm-transition state 'read-ln)
-               (fold-file dsv-list (splice buffer rec) 'read-ln))
-              (else
-               (debug-fsm-transition state 'add)
-               (fold-file dsv-list (splice buffer rec) 'add)))))
+           (cond
+            ((parser-commented? parser line)
+             (debug-fsm state "the line is commented out~%")
+             (debug-fsm-transition state state)
+             (fold-file dsv-list buffer state))
+            (else
+             (let ((rec (string-split/escaped line (parser-delimiter parser))))
+               (cond
+                ((string-suffix? "\\" (last rec))
+                 (debug-fsm-transition state 'read-ln)
+                 (fold-file dsv-list (splice buffer rec) 'read-ln))
+                (else
+                 (debug-fsm-transition state 'add)
+                 (fold-file dsv-list (splice buffer rec) 'add)))))))
           (else
            (debug-fsm-transition state 'end)
            (fold-file dsv-list buffer 'end)))))
