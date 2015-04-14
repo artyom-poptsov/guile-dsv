@@ -91,16 +91,53 @@ escaped delimiter -- that is, skips it.  E.g.:
           fields)))
 
 
+(define* (splice lst-1 lst-2 #:optional (delimiter ""))
+  (format #t "splice: lst-1: ~a; lst-2: ~a~%" lst-1 lst-2)
+  (cond
+   ((null? lst-1)
+    lst-2)
+   ((null? lst-2)
+    lst-1)
+   ((and (null? lst-1) (null? lst-2))
+    '())
+   (else
+    (append (drop-right lst-1 1)
+            (list (string-append (string-drop-right (last lst-1) 1)
+                                 delimiter
+                                 (car lst-2)))
+            (drop lst-2 1)))))
+
 (define (dsv->scm parser)
-  (let parse ((dsv-list '())
-              (line     (parser-read-line parser)))
-    (if (not (eof-object? line))
-        (if (not (parser-commented? parser line))
-            (parse (cons (string-split/escaped line (parser-delimiter parser))
-                         dsv-list)
-                   (parser-read-line parser))
-            (parse dsv-list (parser-read-line parser)))
-        (reverse dsv-list))))
+  (let fold-file ((dsv-list '())
+                  (buffer   '())
+                  (state    'read-ln))
+    (debug-fsm-transition state)
+    (case state
+      ((read-ln)
+       (debug-fsm state "dsv-list: ~s; buffer: ~s~%" dsv-list buffer)
+       (let ((line (parser-read-line parser)))
+         (debug-fsm state "line: ~s~%" line)
+         (cond
+          ((not (eof-object? line))
+           (let ((rec (string-split/escaped line (parser-delimiter parser))))
+             (cond
+              ((string-suffix? "\\" (last rec))
+               (debug-fsm-transition state 'read-ln)
+               (fold-file dsv-list (splice buffer rec) 'read-ln))
+              (else
+               (debug-fsm-transition state 'add)
+               (fold-file dsv-list (splice buffer rec) 'add)))))
+          (else
+           (debug-fsm-transition state 'end)
+           (fold-file dsv-list buffer 'end)))))
+
+      ((add)
+       (debug-fsm-transition state 'read-ln)
+       (fold-file (cons buffer dsv-list) '() 'read-ln))
+
+      ((end)
+       (debug-fsm-transition state 'STOP 'final)
+       (reverse dsv-list)))))
 
 
 (define (make-builder input-data port delimiter line-break)
