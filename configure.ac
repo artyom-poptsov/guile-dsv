@@ -2,7 +2,7 @@ dnl   configuration script for Guile-DSV
 dnl   Process this file with autoconf to produce configure.
 dnl
 
-define(GUILE_SSH_CONFIGURE_COPYRIGHT, [[
+define(GUILE_DSV_CONFIGURE_COPYRIGHT, [[
 Copyright (C) 2013, 2014, 2015 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 
 This file is part of Guile-DSV.
@@ -25,7 +25,7 @@ AC_INIT([Guile-DSV], [0.1.0], [poptsov.artyom@gmail.com],
                      [guile-dsv],
                      [https://github.com/artyom-poptsov/guile-dsv])
 
-AC_COPYRIGHT(GUILE_SSH_CONFIGURE_COPYRIGHT)
+AC_COPYRIGHT(GUILE_DSV_CONFIGURE_COPYRIGHT)
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 
