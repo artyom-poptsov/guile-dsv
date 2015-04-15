@@ -21,6 +21,10 @@ ACLOCAL_AMFLAGS = -I build-aux
 
 SUBDIRS = am build-aux tests doc m4 modules
 
+EXTRA_DIST = \
+	.dir-locals.el	\
+	TODO
+
 gen-ChangeLog:
 	if test -d .git; then				\
 	  $(top_srcdir)/build-aux/gitlog-to-changelog	\
