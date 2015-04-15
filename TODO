@@ -1,5 +1,14 @@
 -*- mode: org -*-
 
+#+TITLE:   Guile-DSV TODO's, ideas and known bugs
+#+STARTUP: content hidestars
+
+Copyright (C) 2015 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+
+  Copying and distribution of this file, with or without modification,
+  are permitted in any medium without royalty provided the copyright
+  notice and this notice are preserved.
+
 * General
 ** Implement empty rows skipping
    Add a flag for 'dsv->scm' and 'dsv-string->scm' that tells the procedures
