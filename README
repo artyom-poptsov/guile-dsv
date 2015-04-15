@@ -3,8 +3,7 @@
 Guile-DSV is a GNU Guile module for working with the [[https://en.wikipedia.org/wiki/Delimiter-separated_values][delimiter-separated
 values]] (DSV) data format.
 
-Currently Guile-DSV supports [[http://www.catb.org/~esr/writings/taoup/html/ch05s02.html#id2901882][the Unix-style DSV format]]; support of [[https://tools.ietf.org/html/rfc4180][RFC4180]] is
-planned.
+Guile-DSV supports [[http://www.catb.org/~esr/writings/taoup/html/ch05s02.html#id2901882][the Unix-style DSV format]] and [[https://tools.ietf.org/html/rfc4180][RFC 4180]] format.
 
 * Requirements
 
@@ -24,6 +23,7 @@ Files:
 
 Directories:
  - doc      -- Documentation in Texinfo format.
+ - modules  -- Guile modules.
  - tests    -- Unit tests.
 
 Files are usually installed according to the prefix specified to
@@ -32,6 +32,11 @@ gives you:
 
 Guile modules, in =${GUILE_SITE}=:
  - dsv.scm
+ - dsv/rfc4180.scm
+ - dsv/unix.scm
+ - dsv/parser.scm
+ - dsv/builder.scm
+ - dsv/common.scm
 
 All the modules will be compiled and produced .go files will be installed to
 =site-ccache= directory which is something like this:
