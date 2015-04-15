@@ -40,6 +40,7 @@
        (equal? #\,     (guess-delimiter "a,b,c,d:e"))
        (equal? #f      (guess-delimiter "a,b:c"))))
 
+
 (test-assert "dsv->scm"
   (and (equal? '(("a" "b" "c")) (call-with-input-string "a:b:c"
                                   (cut dsv->scm <>)))
@@ -51,17 +52,24 @@
        (equal? '(("1") ("2"))
                (call-with-input-string
                    "1\n2\n"
-                 (cut dsv->scm <>)))
-       ;; Handling of commented lines
-       (equal? '(("a" "b" "c"))
-               (call-with-input-string
-                   "# this is a comment\na:b:c\n"
-                 (cut dsv->scm <>)))
-       (equal? '(("a" "b" "c"))
-               (call-with-input-string
-                   "; this is a comment\na:b:c\n"
-                 (cut dsv->scm <> #:comment-prefix ";")))))
+                 (cut dsv->scm <>)))))
 
+;; Handling of commented lines
+(test-assert "dsv->scm, comment prefix"
+  (and (equal? '(("a" "b" "c"))
+               (call-with-input-string
+                "# this is a comment\na:b:c\n"
+                 (cut dsv->scm <>)))
+       (equal? '(("a" "b" "c"))
+               (call-with-input-string
+                "; this is a comment\na:b:c\n"
+                (cut dsv->scm <> #:comment-prefix ";")))
+       (equal? '(("# this is a comment"))
+               (call-with-input-string
+                "# this is a comment"
+                (cut dsv->scm <> #:comment-prefix 'none)))))
+
+
 (test-assert "scm->dsv"
   (and (string=? "a:b:c\n"
                  (call-with-output-string
