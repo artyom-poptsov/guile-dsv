@@ -60,7 +60,7 @@
        (equal? '(("a" "b" "c"))
                (call-with-input-string
                    "; this is a comment\na:b:c\n"
-                 (cut dsv->scm <> #:comment-symbol #\;)))))
+                 (cut dsv->scm <> #:comment-prefix ";")))))
 
 (test-assert "scm->dsv"
   (and (string=? "a:b:c\n"
