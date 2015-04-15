@@ -65,6 +65,16 @@
 
 ;;; scm->dsv
 
+(test-assert "scm->dsv"
+  (and (string=? "aaa,\"b\"\"bb\",ccc\r\n"
+                 (call-with-output-string
+                  (cut scm->dsv '(("aaa" "b\"bb" "ccc")) <>
+                       #:format 'rfc4180)))
+       (string=? "a,b,c\r\nd,e,f\r\n"
+                 (call-with-output-string
+                  (cut scm->dsv '(("a" "b" "c") ("d" "e" "f")) <>
+                       #:format 'rfc4180)))))
+
 (test-assert "scm->dsv-string"
   (and (let ((data '(("aaa" "b\"bb" "ccc"))))
          (equal? data
