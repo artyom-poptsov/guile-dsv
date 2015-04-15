@@ -21,13 +21,8 @@
 
 (test-begin "rfc4180")
 
-(test-assert "dsv-string->scm"
-  (and (equal? '(("a" "b"))
-               (dsv-string->scm "a,b" #\, #:format 'rfc4180))
-       (equal? '(("a,b" "c"))
-               (dsv-string->scm "\"a,b\",c" #\, #:format 'rfc4180))
-       (equal? '(("a,b\nc" "d"))
-               (dsv-string->scm "\"a,b\nc\",d" #\, #:format 'rfc4180))))
+
+;;; dsv->scm
 
 (test-assert "dsv->scm"
   (and (equal? '(("a" "b" "c\nd,e" "f"))
@@ -59,6 +54,17 @@
           #f)
          (const #t))))
 
+(test-assert "dsv-string->scm"
+  (and (equal? '(("a" "b"))
+               (dsv-string->scm "a,b" #\, #:format 'rfc4180))
+       (equal? '(("a,b" "c"))
+               (dsv-string->scm "\"a,b\",c" #\, #:format 'rfc4180))
+       (equal? '(("a,b\nc" "d"))
+               (dsv-string->scm "\"a,b\nc\",d" #\, #:format 'rfc4180))))
+
+
+;;; scm->dsv
+
 (test-assert "scm->dsv-string"
   (and (let ((data '(("aaa" "b\"bb" "ccc"))))
          (equal? data
@@ -66,6 +72,9 @@
                   (scm->dsv-string data #:format 'rfc4180)
                   #\,
                   #:format 'rfc4180)))))
+
+
+;;; guess-delimiter
 
 (test-assert "guess-delimiter"
   (and (equal? #\,     (guess-delimiter "a,b,c"))

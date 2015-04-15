@@ -21,26 +21,9 @@
 
 (test-begin "dsv")
 
-(test-assert "dsv-string->scm"
-  (and (equal? '(("a" "b" "c")) (dsv-string->scm "a:b:c"))
-       (equal? '(("a" "b" "c")) (dsv-string->scm "a,b,c" #\,))
-       (equal? '(("a" "b" ""))  (dsv-string->scm "a:b:"))))
-
-(test-assert "scm->dsv-string"
-  (and (equal? "a:b:c\n" (scm->dsv-string '(("a" "b" "c"))))
-       (equal? "a,b,\n"  (scm->dsv-string '(("a" "b" "")) #\,))
-       (equal? "a:b:\n"  (scm->dsv-string '(("a" "b" ""))))))
-
-(test-assert "guess-delimiter"
-  (and (equal? #\,     (guess-delimiter "a,b,c"))
-       (equal? #\:     (guess-delimiter "a:b:c"))
-       (equal? #\tab   (guess-delimiter "a	b	c"))
-       (equal? #\space (guess-delimiter "a b c"))
-       (equal? #\:     (guess-delimiter "a,b:c:d:e"))
-       (equal? #\,     (guess-delimiter "a,b,c,d:e"))
-       (equal? #f      (guess-delimiter "a,b:c"))))
-
 
+;;; dsv->scm
+
 (test-assert "dsv->scm"
   (and (equal? '(("a" "b" "c")) (call-with-input-string "a:b:c"
                                   (cut dsv->scm <>)))
@@ -53,6 +36,11 @@
                (call-with-input-string
                    "1\n2\n"
                  (cut dsv->scm <>)))))
+
+(test-assert "dsv-string->scm"
+  (and (equal? '(("a" "b" "c")) (dsv-string->scm "a:b:c"))
+       (equal? '(("a" "b" "c")) (dsv-string->scm "a,b,c" #\,))
+       (equal? '(("a" "b" ""))  (dsv-string->scm "a:b:"))))
 
 ;; Handling of commented lines
 (test-assert "dsv->scm, comment prefix"
@@ -70,6 +58,8 @@
                 (cut dsv->scm <> #:comment-prefix 'none)))))
 
 
+;;; scm->dsv
+
 (test-assert "scm->dsv"
   (and (string=? "a:b:c\n"
                  (call-with-output-string
@@ -77,6 +67,23 @@
        (string=? "a:b:c\nd:e:f\n"
                  (call-with-output-string
                   (cut scm->dsv '(("a" "b" "c") ("d" "e" "f")) <>)))))
+
+(test-assert "scm->dsv-string"
+  (and (equal? "a:b:c\n" (scm->dsv-string '(("a" "b" "c"))))
+       (equal? "a,b,\n"  (scm->dsv-string '(("a" "b" "")) #\,))
+       (equal? "a:b:\n"  (scm->dsv-string '(("a" "b" ""))))))
+
+
+;;; guess-delimiter
+
+(test-assert "guess-delimiter"
+  (and (equal? #\,     (guess-delimiter "a,b,c"))
+       (equal? #\:     (guess-delimiter "a:b:c"))
+       (equal? #\tab   (guess-delimiter "a	b	c"))
+       (equal? #\space (guess-delimiter "a b c"))
+       (equal? #\:     (guess-delimiter "a,b:c:d:e"))
+       (equal? #\,     (guess-delimiter "a,b,c,d:e"))
+       (equal? #f      (guess-delimiter "a,b:c"))))
 
 (test-end "dsv")
 
