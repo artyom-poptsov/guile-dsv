@@ -263,6 +263,15 @@ Examples:
 
 @end deffn
 
+@section Debugging
+
+@deffn {Scheme Procedure} set-debug! enabled?
+Enable or disable debugging traces by setting the debug mode to an
+@var{enabled?} boolean value.
+
+By default the debug mode is disabled.
+@end deffn
+
 @node GNU Free Documentation License
 @appendix GNU Free Documentation License
 
