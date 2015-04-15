@@ -92,7 +92,6 @@ escaped delimiter -- that is, skips it.  E.g.:
 
 
 (define* (splice lst-1 lst-2 #:optional (delimiter ""))
-  (format #t "splice: lst-1: ~a; lst-2: ~a~%" lst-1 lst-2)
   (cond
    ((null? lst-1)
     lst-2)
