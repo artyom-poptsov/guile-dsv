@@ -22,7 +22,7 @@ include $(top_srcdir)/am/guilec
 SOURCES = rfc4180.scm unix.scm parser.scm builder.scm common.scm
 
 GOBJECTS = $(SOURCES:%.scm=%.go)
-moddir=$(guilesitedir)/modules/dsv
+moddir=$(guilesitedir)/dsv
 nobase_dist_mod_DATA = $(SOURCES)
 
 ccachedir=$(libdir)/guile/$(GUILE_EFFECTIVE_VERSION)/site-ccache/dsv
