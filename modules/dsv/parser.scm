@@ -15,6 +15,15 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with the program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+;;; Commentary:
+
+;; A general <dsv-parser> type definition.  The <dsv-parser> is used by Unix
+;; and RFC 4180 parsers to implement their specific procedures.
+
+
+;;; Code:
+
 (define-module (dsv parser)
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-9 gnu)

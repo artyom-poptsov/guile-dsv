@@ -18,6 +18,9 @@
 
 ;;; Commentary:
 
+;; A parser for Unix-style of DSV data format as described in
+;; <http://www.catb.org/~esr/writings/taoup/html/ch05s02.html#id2901882>
+
 
 ;;; Code:
 

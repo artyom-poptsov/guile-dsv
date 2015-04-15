@@ -24,7 +24,7 @@
 ;; '/etc/inittab' files.
 ;;
 ;; Most of the procedures take an optinal #:format argument that specifies the
-;; format of DSV.  Default value of the #:format is 'unix'.
+;; format of DSV.  Default value of the #:format is 'unix.
 ;;
 ;; Some examples:
 ;;
@@ -50,11 +50,12 @@
 ;;
 ;; These procedures are exported:
 ;;
-;;   dsv-string->scm string [delimiter] [#:format 'unix]
-;;   scm->dsv-string list [delimiter] [#:format 'unix]
 ;;   dsv->scm [port [delimiter]] [#:format 'unix] [#:comment-prefix #\#]
+;;   dsv-string->scm string [delimiter] [#:format 'unix] [#:comment-prefix #\#]
 ;;   scm->dsv [port [delimiter]] [#:format 'unix]
-;;   guess-delimiter string [#:format 'unix]
+;;   scm->dsv-string lst [delimiter] [#:format 'unix]
+;;   guess-delimiter str [known-delimiters] [#:format 'unix]
+;;   set-debug! [enabled?]
 ;;
 
 
