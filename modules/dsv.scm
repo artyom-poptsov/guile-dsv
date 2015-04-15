@@ -86,7 +86,7 @@
   "Read DSV data from a PORT.  If the PORT is not set, read from the default
 input port.  If a DELIMITER is not set, use the default delimiter for a
 FORMAT.  Skip lines commented with a COMMENT-PREFIX.  Return a list of
-values."
+values, or throw 'dsv-parser-error' on an error."
 
   (case format
     ((unix)
@@ -98,7 +98,7 @@ values."
                                         comment-prefix)))
        (rfc4180:dsv->scm parser)))
     (else
-     (error "Unknown format" format))))
+     (dsv-error "Unknown format" format))))
 
 (define* (dsv-string->scm str
                           #:optional (delimiter 'default)
@@ -107,7 +107,8 @@ values."
                           (comment-prefix 'default))
   "Convert a DSV string STR to a list of values using a DELIMITER.  If the
 DELIMITER is not set, use the default delimiter for a FORMAT.  Skip lines
-commented with a COMMENT-PREFIX.  Return a list of values."
+commented with a COMMENT-PREFIX.  Return a list of values, or throw
+'dsv-parser-error' on an error."
   (case format
     ((unix)
      (let ((parser (unix:make-string-parser str delimiter 'default comment-prefix)))
@@ -116,7 +117,7 @@ commented with a COMMENT-PREFIX.  Return a list of values."
      (let ((parser (rfc4180:make-string-parser str delimiter 'default comment-prefix)))
        (rfc4180:dsv->scm parser)))
     (else
-     (error "Unknown format" format))))
+     (dsv-error "Unknown format" format))))
 
 
 (define* (scm->dsv lst
@@ -127,7 +128,8 @@ commented with a COMMENT-PREFIX.  Return a list of values."
                    (format    'unix))
   "Write a list of values LST as a sequence of DSV strings to a PORT using a
 specified DSV FORMAT.  If the PORT is not set, write to the default output
-port.  If a DELIMITER is not set, use the default delimiter for a FORMAT."
+port.  If a DELIMITER is not set, use the default delimiter for a FORMAT.
+Throws 'dsv-parser-error' on an error.  Return value is unspecified."
   (let ((lst (if (or (null? lst) (list? (car lst)))
                  lst
                  (list lst))))
@@ -139,14 +141,14 @@ port.  If a DELIMITER is not set, use the default delimiter for a FORMAT."
        (let ((builder (rfc4180:make-builder lst port delimiter 'default)))
          (rfc4180:scm->dsv builder)))
       (else
-       (error "Unknown format" format)))))
+       (dsv-error "Unknown format" format)))))
 
 (define* (scm->dsv-string lst
                            #:optional (delimiter 'default)
                            #:key (format 'unix))
   "Convert a list LST to a DSV string using a specified DSV FORMAT.  If the
 DELIMITER is not set, use the default delimiter for a FORMAT.  Return a DSV
-string."
+string; or throw a 'dsv-parser-error' on an error."
   (let ((lst (if (or (null? lst) (list? (car lst)))
                  lst
                  (list lst))))
@@ -156,14 +158,15 @@ string."
       ((rfc4180)
        (rfc4180:scm->dsv-string lst delimiter 'default))
       (else
-       (error "Unknown format" format)))))
+       (dsv-error "Unknown format" format)))))
 
 
 (define* (guess-delimiter str #:optional (known-delimiters 'default)
                           #:key (format 'unix))
   "Guess a DSV string STR delimiter.  Optionally accept list of
 KNOWN-DELIMITERS as an argument.  The procedure returns guessed delimiter or
-'#f' if it cannot determine a delimiter based on the given arguments.
+'#f' if it cannot determine a delimiter based on the given arguments, or
+throws 'dsv-parser-error' on an error.
 
 Note that when KNOWN-DELIMITERS list contains less than two elements, the
 procedure returns '#f'."
@@ -177,6 +180,6 @@ procedure returns '#f'."
                                                'default)))
        (rfc4180:guess-delimiter parser)))
     (else
-     (error "Unknown format." format))))
+     (dsv-error "Unknown format." format))))
 
 ;;; dsv.scm ends here.

@@ -163,10 +163,11 @@ to skip anything); default value of @var{comment-prefix} for Unix format is
 Empty lines in DSV data will be converted to lists that contain one element
 (an empty string).
 
+The procedure returns a list of lists that represents a DSV table, or throws
+@code{dsv-parser-error} on an error.
+
 The @code{dsv-string->scm} procedure works the same way as @code{dsv->scm},
 except it takes a DSV @var{string} instead of a port.
-
-The procedure returns a list of lists that represents a DSV table.
 
 Examples:
 
@@ -198,6 +199,9 @@ delimiter for a @var{format}.
 
 The procedure accepts either a DSV table (as a two-dimensional @var{list}), or
 a single table row (as a one-dimesional @var{list} of strings).
+
+Return value is undefined.  The procedure throws a @code{dsv-parser-error} on
+an error.
 
 The @code{scm->dsv-string} procedure works the same way as @code{scm->dsv},
 except it returns DSV data as a string instead of printing it to a port.
@@ -239,7 +243,8 @@ Guess a DSV @var{string} delimiter.  Optionally accept a list of
 @code{#\,}, @code{#\:}, @code{#\;}, @code{#\|}, @code{#\tab}, @code{#\space}.
 
 The procedure returns @code{#f} if it cannot determine a delimiter based on
-the given arguments.
+the given arguments.  If an error occured then it throws
+@code{dsv-parser-error}.
 
 Note that when @var{known-delimiters} list contains less than two elements,
 the procedure returns @code{#f}.
