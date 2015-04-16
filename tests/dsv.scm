@@ -58,8 +58,8 @@
                 (cut dsv->scm <> #:comment-prefix 'none)))))
 
 (test-assert "dsv-string->scm, nonprintable characters"
-  (equal? '(("a\nb" "\r" "\t" "\v"))
-          (dsv-string->scm "a\\nb:\\r:\\t:\\v\n")))
+  (equal? '(("\f" "a\nb" "\r" "\t" "\v"))
+          (dsv-string->scm "\\f:a\\nb:\\r:\\t:\\v\n")))
 
 (test-assert "dsv-string->scm, backslash unescaping"
   (equal? '(("a\\b"))
@@ -85,8 +85,8 @@
        (equal? "a:b:\n"  (scm->dsv-string '(("a" "b" ""))))))
 
 (test-assert "scm->dsv, nonprintable characters"
-  (equal? "a\\nb:\\r:\\t:\\v\n"
-          (scm->dsv-string '(("a\nb" "\r" "\t" "\v")))))
+  (equal? "\\f:a\\nb:\\r:\\t:\\v\n"
+          (scm->dsv-string '(("\f" "a\nb" "\r" "\t" "\v")))))
 
 (test-assert "scm->dsv, backslash escaping"
   (equal? "a\\\\b\n"

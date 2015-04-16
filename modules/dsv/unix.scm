@@ -60,7 +60,8 @@
 
 (define-with-docs %char-mapping
   "Nonprintable characters."
-  '((#\newline . "\\n")
+  '((#\page    . "\\f")
+    (#\newline . "\\n")
     (#\return  . "\\r")
     (#\tab     . "\\t")
     (#\vtab    . "\\v")))
