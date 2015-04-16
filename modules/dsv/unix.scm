@@ -96,7 +96,7 @@
   (unescape-backslash
    (unescape-chars str (parser-delimiter parser) #\\)))
 
-(define (decerealize parser str)
+(define (deserealize parser str)
   (unsescape parser (deserealize-nonprintable-chars str)))
 
 
@@ -163,14 +163,14 @@ escaped delimiter -- that is, skips it.  E.g.:
                  (debug-fsm-transition state 'read-ln)
                  (fold-file dsv-list (splice buffer rec) 'read-ln))
                 (else
-                 (debug-fsm-transition state 'decerealize)
-                 (fold-file dsv-list (splice buffer rec) 'decerealize)))))))
+                 (debug-fsm-transition state 'deserealize)
+                 (fold-file dsv-list (splice buffer rec) 'deserealize)))))))
           (else
            (debug-fsm-transition state 'end)
            (fold-file dsv-list buffer 'end)))))
 
-      ((decerealize)
-       (let ((buffer (map (cut decerealize parser <>) buffer)))
+      ((deserealize)
+       (let ((buffer (map (cut deserealize parser <>) buffer)))
          (debug-fsm-transition state 'add)
          (fold-file dsv-list buffer 'add)))
 
