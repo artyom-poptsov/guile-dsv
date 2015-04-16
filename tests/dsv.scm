@@ -25,11 +25,11 @@
 ;;; dsv->scm
 
 (test-assert "dsv->scm"
-  (and (equal? '(("a" "b" "c")) (call-with-input-string "a:b:c"
+  (and (equal? '(("a" "b" "c")) (call-with-input-string "a:b:c\n"
                                   (cut dsv->scm <>)))
-       (equal? '(("a:b" "c"))   (call-with-input-string "a\\:b:c"
+       (equal? '(("a:b" "c"))   (call-with-input-string "a\\:b:c\n"
                                   (cut dsv->scm <>)))
-       (equal? '(("a,b" "c"))   (call-with-input-string "a\\,b,c"
+       (equal? '(("a,b" "c"))   (call-with-input-string "a\\,b,c\n"
                                   (cut dsv->scm <> #\,)))
        ;; Check order of read records
        (equal? '(("1") ("2"))
@@ -38,9 +38,9 @@
                  (cut dsv->scm <>)))))
 
 (test-assert "dsv-string->scm"
-  (and (equal? '(("a" "b" "c")) (dsv-string->scm "a:b:c"))
-       (equal? '(("a" "b" "c")) (dsv-string->scm "a,b,c" #\,))
-       (equal? '(("a" "b" ""))  (dsv-string->scm "a:b:"))))
+  (and (equal? '(("a" "b" "c")) (dsv-string->scm "a:b:c\n"))
+       (equal? '(("a" "b" "c")) (dsv-string->scm "a,b,c\n" #\,))
+       (equal? '(("a" "b" ""))  (dsv-string->scm "a:b:\n"))))
 
 ;; Handling of commented lines
 (test-assert "dsv->scm, comment prefix"
