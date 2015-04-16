@@ -18,10 +18,14 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
    Also see the procedure-specific changes below.
 ** Add RFC 4180 parser
    Procedures now accept optional keyed argument called 'format' that allows
-   to switch between the Unix-style DSV format and RFC 4180 (CSV) format.
+   to switch between the Unix-style DSV format and the RFC 4180 (CSV) format.
 ** Unix parser now handles C-style backslash escapes
    as described in
    <http://www.catb.org/~esr/writings/taoup/html/ch05s02.html#id2901882>
+
+   Specifically when the format is set to 'unix', 'dsv-string->scm' and
+   'dsv->scm' now ignore backslash-escaped newlines; also all the procedures
+   handle escaped nonprintable characters properly.
 ** Procedures now throw 'dsv-parser-error' on an error
 ** 'dsv-string->scm' now returns a table
    The procedure now returns a table (a list of lists) in which every inlined
@@ -29,19 +33,17 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ** New 'set-debug!' procedure in (dsv)
    The procedure allows to enable or disable debugging traces.  The debug mode
    is disabled by default.
-** 'dsv-string->scm' and 'dsv->scm' now ignoring backslash-escaped newlines
-   when format is set to 'unix.
 ** 'dsv-string->scm' and 'dsv->scm' now accept 'comment-prefix'
    'comment-symbol' argument is renamed to 'commen-prefix' and expected to be
    a string instead of a char.
 ** 'scm->dsv' and 'scm->dsv-string' procedures add a line break
    The procedures now add a line break that is default for a specified format
    at the end of lines.
-** 'guess-delimiter' in (dsv) now accepts optional 'known-delimiters' argument
+** 'guess-delimiter' in (dsv) now accepts an optional 'known-delimiters' argument
    The argument can be used to privide the procedure with the list of
    delimiters to test to.
 ** Documentation update
-    
+   Description of the API was updated and more usage examples was added.
 
 * Changes in version 0.1.0 (2014-11-30)
 ** Release of the first version of Guile-DSV
