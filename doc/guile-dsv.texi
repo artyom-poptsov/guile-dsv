@@ -163,6 +163,11 @@ to skip anything); default value of @var{comment-prefix} for Unix format is
 Empty lines in DSV data will be converted to lists that contain one element
 (an empty string).
 
+When format is set to @code{'unix}, then following nonprintable characters
+will be escaped with backslashes: @code{#\page}, @code{#\newline},
+@code{#\return}, @code{#\tab}, @code{#\vtab}.  E.g. @code{#\page} will become
+``\f''.
+
 The procedure returns a list of lists that represents a DSV table, or throws
 @code{dsv-parser-error} on an error.
 
@@ -208,6 +213,10 @@ delimiter for a @var{format}.
 
 The procedure accepts either a DSV table (as a two-dimensional @var{list}), or
 a single table row (as a one-dimesional @var{list} of strings).
+
+When format is set to @code{'unix}, then the following escaped nonprintable
+characters will be accepted: @code{#\page}, @code{#\newline}, @code{#\return},
+@code{#\tab}, @code{#\vtab}.  E.g. ``\f'' will be read as @code{#\page}.
 
 Return value is undefined.  The procedure throws a @code{dsv-parser-error} on
 an error.
