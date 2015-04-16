@@ -46,6 +46,7 @@ $(guile_dsv_install_go_files): install-nobase_dist_modDATA
 GUILE_WARNINGS = -Wunbound-variable -Warity-mismatch -Wformat
 SUFFIXES = .scm .go
 
+guilec_opts = --load-path=$(abs_top_srcdir)/modules/
 .scm.go:
 	$(AM_V_GUILEC)$(guilec_env) $(GUILEC) $(guilec_opts) \
 	--output=$@ $<
