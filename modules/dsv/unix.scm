@@ -26,6 +26,7 @@
 
 (define-module (dsv unix)
   #:use-module (ice-9 rdelim)
+  #:use-module (ice-9 regex)
   #:use-module (srfi  srfi-1)
   #:use-module (srfi  srfi-26)
   #:use-module ((string transform)
@@ -57,6 +58,13 @@
   "Default line break for DSV"
   "\n")
 
+(define-with-docs %char-mapping
+  "Nonprintable characters."
+  '((#\newline . "\\n")
+    (#\return  . "\\r")
+    (#\tab     . "\\t")
+    (#\vtab    . "\\v")))
+
 
 (define (make-parser port delimiter known-delimiters comment-prefix)
   (%make-parser port
@@ -68,6 +76,31 @@
 (define (make-string-parser str delimiter known-delimiters comment-prefix)
   (call-with-input-string str (cut make-parser <> delimiter known-delimiters
                                    comment-prefix)))
+
+(define (deserealize-nonprintable-chars str)
+  "Replace C-style backslash escapes with actual chars."
+  (let subst ((s   str)
+              (lst %char-mapping))
+    (if (not (null? lst))
+        (let ((s (regexp-substitute/global #f (string-append "\\" (cdar lst)) s
+                                           'pre (string (caar lst)) 'post)))
+          (subst s (cdr lst)))
+        s)))
+
+(define (unescape-special-char str special-char escape-char)
+  (regexp-substitute/global #f (string escape-char special-char) str
+                            'pre (string special-char) 'post))
+
+(define (unescape-backslash str)
+  (regexp-substitute/global #f "\\\\\\\\" str
+                            'pre "\\" 'post))
+
+(define (unsescape-chars parser str)
+  (unescape-backslash
+   (unescape-special-char str (parser-delimiter parser) #\\)))
+
+(define (decerealize parser str)
+  (unsescape-chars parser (deserealize-nonprintable-chars str)))
 
 
 (define (string-split/escaped str delimiter)
@@ -133,11 +166,16 @@ escaped delimiter -- that is, skips it.  E.g.:
                  (debug-fsm-transition state 'read-ln)
                  (fold-file dsv-list (splice buffer rec) 'read-ln))
                 (else
-                 (debug-fsm-transition state 'add)
-                 (fold-file dsv-list (splice buffer rec) 'add)))))))
+                 (debug-fsm-transition state 'decerealize)
+                 (fold-file dsv-list (splice buffer rec) 'decerealize)))))))
           (else
            (debug-fsm-transition state 'end)
            (fold-file dsv-list buffer 'end)))))
+
+      ((decerealize)
+       (let ((buffer (map (cut decerealize parser <>) buffer)))
+         (debug-fsm-transition state 'add)
+         (fold-file dsv-list buffer 'add)))
 
       ((add)
        (debug-fsm-transition state 'read-ln)
@@ -155,9 +193,26 @@ escaped delimiter -- that is, skips it.  E.g.:
                  (value-or-default delimiter  %default-delimiter)
                  (value-or-default line-break %default-line-break)))
 
+(define (serialize-nonprintable-chars str)
+  "Replace nonprintable characters with C-style backslash escapes."
+  (let subst ((s    str)
+              (lst  %char-mapping))
+    (if (not (null? lst))
+        (let ((s (regexp-substitute/global #f (string (caar lst)) s
+                                           'pre (cdar lst) 'post)))
+          (subst s (cdr lst)))
+        s)))
+
+(define (escape builder str)
+  "Escape special characters with a backslash."
+  (escape-special-chars (escape-special-chars str #\\ #\\)
+                        (builder-delimiter builder)
+                        #\\))
+
 (define* (scm->dsv builder)
   (builder-build builder
-                 (cute escape-special-chars <> (builder-delimiter builder) #\\)))
+                 (lambda (field)
+                   (serialize-nonprintable-chars (escape builder field)))))
 
 (define (scm->dsv-string scm delimiter line-break)
   (call-with-output-string

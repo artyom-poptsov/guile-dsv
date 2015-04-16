@@ -15,9 +15,6 @@ Copyright (C) 2015 Artyom V. Poptsov <poptsov.artyom@gmail.com>
    to skip empty rows.
 ** Add converters between Unix-style DSV and RFC 4180 CSV format and vice versa
 * Unix
-** Handle nonprintable characters
-   as described in
-   <http://www.catb.org/~esr/writings/taoup/html/ch05s02.html#id2901882>
 * RFC 4180
 ** Probably commented lines should be handled somehow?
    Currently 'dsv->scm' and 'dsv-string->scm' procedures ignore specified

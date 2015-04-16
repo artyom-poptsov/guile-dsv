@@ -57,6 +57,17 @@
                 "# this is a comment"
                 (cut dsv->scm <> #:comment-prefix 'none)))))
 
+(test-assert "dsv-string->scm, nonprintable characters"
+  (equal? '(("a\nb" "\r" "\t" "\v"))
+          (dsv-string->scm "a\\nb:\\r:\\t:\\v\n")))
+
+(test-assert "dsv-string->scm, backslash unescaping"
+  (equal? '(("a\\b"))
+          (dsv-string->scm "a\\\\b\n")))
+
+(test-assert "dsv-string->scm, record continuation"
+    (equal? '(("a b" "c")) (dsv-string->scm "a \\\nb:c\n")))
+
 
 ;;; scm->dsv
 
@@ -72,6 +83,14 @@
   (and (equal? "a:b:c\n" (scm->dsv-string '(("a" "b" "c"))))
        (equal? "a,b,\n"  (scm->dsv-string '(("a" "b" "")) #\,))
        (equal? "a:b:\n"  (scm->dsv-string '(("a" "b" ""))))))
+
+(test-assert "scm->dsv, nonprintable characters"
+  (equal? "a\\nb:\\r:\\t:\\v\n"
+          (scm->dsv-string '(("a\nb" "\r" "\t" "\v")))))
+
+(test-assert "scm->dsv, backslash escaping"
+  (equal? "a\\\\b\n"
+          (scm->dsv-string '(("a\\b")))))
 
 
 ;;; guess-delimiter

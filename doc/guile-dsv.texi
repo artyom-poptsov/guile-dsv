@@ -186,6 +186,15 @@ Examples:
 
 (dsv-string->scm "a,b\\,c" #\,)
 @result{} '(("a" "b,c"))
+
+;; Handle backslash escapes:
+(dsv-string->scm "a\\nb\\\\c\n")
+@result{} '(("a\nb\\c"))
+
+;; Handle record continuation by ignoring backslash-escaped newlines:
+(dsv-string->scm "a \\\nb:c")
+@result{} '(("a b" "c"))
+
 @end lisp
 
 @end deffn
@@ -232,6 +241,10 @@ root:x:0:0:root:/root:/bin/zsh
 ;; Make use of RFC 4180:
 (scm->dsv-string '("a" "b" "c,d") #:format 'rfc4180)
 @result{} "a,b,\"c,d\"\r\n"
+
+;; Escape non-printable characters and backslashes:
+(scm->dsv-string '("a\nb" "c\\d"))
+@result{} "a\\nb:c\\\\d\n"
 
 @end lisp
 

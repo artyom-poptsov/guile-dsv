@@ -19,6 +19,9 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ** Add RFC 4180 parser
    Procedures now accept optional keyed argument called 'format' that allows
    to switch between the Unix-style DSV format and RFC 4180 (CSV) format.
+** Unix parser now handles C-style backslash escapes
+   as described in
+   <http://www.catb.org/~esr/writings/taoup/html/ch05s02.html#id2901882>
 ** Procedures now throw 'dsv-parser-error' on an error
 ** 'dsv-string->scm' now returns a table
    The procedure now returns a table (a list of lists) in which every inlined
