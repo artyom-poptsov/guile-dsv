@@ -25,11 +25,13 @@
 
 (define-module (dsv common)
   #:use-module ((srfi srfi-1) #:select (fold))
+  #:use-module ((ice-9 regex) #:select (regexp-substitute/global))
   #:use-module (scheme documentation)
   #:export (set-debug! debug debug-fsm debug-fsm-transition debug-fsm-error
             dsv-error
 
-            value-or-default))
+            value-or-default
+            substitute unescape-chars))
 
 
 (define-with-docs *debug?*
@@ -85,5 +87,11 @@ it as a debug message.."
   (if (eq? value 'default)
       default-value
       value))
+
+(define (substitute str regex subst-str)
+  (regexp-substitute/global #f regex str 'pre subst-str 'post))
+
+(define (unescape-chars str char escape-char)
+  (substitute str (string escape-char char) (string char)))
 
 ;;; common.scm ends here

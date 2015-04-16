@@ -60,10 +60,6 @@
 
 ;;; Helper procedures
 
-(define (unescape-special-char str special-char escape-char)
-  (regexp-substitute/global #f (string escape-char special-char) str
-                            'pre (string special-char) 'post))
-
 (define* (string-drop-both s n #:optional (n-right n))
   "Drop N chars from a string S on the both left and right sides."
   (string-drop-right (string-drop s n) n-right))
@@ -324,8 +320,7 @@
       ((add-field)
        (debug-fsm-transition state 'read)
        (let ((field (if (eq? (get-quotation-status field-buffer) 'quoted)
-                        (string-drop-both (unescape-special-char
-                                           field-buffer #\" #\")
+                        (string-drop-both (unescape-chars field-buffer #\" #\")
                                           1)
                         field-buffer)))
          (fold-file #:dsv-list     dsv-list

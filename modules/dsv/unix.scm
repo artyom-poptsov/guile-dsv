@@ -82,25 +82,21 @@
   (let subst ((s   str)
               (lst %char-mapping))
     (if (not (null? lst))
-        (let ((s (regexp-substitute/global #f (string-append "\\" (cdar lst)) s
-                                           'pre (string (caar lst)) 'post)))
+        (let ((s (substitute s
+                             (string-append "\\" (cdar lst))
+                             (string (caar lst)))))
           (subst s (cdr lst)))
         s)))
 
-(define (unescape-special-char str special-char escape-char)
-  (regexp-substitute/global #f (string escape-char special-char) str
-                            'pre (string special-char) 'post))
-
 (define (unescape-backslash str)
-  (regexp-substitute/global #f "\\\\\\\\" str
-                            'pre "\\" 'post))
+  (substitute str "\\\\\\\\" "\\"))
 
-(define (unsescape-chars parser str)
+(define (unsescape parser str)
   (unescape-backslash
-   (unescape-special-char str (parser-delimiter parser) #\\)))
+   (unescape-chars str (parser-delimiter parser) #\\)))
 
 (define (decerealize parser str)
-  (unsescape-chars parser (deserealize-nonprintable-chars str)))
+  (unsescape parser (deserealize-nonprintable-chars str)))
 
 
 (define (string-split/escaped str delimiter)
