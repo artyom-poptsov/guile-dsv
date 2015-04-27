@@ -320,8 +320,14 @@
       ((add-field)
        (debug-fsm-transition state 'read)
        (let ((field (if (eq? (get-quotation-status field-buffer) 'quoted)
-                        (string-drop-both (unescape-chars field-buffer #\" #\")
-                                          1)
+                        ;; XXX: This special case was introduced to handle
+                        ;; empty quoted strings.  It works, but probably the
+                        ;; code is not so elegant.  - avp
+                        (if (> (string-length field-buffer) 2)
+                            (string-drop-both (unescape-chars field-buffer
+                                                              #\" #\")
+                                              1)
+                            (string-drop-both field-buffer 1))
                         field-buffer)))
          (fold-file #:dsv-list     dsv-list
                     #:buffer       (cons field buffer)

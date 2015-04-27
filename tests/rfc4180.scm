@@ -36,6 +36,11 @@
        (equal? '(("aaa" "b\"bb" "ccc"))
                (call-with-input-string
                 "\"aaa\",\"b\"\"bb\",\"ccc\""
+                (cut dsv->scm <> #:format 'rfc4180)))
+       ;; Check handling of empty quoted strings.
+       (equal? '((""))
+               (call-with-input-string
+                "\"\""
                 (cut dsv->scm <> #:format 'rfc4180)))))
 
 (test-assert "dsv->scm, error handling"
