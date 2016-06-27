@@ -183,8 +183,7 @@
                         (dsv-list     '())
                         (buffer       '())
                         (field-buffer '())
-                        (record       '())
-                        (line         #f))
+                        (record       '()))
     (debug-fsm-transition 'read-ln)
     (debug-fsm 'read-ln "dsv-list: ~s~%" dsv-list)
     (debug-fsm 'read-ln "buffer:   ~s~%" buffer)
@@ -196,8 +195,8 @@
         (fsm-read #:dsv-list     dsv-list
                    #:buffer       buffer
                    #:field-buffer field-buffer
-                   #:record       (parser-string-split parser line)
-                   #:line         line))
+                   #:record       (parser-string-split parser line)))
+;                   #:line         line))
        ((and (eof-object? line) (null? buffer) (null? field-buffer))
         (debug-fsm-transition 'read-ln 'end)
         (fsm-end dsv-list))
@@ -207,8 +206,7 @@
                      (dsv-list     '())
                      (buffer       '())
                      (field-buffer '())
-                     (record       '())
-                     (line         #f))
+                     (record       '()))
     (let ((field (or (null? record) (car record))))
       (debug-fsm 'read "field: ~s; field-buffer: ~s~%" field field-buffer)
       (cond
@@ -219,8 +217,7 @@
           (fsm-add-record #:dsv-list     dsv-list
                           #:buffer       buffer
                           #:field-buffer field-buffer
-                          #:record       record
-                          #:line         line))
+                          #:record       record))
          ;; A field contains '\n'.
          ;;   [read]--->[read-ln]
          (else
@@ -229,8 +226,7 @@
                        #:buffer       buffer
                        ;; XXX: Does it handles all the cases?
                        #:field-buffer (cons "\n" field-buffer)
-                       #:record       record
-                       #:line         line))))
+                       #:record       record))))
        ;;      ,---.
        ;;      V   |
        ;;   [read]-+->[join]
@@ -241,8 +237,7 @@
            (fsm-read #:dsv-list     dsv-list
                      #:buffer       buffer
                      #:field-buffer (list field)
-                     #:record       (cdr record)
-                     #:line         line))
+                     #:record       (cdr record)))
           (else
            (debug-fsm-transition 'read 'join)
            (fsm-join #:dsv-list     dsv-list
@@ -256,22 +251,19 @@
            (fsm-join #:dsv-list     dsv-list
                      #:buffer       buffer
                      #:field-buffer (cons field field-buffer)
-                     #:record       (cdr record)
-                     #:line         line))
+                     #:record       (cdr record)))
           (else
            (debug-fsm-transition 'read 'read)
            (fsm-read #:dsv-list     dsv-list
                      #:buffer       buffer
                      #:field-buffer (cons field field-buffer)
-                     #:record       (cdr record)
-                     #:line         line)))))))
+                     #:record       (cdr record))))))))
   ;;   [join]--->[validate]
   (define* (fsm-join #:key
                      (dsv-list     '())
                      (buffer       '())
                      (field-buffer '())
-                     (record       '())
-                     (line         #f))
+                     (record       '()))
     (debug-fsm-transition 'join 'validate)
     (debug-fsm 'join "field-buffer: ~s~%" field-buffer)
     (let* ((delimiter  (parser-delimiter->string parser))
@@ -296,29 +288,25 @@
       (fsm-validate #:dsv-list     dsv-list
                     #:buffer       buffer
                     #:field-buffer (drop-cr (join-field field-buffer))
-                    #:record       record
-                    #:line         line)))
+                    #:record       record)))
   ;;   [validate]--->[add-field]
   (define* (fsm-validate #:key
                          (dsv-list     '())
                          (buffer       '())
                          (field-buffer '())
-                         (record       '())
-                         (line         #f))
+                         (record       '()))
     (validate-field parser 'validate field-buffer)
     (debug-fsm-transition 'validate 'add-field)
     (fsm-add-field #:dsv-list     dsv-list
                    #:buffer       buffer
                    #:field-buffer field-buffer
-                   #:record       record
-                   #:line         line))
+                   #:record       record))
   ;;   [add-field]--->[read]
   (define* (fsm-add-field #:key
                           (dsv-list     '())
                           (buffer       '())
                           (field-buffer '())
-                          (record       '())
-                          (line         #f))
+                          (record       '()))
     (debug-fsm-transition 'add-field 'read)
     (let ((field (if (eq? (get-quotation-status field-buffer) 'quoted)
                      ;; XXX: This special case was introduced to handle
@@ -333,8 +321,7 @@
       (fsm-read #:dsv-list     dsv-list
                 #:buffer       (cons field buffer)
                 #:field-buffer '()
-                #:record       record
-                #:line         line)))
+                #:record       record)))
   ;;   [add-record]--->[read-ln]
   (define* (fsm-add-record #:key
                            (dsv-list     '())
@@ -346,8 +333,7 @@
    (fsm-read-ln #:dsv-list     (cons buffer dsv-list)
                 #:buffer       '()
                 #:field-buffer field-buffer
-                #:record       record
-                #:line         line))
+                #:record       record))
   ;;   [end]---> STOP
   (define* (fsm-end dsv-list)
     (debug-fsm-transition 'end 'STOP 'final)
