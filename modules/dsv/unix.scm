@@ -140,47 +140,34 @@ escaped delimiter -- that is, skips it.  E.g.:
             (drop lst-2 1)))))
 
 (define (dsv->scm parser)
-  (let fold-file ((dsv-list '())
-                  (buffer   '())
-                  (state    'read-ln))
-    (debug-fsm-transition state)
-    (case state
-      ((read-ln)
-       (debug-fsm state "dsv-list: ~s; buffer: ~s~%" dsv-list buffer)
-       (let ((line (parser-read-line parser)))
-         (debug-fsm state "line: ~s~%" line)
-         (cond
-          ((not (eof-object? line))
-           (cond
-            ((parser-commented? parser line)
-             (debug-fsm state "the line is commented out~%")
-             (debug-fsm-transition state state)
-             (fold-file dsv-list buffer state))
-            (else
-             (let ((rec (string-split/escaped line (parser-delimiter parser))))
-               (cond
-                ((string-suffix? "\\" (last rec))
-                 (debug-fsm-transition state 'read-ln)
-                 (fold-file dsv-list (splice buffer rec) 'read-ln))
-                (else
-                 (debug-fsm-transition state 'deserealize)
-                 (fold-file dsv-list (splice buffer rec) 'deserealize)))))))
-          (else
-           (debug-fsm-transition state 'end)
-           (fold-file dsv-list buffer 'end)))))
-
-      ((deserealize)
-       (let ((buffer (map (cut deserealize parser <>) buffer)))
-         (debug-fsm-transition state 'add)
-         (fold-file dsv-list buffer 'add)))
-
-      ((add)
-       (debug-fsm-transition state 'read-ln)
-       (fold-file (cons buffer dsv-list) '() 'read-ln))
-
-      ((end)
-       (debug-fsm-transition state 'STOP 'final)
-       (reverse dsv-list)))))
+  (define (fsm-read-ln dsv-list buffer)
+    (debug-fsm-transition 'read-ln)
+    (let ((line (parser-read-line parser)))
+      (if (eof-object? line)
+          (fsm-end dsv-list)
+          (cond
+           ((parser-commented? parser line)
+            (debug-fsm 'read-ln "the line is commented out~%")
+            (debug-fsm-transition 'read-ln 'read-ln)
+            (fsm-read-ln dsv-list buffer))
+           (else
+            (let ((rec (string-split/escaped line (parser-delimiter parser))))
+              (cond
+               ((string-suffix? "\\" (last rec))
+                (debug-fsm-transition 'read 'read-ln)
+                (fsm-read-ln dsv-list (splice buffer rec)))
+               (else
+                (debug-fsm-transition 'read-ln 'deserealize)
+                (fsm-deserealize dsv-list (splice buffer rec))))))))))
+  (define (fsm-deserealize dsv-list buffer)
+    (let ((buffer (map (cut deserealize parser <>) buffer)))
+      (debug-fsm-transition 'deserealize 'add)
+      (fsm-add dsv-list buffer)))
+  (define (fsm-add dsv-list buffer)
+    (fsm-read-ln (cons buffer dsv-list) '()))
+  (define (fsm-end dsv-list)
+    (reverse dsv-list))
+  (fsm-read-ln '() '()))
 
 
 (define (make-builder input-data port delimiter line-break)
