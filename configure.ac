@@ -3,7 +3,7 @@ dnl   Process this file with autoconf to produce configure.
 dnl
 
 define(GUILE_DSV_CONFIGURE_COPYRIGHT, [[
-Copyright (C) 2013, 2014, 2015 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+Copyright (C) 2013, 2014, 2015, 2016 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 
 This file is part of Guile-DSV.
 
@@ -57,6 +57,7 @@ AC_SUBST([guilesitedir])
 
 AC_CONFIG_FILES([Makefile am/Makefile build-aux/Makefile tests/Makefile])
 AC_CONFIG_FILES([doc/Makefile m4/Makefile modules/Makefile modules/dsv/Makefile])
+AC_CONFIG_FILES([utils/Makefile])
 
 # Generate a Makefile, based on the results.
 AC_OUTPUT

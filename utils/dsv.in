@@ -1,0 +1,252 @@
+#!@GUILE@ \
+-e main
+# -*- mode: scheme; -*-
+!#
+
+;;; dsv.in -- Get various information from DSV files.
+
+;; Copyright (C) 2015, 2016 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;;
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; The program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with the program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+;;; Commentary:
+
+;; A handy tool to get various information from DSV files.
+
+
+;;; Code:
+
+(use-modules (ice-9 getopt-long)
+             (ice-9 rdelim)
+             (ice-9 format)
+             (srfi  srfi-1)
+             (srfi  srfi-26)
+             (dsv)
+             (dsv common))
+
+(define (string->dsv-format str)
+  "Convert a string STR to a DSV format type."
+  (let ((fmt (string->symbol str)))
+    (case fmt
+      ((unix rfc4180)
+       fmt)
+      (else
+       (error "Wrong format" str)))))
+
+(define (remove-empty-rows table)
+  (remove (lambda (f)
+            (and (= (length f) 1)
+                 (string-null? (car f))))
+          table))
+
+(define (rc file delim fmt)
+  "Get number of records in a FILE."
+  (let ((p (open-input-file file)))
+    (length (dsv->scm p delim #:format fmt))))
+
+
+(define (guess-file-delimiter file fmt)
+  "Guess delimiter for a file."
+  (let guess ((p (open-input-file file)))
+    (let ((line (read-line p)))
+      (and (not (eof-object? line))
+           (let ((guessed-delim  (guess-delimiter line #:format fmt)))
+             (or guessed-delim
+                 (guess p)))))))
+
+
+(define (get-width table)
+  "Get maximum field width for each row of TABLE."
+  (let loop ((rows table)
+             (res  '()))
+    (if (not (null? rows))
+        (let ((w (map string-length (car rows))))
+          (cond
+           ((null? res)
+            (loop (cdr rows) w))
+           (else
+            (loop (cdr rows)
+                  (map max res w)))))
+        res)))
+
+(define (format-table table borders)
+  "Format file and print it."
+  (let* ((padding 5)
+         (vborder      (or (assoc-ref borders "v") ""))
+         (hborder      (assoc-ref borders "h"))
+         (width        (get-width table))
+         (format-field (lambda (field width)
+                         "Print a FIELD in a column with given WIDTH."
+                         (format #t (format #f "~~~da ~~a " (+ width padding))
+                                 field vborder)))
+         (display-hborder (lambda ()
+                            "Display a horisontal table border."
+                            (let ((total-width (+ (reduce + 0 width)
+                                                  (* (length width)
+                                                     (+ padding 3))
+                                                  -1)))
+                              (do ((i 0 (1+ i)))
+                                  ((= i total-width))
+                                (display hborder))
+                              (newline)))))
+    (for-each (lambda (row)
+                (for-each format-field row width)
+                (newline)
+                (when hborder
+                  (display-hborder)))
+              table)))
+
+(define (borders->alist borders)
+  "Convert BORDERS spec to an alist."
+  (if (not (string-null? borders))
+      (map (lambda (s)
+             (let ((lst (string-split s #\=)))
+               (cons (car lst) (cadr lst))))
+           (car (dsv-string->scm borders #\,)))
+      '()))
+
+(define (print-file file fmt borders delim)
+  "Pretty-print a FILE."
+  (let* ((p     (open-input-file file))
+         (delim (or delim (guess-file-delimiter file fmt))))
+
+    (unless delim
+      (error "Could not determine a file delimiter" file))
+
+    (let ((table (remove-empty-rows (dsv->scm p delim #:format fmt)))
+          (bspec (borders->alist borders)))
+      (format-table table bspec))))
+
+
+(define (print-summary file fmt delim)
+  "Print summary information for a FILE of format FMT."
+  (let ((guessed-delim (or delim (guess-file-delimiter file fmt)))
+        (f             (cut format #t <...>)))
+    (f "File:      ~a~%" file)
+    (f "Format:    ~a~%" fmt)
+    (f "Delimiter: '~a'~a~%"
+       (or guessed-delim "")
+       (if guessed-delim
+           (format #f " (0x~x)" (char->integer guessed-delim))
+           ""))
+    (f "Records:   ~a~%"
+       (if guessed-delim
+           (rc file guessed-delim fmt)
+           ""))
+    (newline)
+    (when guessed-delim
+      (let* ((table  (remove-empty-rows
+                      (dsv->scm (open-input-file file) guessed-delim
+                                #:format fmt)))
+             (wtable (let loop ((w   (get-width table))
+                                (col 1)
+                                (res '()))
+                       (if (not (null? w))
+                           (loop (cdr w)
+                                 (1+ col)
+                                 (cons (list (number->string col)
+                                             (number->string (car w)))
+                                       res))
+                           (reverse res)))))
+        (format-table (cons '("column" "width") wtable) '())))))
+
+(define (convert file delim source-format target-format)
+  "Convert a FILE from a SOURCE-FORMAT to a TARGET-FORMAT."
+  (case target-format
+    ((unix rfc4180)
+     (let ((delim (or delim (guess-file-delimiter file source-format))))
+       (unless delim
+         (error "Could not determine a file delimiter" file))
+       (let* ((p     (open-input-file file))
+              (table (remove-empty-rows (dsv->scm p delim
+                                                  #:format source-format))))
+         (scm->dsv table #:format target-format))))
+    (else
+     (error "Unsupported target format" target-format))))
+
+(define (print-delimiter file fmt)
+  "Guess and print FILE delimiter."
+  (let ((guessed-delim (guess-file-delimiter file fmt)))
+    (format #t "~a~%" (or guessed-delim ""))))
+
+(define (print-help-and-exit)
+    (display "\
+Usage: dsv [options] <file>
+
+The default behaviour of the program is to print a formatted table from a
+<file> to stdout.  The options listed below can be used to change or modify
+this behaviour.
+
+Options:
+  --help, -h                 Print this message and exit.
+  --summary, -s              Print summary information for a file.
+  --delimiter, -D <delim>    Set a delimiter.
+  --guess-delimiter, -d      Guess a file delimiter and print the result.
+  --file-format, -F <fmt>    Set a file format.  Possible formats are:
+                             \"unix\" (default), \"rfc4180\"
+  --table-borders, -b <spec> Set table borders for printing.  Spec is expected
+                             to be a comma-separated list of key=value pairs,
+                             where possible keys are: \"v\" (vertical border),
+                             \"h\" (horizontal border).
+                             Example: \"v=|,h=-\"
+  --to, -t <fmt>             Convert a file to a specified format, write
+                             the result to stdout.
+  --debug                    Enable state machine debugging.
+")
+  (exit))
+
+(define (main args)
+  (let* ((option-spec '((help            (single-char #\h) (value #f))
+                        (summary         (single-char #\s) (value #f))
+                        (delimiter       (single-char #\D) (value #t))
+                        (file-format     (single-char #\F) (value #t))
+                        (table-borders   (single-char #\b) (value #t))
+                        (guess-delimiter (single-char #\d) (value #f))
+                        (to              (single-char #\t) (value #t))
+                        (debug                             (value #f))))
+         (options (getopt-long args option-spec))
+         ;; Options
+         (help-needed?      (option-ref options 'help            #f))
+         (summary-needed?   (option-ref options 'summary         #f))
+         (guess-delimiter?  (option-ref options 'guess-delimiter #f))
+         (file-format       (option-ref options 'file-format     "unix"))
+         (delimiter         (and=> (option-ref options 'delimiter #f)
+                                   (cut string-ref <> 0)))
+         (table-borders     (option-ref options 'table-borders   ""))
+         (to                (option-ref options 'to              #f))
+         (debug?            (option-ref options 'debug           #f))
+         (args              (option-ref options '()              #f)))
+
+    (set-debug! debug?)
+
+    (cond
+     (help-needed?
+      (print-help-and-exit))
+     (summary-needed?
+      (print-summary (car args) (string->dsv-format file-format) delimiter))
+     (guess-delimiter?
+      (print-delimiter (car args) (string->dsv-format file-format)))
+     (to
+      (convert (car args) delimiter
+               (string->dsv-format file-format)
+               (string->symbol to)))
+     (else
+      (print-file (car args) (string->dsv-format file-format) table-borders
+                  delimiter)))
+
+    (exit)))
+
+;;; dsv.in ends here
+
