@@ -1,6 +1,5 @@
 #!@GUILE@ \
 -e main
-# -*- mode: scheme; -*-
 !#
 
 ;;; dsv.in -- Get various information from DSV files.
@@ -248,5 +247,8 @@ Options:
 
     (exit)))
 
-;;; dsv.in ends here
+;; Local Variables:
+;; mode: Scheme
+;; End:
 
+;;; dsv.in ends here
