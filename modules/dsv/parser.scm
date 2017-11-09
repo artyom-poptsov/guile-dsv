@@ -69,7 +69,10 @@
            (number->string (object-address parser) 16))))
 
 (define (parser-read-line parser)
-  (read-line (parser-port parser)))
+  (let ((line (read-line (parser-port parser))))
+    (if (and (eqv? (parser-type parser) 'rfc4180) (not (eof-object? line)))
+        (string-trim-right line #\cr)
+        line)))
 
 (define (parser-string-split parser str)
   (string-split str (parser-delimiter parser)))
