@@ -37,6 +37,15 @@
                (call-with-input-string
                 "\"aaa\",\"b\"\"bb\",\"ccc\""
                 (cut dsv->scm <> #:format 'rfc4180)))
+       ;; Check handling of quoted final fields in CRLF context
+       (equal? '(("aaa"))
+               (call-with-input-string "\"aaa\"\r\n"
+                 (cut dsv->scm <> #:format 'rfc4180)))
+       (equal? '(("aaa" "bbb")
+                 ("c\"cc" "ddd")
+                 ("" "e\""))
+               (call-with-input-string "aaa,\"bbb\"\r\n\"c\"\"cc\",ddd\r\n,\"e\"\"\""
+                 (cut dsv->scm <> #:format 'rfc4180)))
        ;; Check handling of empty quoted strings.
        (equal? '((""))
                (call-with-input-string
