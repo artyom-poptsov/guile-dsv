@@ -76,6 +76,19 @@
        (equal? '(("a,b\nc" "d"))
                (dsv-string->scm "\"a,b\nc\",d" #\, #:format 'rfc4180))))
 
+;; Parser should handle fields that ends with \" (a quotation mark).
+;;
+;; Reported by Alex Sassmannshausen in "If a rfc4180 formatted CSV file has
+;; lines that end with a '"' (quotation mark), the parser goes funny" [1]
+;;
+;; [1] <https://github.com/artyom-poptsov/guile-dsv/issues/3>
+(test-assert "quoted final fields in CRLF context"
+  (and (equal? (dsv-string->scm "test,hello,\"blah\"\r\n" #:format 'rfc4180)
+               '(("test" "hello" "blah")))
+       (equal? (dsv-string->scm "test,hello,\"blah\"\r\ncorrect,field,parsing"
+                                #:format 'rfc4180)
+               '(("test" "hello" "blah") ("correct" "field" "parsing")))))
+
 
 ;;; scm->dsv
 
