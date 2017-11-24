@@ -45,15 +45,7 @@
 (package
   (name "guile-dsv")
   (version "0.2.0")
-  (source (origin
-            (method git-fetch)
-            (uri (git-reference
-                  (url "https://github.com/artyom-poptsov/guile-dsv")
-                  (commit "9210a7cfecc39f3727a9ba125547a18a648e028d")))
-            (file-name (string-append name "-" version "-checkout"))
-            (sha256
-             (base32
-              "0kwwhkim6lkv4ih4r01r3d7srgqh2a6wadf90h82q8dk3b1nmi5r"))))
+  (source (string-append "./" name "-" version ".tar.gz"))
   (build-system gnu-build-system)
   (native-inputs
    `(("autoconf" ,autoconf)
@@ -64,6 +56,21 @@
   (propagated-inputs `(("guile-lib" ,guile2.2-lib)))
   (arguments
    '(#:phases (modify-phases %standard-phases
+                (add-before 'configure 'set-guilesitedir
+                  (lambda _
+                    (substitute* "Makefile.in"
+                      (("^guilesitedir =.*$")
+                       "guilesitedir = \
+$(datadir)/guile/site/$(GUILE_EFFECTIVE_VERSION)\n"))
+                    (substitute* "modules/Makefile.in"
+                      (("^guilesitedir =.*$")
+                       "guilesitedir = \
+$(datadir)/guile/site/$(GUILE_EFFECTIVE_VERSION)\n"))
+                    (substitute* "modules/dsv/Makefile.in"
+                      (("^guilesitedir =.*$")
+                       "guilesitedir = \
+$(datadir)/guile/site/$(GUILE_EFFECTIVE_VERSION)\n"))
+                    #t))
                 (add-after 'unpack 'autoreconf
                   (lambda _
                     (zero? (system* "autoreconf" "-vfi")))))))
