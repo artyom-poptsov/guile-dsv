@@ -7,6 +7,20 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   are permitted in any medium without royalty provided the copyright
   notice and this notice are preserved.
 
+* Unreleased
+** RFC4180 now correctly handles quoted final fields in CRLF context
+   The RFC4180 parser would always fail to parse strings such as:
+     "test,hello,\"blah\"\r\n"
+     "test,hello,\"blah\"\r\nincorrect,field,parsing"
+
+   due to implementation defects.  Now the parser works correctly in such
+   cases.
+
+   Thanks to Alex Sassmannshausen for the patches!
+
+   Reported by Alex Sassmannshausen <alex@pompo.co> in
+   <https://github.com/artyom-poptsov/guile-dsv/issues/3>
+
 * Changes in version 0.2.0 (2015-04-16)
 ** API change
    Procedures were renamed:
