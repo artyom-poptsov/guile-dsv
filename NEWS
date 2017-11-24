@@ -8,18 +8,24 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   notice and this notice are preserved.
 
 * Unreleased
-** RFC4180 now correctly handles quoted final fields in CRLF context
-   The RFC4180 parser would always fail to parse strings such as:
-     "test,hello,\"blah\"\r\n"
-     "test,hello,\"blah\"\r\nincorrect,field,parsing"
+** Add Guix package recipe
+   Guile-DSV now has GNU Guix <https://www.gnu.org/software/guix/> package
+   recipe that allows to use the package with Guix package manager.
 
-   due to implementation defects.  Now the parser works correctly in such
-   cases.
+   Thanks to Alex Sassmannshausen <alex@pompo.co> for writing the recipe.
+** Bugfixes
+*** RFC4180 now correctly handles quoted final fields in CRLF context
+    The RFC4180 parser would always fail to parse strings such as:
+      "test,hello,\"blah\"\r\n"
+      "test,hello,\"blah\"\r\nincorrect,field,parsing"
 
-   Thanks to Alex Sassmannshausen for the patches!
+    due to implementation defects.  Now the parser works correctly in such
+    cases.
 
-   Reported by Alex Sassmannshausen <alex@pompo.co> in
-   <https://github.com/artyom-poptsov/guile-dsv/issues/3>
+    Thanks to Alex Sassmannshausen for the patches!
+
+    Reported by Alex Sassmannshausen <alex@pompo.co> in
+    <https://github.com/artyom-poptsov/guile-dsv/issues/3>
 
 * Changes in version 0.2.0 (2015-04-16)
 ** API change
