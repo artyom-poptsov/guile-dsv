@@ -1,3 +1,15 @@
 Authors of Guile-SSH
 
 * Artyom V. Poptsov <poptsov.artyom@gmail.com>
+* Alex Sassmannshausen <alex@pompo.co>
+  Bug reports and patches.  Guix recipe.
+
+  In the root directory, changes to:
+  - guix.scm
+
+  In subdirectory 'modules/dsv/', changes to:
+  - parser.scm
+
+  In subdirectory 'tests', changes to:
+  - rfc4180.scm
+  
