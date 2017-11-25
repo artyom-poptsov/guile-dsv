@@ -7,7 +7,7 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   are permitted in any medium without royalty provided the copyright
   notice and this notice are preserved.
 
-* Unreleased
+* Changes in version 0.2.1 (2017-11-25)
 ** Add Guix package recipe
    Guile-DSV now has GNU Guix <https://www.gnu.org/software/guix/> package
    recipe that allows to use the package with Guix package manager.

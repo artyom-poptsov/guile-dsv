@@ -44,7 +44,7 @@
 
 (package
   (name "guile-dsv")
-  (version "0.2.0")
+  (version "0.2.1")
   (source (string-append "./" name "-" version ".tar.gz"))
   (build-system gnu-build-system)
   (native-inputs
