@@ -3,7 +3,7 @@ dnl   Process this file with autoconf to produce configure.
 dnl
 
 define(GUILE_DSV_CONFIGURE_COPYRIGHT, [[
-Copyright (C) 2013, 2014, 2015, 2016, 2017 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+Copyright (C) 2013, 2014, 2015, 2016, 2017, 2020 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 
 This file is part of Guile-DSV.
 
@@ -58,6 +58,11 @@ AC_SUBST([guilesitedir])
 AC_CONFIG_FILES([Makefile am/Makefile build-aux/Makefile tests/Makefile])
 AC_CONFIG_FILES([doc/Makefile m4/Makefile modules/Makefile modules/dsv/Makefile])
 AC_CONFIG_FILES([utils/Makefile])
+
+dnl texinfo package required to make the documentation in Texinfo format.
+AC_CHECK_PROG(MAKEINFO_CHECK, makeinfo, yes)
+AS_IF([test x"$MAKEINFO_CHECK" != x"yes"],
+            [ AC_MSG_ERROR([Please install texinfo before configuring])])
 
 # Generate a Makefile, based on the results.
 AC_OUTPUT

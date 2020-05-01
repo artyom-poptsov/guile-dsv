@@ -6,9 +6,10 @@ values]] (DSV) data format.
 Guile-DSV supports [[http://www.catb.org/~esr/writings/taoup/html/ch05s02.html#id2901882][the Unix-style DSV format]] and [[https://tools.ietf.org/html/rfc4180][RFC 4180]] format.
 
 * Requirements
-
   - [[https://www.gnu.org/software/guile/][GNU Guile]] 2.0.x
   - [[http://www.nongnu.org/guile-lib/][Guile Library]] 0.1.9+
+  - Texinfo (contains =makeinfo= tool that is required for making the
+    documentation in Texinfo format)
 
 * Distribution
 
