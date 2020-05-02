@@ -159,188 +159,166 @@
   (call-with-input-string str (cut make-parser <> delimiter known-delimiters
                                    comment-prefix)))
 
+;; (define (test)
+;;   (display (frame-procedure-name (stack-ref (make-stack #t) 1))))
 
+;;;; Helper procedures.
+
+(define (double-quote? char)
+  (and (char? char) (char=? char #\")))
+
+(define (linefeed? char)
+  (and (char? char) (char=? char #\newline)))
+
+(define (carriage-return? char)
+  (and (char? char) (char=? char #\return)))
+
+(define (delimiter? parser char)
+  (and (char? char) (char=? char (parser-delimiter parser))))
+
+(define (buffer->string buffer)
+  (list->string (reverse buffer)))
+
+
+;;;; The parser itself.
+
 ;; XXX: The procedure does not handle comments.  Although the RFC 4180 says
 ;; nothing about comments inside CSV data, it might be useful to handle
 ;; comments in some way if it is explicitly requested by the user.
-;;
-;; State machine:
-;;
-;;                 ,----------------------------------------------------------.
-;;                 |            ,---.                                         |
-;;                 v            V   |                                         |
-;;  START ----->[read-ln]--->[read]-+->[join]----->[validate]--->[add-field]--'
-;;                 |  A         |   |
-;;                 |  |         |   '->[add-record]-.
-;;                 |  |         |                   |
-;;                 |  '---------'<------------------'
-;;                 `--------------------------------------->[end]--------> STOP
 (define (dsv->scm parser)
-  ;;   [read-ln]-+->[read]
-  ;;             |
-  ;;             '->[end]
-  (define* (fsm-read-ln #:key
-                        (dsv-list     '())
-                        (buffer       '())
-                        (field-buffer '())
-                        (record       '()))
-    (debug-fsm-transition 'read-ln)
-    (debug-fsm 'read-ln "dsv-list: ~s~%" dsv-list)
-    (debug-fsm 'read-ln "buffer:   ~s~%" buffer)
-    (let ((line (parser-read-line parser)))
-      (debug-fsm 'read-ln "line: ~s~%" line)
+  (define (fsm-read-quote-crlf table row buffer)
+    (define %current-state 'read-quote-crlf)
+    (let ((char (parser-read-char parser)))
       (cond
-       ((not (eof-object? line))
-        (debug-fsm-transition 'read-ln 'read)
-        (fsm-read #:dsv-list     dsv-list
-                   #:buffer       buffer
-                   #:field-buffer field-buffer
-                   #:record       (parser-string-split parser line)))
-;                   #:line         line))
-       ((and (eof-object? line) (null? buffer) (null? field-buffer))
-        (debug-fsm-transition 'read-ln 'end)
-        (fsm-end dsv-list))
+       ((linefeed? char)
+        (fsm-read (append table (list (append row (list (buffer->string buffer)))))
+                  '()                   ; row
+                  '()))                 ; buffer
        (else
-        (dsv-error 'read-ln "Premature end of file" parser)))))
-  (define* (fsm-read #:key
-                     (dsv-list     '())
-                     (buffer       '())
-                     (field-buffer '())
-                     (record       '()))
-    (let ((field (or (null? record) (car record))))
-      (debug-fsm 'read "field: ~s; field-buffer: ~s~%" field field-buffer)
-      (cond
-       ((null? record)
-        (cond
-         ((null? field-buffer)
-          (debug-fsm-transition 'read 'add-record)
-          (fsm-add-record #:dsv-list     dsv-list
-                          #:buffer       buffer
-                          #:field-buffer field-buffer
-                          #:record       record))
-         ;; A field contains '\n'.
-         ;;   [read]--->[read-ln]
-         (else
-          (debug-fsm-transition 'read 'read-ln)
-          (fsm-read-ln #:dsv-list     dsv-list
-                       #:buffer       buffer
-                       ;; XXX: Does it handles all the cases?
-                       #:field-buffer (cons "\n" field-buffer)
-                       #:record       record))))
-       ;;      ,---.
-       ;;      V   |
-       ;;   [read]-+->[join]
-       ((null? field-buffer)
-        (case (get-quotation-status field)
-          ((quote-begin quote-begin-or-end)
-           (debug-fsm-transition 'read 'read)
-           (fsm-read #:dsv-list     dsv-list
-                     #:buffer       buffer
-                     #:field-buffer (list field)
-                     #:record       (cdr record)))
-          (else
-           (debug-fsm-transition 'read 'join)
-           (fsm-join #:dsv-list     dsv-list
-                      #:buffer       buffer
-                      #:field-buffer (list field)
-                      #:record       (cdr record)))))
-       (else
-        (case (get-quotation-status field)
-          ((quote-end quote-begin-or-end)
-           (debug-fsm-transition 'read 'join)
-           (fsm-join #:dsv-list     dsv-list
-                     #:buffer       buffer
-                     #:field-buffer (cons field field-buffer)
-                     #:record       (cdr record)))
-          (else
-           (debug-fsm-transition 'read 'read)
-           (fsm-read #:dsv-list     dsv-list
-                     #:buffer       buffer
-                     #:field-buffer (cons field field-buffer)
-                     #:record       (cdr record))))))))
-  ;;   [join]--->[validate]
-  (define* (fsm-join #:key
-                     (dsv-list     '())
-                     (buffer       '())
-                     (field-buffer '())
-                     (record       '()))
-    (debug-fsm-transition 'join 'validate)
-    (debug-fsm 'join "field-buffer: ~s~%" field-buffer)
-    (let* ((delimiter  (parser-delimiter->string parser))
-           ;; XXX: Looks too hacky.  Should be rewritten in a more
-           ;; elegant way.
-           (join-field (lambda (field-elements)
-                         (fold (lambda (elem prev)
-                                 (cond
-                                  ((not prev)
-                                   elem)
-                                  ((or (string=? "\n" elem)
-                                       (string-suffix? "\n" prev))
-                                   (string-append prev elem))
-                                  (else
-                                   (string-append prev delimiter elem))))
-                               #f
-                               (reverse field-elements))))
-           (drop-cr    (lambda (s)
-                         (if (string-suffix? "\r" s)
-                             (string-drop-right s 1)
-                             s))))
-      (fsm-validate #:dsv-list     dsv-list
-                    #:buffer       buffer
-                    #:field-buffer (drop-cr (join-field field-buffer))
-                    #:record       record)))
-  ;;   [validate]--->[add-field]
-  (define* (fsm-validate #:key
-                         (dsv-list     '())
-                         (buffer       '())
-                         (field-buffer '())
-                         (record       '()))
-    (validate-field parser 'validate field-buffer)
-    (debug-fsm-transition 'validate 'add-field)
-    (fsm-add-field #:dsv-list     dsv-list
-                   #:buffer       buffer
-                   #:field-buffer field-buffer
-                   #:record       record))
-  ;;   [add-field]--->[read]
-  (define* (fsm-add-field #:key
-                          (dsv-list     '())
-                          (buffer       '())
-                          (field-buffer '())
-                          (record       '()))
-    (debug-fsm-transition 'add-field 'read)
-    (let ((field (if (eq? (get-quotation-status field-buffer) 'quoted)
-                     ;; XXX: This special case was introduced to handle
-                     ;; empty quoted strings.  It works, but probably the
-                     ;; code is not so elegant.  - avp
-                     (if (> (string-length field-buffer) 2)
-                         (string-drop-both (unescape-chars field-buffer
-                                                           #\" #\")
-                                           1)
-                         (string-drop-both field-buffer 1))
-                     field-buffer)))
-      (fsm-read #:dsv-list     dsv-list
-                #:buffer       (cons field buffer)
-                #:field-buffer '()
-                #:record       record)))
-  ;;   [add-record]--->[read-ln]
-  (define* (fsm-add-record #:key
-                           (dsv-list     '())
-                           (buffer       '())
-                           (field-buffer '())
-                           (record       '())
-                           (line         #f))
-   (debug-fsm-transition 'add-record 'read-ln)
-   (fsm-read-ln #:dsv-list     (cons buffer dsv-list)
-                #:buffer       '()
-                #:field-buffer field-buffer
-                #:record       record))
-  ;;   [end]---> STOP
-  (define* (fsm-end dsv-list)
-    (debug-fsm-transition 'end 'STOP 'final)
-    (reverse (map reverse dsv-list)))
+        (dsv-error %current-state
+                   "Missing line feed after carriage return"
+                   `((state  . ,%current-state)
+                     (table  . ,table)
+                     (row    . ,row)
+                     (buffer . ,buffer)
+                     (char   . ,char)))))))
 
-  ;; Enter the 1st state.
-  (fsm-read-ln))
+  (define (fsm-read-quote table row buffer)
+    (define %current-state 'read-quote)
+    (let ((char (parser-read-char parser)))
+      (cond
+       ((double-quote? char)
+        (debug-fsm-transition %current-state 'read-quoted-field)
+        (fsm-read-quoted-field table row (cons char buffer)))
+       ((delimiter? parser char)
+        (debug-fsm-transition %current-state 'read)
+        (fsm-read table
+                  (append row (list (buffer->string buffer)))
+                  '()))
+       ((carriage-return? char)
+        (fsm-read-quote-crlf table row buffer))
+       ((linefeed? char)
+        (debug-fsm-transition %current-state 'read)
+        (fsm-read (append table (list (append row (if (null? buffer)
+                                                      (list "")
+                                                      (list (buffer->string buffer))))))
+                  '()                   ; row
+                  '()))                 ; buffer
+       ((eof-object? char)
+        (debug-fsm-transition %current-state 'end 'final)
+        (append table (list (append row (if (null? buffer)
+                                            (list "")
+                                            (list (buffer->string buffer)))))))
+       (else
+        (dsv-error %current-state
+                   "A field contains unescaped double-quotes"
+                   `((state  . ,%current-state)
+                     (table  . ,table)
+                     (row    . ,row)
+                     (buffer . ,buffer)
+                     (char   . ,char)))))))
+
+  (define (fsm-read-quoted-field table row buffer)
+    (define %current-state 'read-quoted-field)
+    (let ((char (parser-read-char parser)))
+      (cond
+       ((eof-object? char)
+        (dsv-error 'fsm-read-quoted-field
+                   "Missing quote at the end of a quoted field"
+                   table row buffer))
+       ((double-quote? char)
+        (debug-fsm-transition %current-state 'read-quote)
+        (fsm-read-quote table row buffer))
+       (else
+        (fsm-read-quoted-field table row (cons char buffer))))))
+
+  (define (fsm-read-field-crlf table row buffer)
+    (define %current-state 'read-field-crlf)
+    (let ((char (parser-read-char parser)))
+      (cond
+       ((linefeed? char)
+        (fsm-read (append table (list (append row (list (buffer->string buffer)))))
+                  '()                   ; row
+                  '()))                 ; buffer
+       (else
+        (dsv-error %current-state
+                   "Missing line feed after carriage return"
+                   `((state  . ,%current-state)
+                     (table  . ,table)
+                     (row    . ,row)
+                     (buffer . ,buffer)
+                     (char   . ,char)))))))
+
+  (define (fsm-read-field table row buffer)
+    (define %current-state 'read-field)
+    (let ((char (parser-read-char parser)))
+      (cond
+        ((or (eof-object? char) (delimiter? parser char))
+         (debug-fsm-transition %current-state 'read)
+         (fsm-read table
+                   (append row (list (buffer->string buffer))) ; row
+                   '()))                                       ; buffer
+        ((carriage-return? char)
+         (fsm-read-field-crlf table row buffer))
+        ((linefeed? char)
+         (debug-fsm-transition %current-state 'read)
+         (fsm-read (append table (list (append row (list (buffer->string buffer)))))
+                   '()                   ; row
+                   '()))                 ; buffer
+        ((double-quote? char)
+         (dsv-error %current-state "A double quote inside an unquoted field"
+                    `((table  . ,table)
+                      (row    . ,row)
+                      (buffer . ,buffer)
+                      (char   . ,char))))
+        (else
+         (fsm-read-field table row (cons char buffer))))))
+
+  (define (fsm-read table row buffer)
+    (define %current-state 'read)
+    (let ((char (parser-read-char parser)))
+      (cond
+        ((eof-object? char)
+         (debug-fsm-transition %current-state 'end 'final)
+         (if (null? row)
+             table
+             (append table (list row))))
+        ((carriage-return? char)
+         (fsm-read table row buffer))
+        ((double-quote? char)
+         (debug-fsm-transition %current-state 'read-quoted-field)
+         (fsm-read-quoted-field table row buffer))
+        ((delimiter? parser char)
+         (fsm-read table (append row (list "")) '()))
+        ((linefeed? char)
+         (fsm-read (append table (list row))
+                   '()                  ; row
+                   '()))                ; buffer
+        (else
+         (debug-fsm-transition %current-state 'read-field)
+         (fsm-read-field table row (cons char buffer))))))
+
+    (fsm-read '() '() '()))
 
 (define guess-delimiter (make-delimiter-guesser dsv->scm))
 

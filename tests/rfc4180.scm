@@ -24,33 +24,43 @@
 
 ;;; dsv->scm
 
-(test-assert "dsv->scm"
-  (and (equal? '(("a" "b" "c\nd,e" "f"))
-               (call-with-input-string
-                "a,b,\"c\nd,e\",f"
-                (cut dsv->scm <> #\, #:format 'rfc4180)))
-       (equal? '(("a\nb\nc\nd"))
-               (call-with-input-string
-                "\"a\nb\nc\nd\""
-                (cut dsv->scm <> #\, #:format 'rfc4180)))
-       (equal? '(("aaa" "b\"bb" "ccc"))
-               (call-with-input-string
-                "\"aaa\",\"b\"\"bb\",\"ccc\""
-                (cut dsv->scm <> #:format 'rfc4180)))
-       ;; Check handling of quoted final fields in CRLF context
-       (equal? '(("aaa"))
-               (call-with-input-string "\"aaa\"\r\n"
-                 (cut dsv->scm <> #:format 'rfc4180)))
-       (equal? '(("aaa" "bbb")
-                 ("c\"cc" "ddd")
-                 ("" "e\""))
-               (call-with-input-string "aaa,\"bbb\"\r\n\"c\"\"cc\",ddd\r\n,\"e\"\"\""
-                 (cut dsv->scm <> #:format 'rfc4180)))
-       ;; Check handling of empty quoted strings.
-       (equal? '((""))
-               (call-with-input-string
-                "\"\""
-                (cut dsv->scm <> #:format 'rfc4180)))))
+(test-equal "dsv->scm: input 1"
+  '(("a" "b" "c\nd,e" "f"))
+  (call-with-input-string
+      "a,b,\"c\nd,e\",f"
+    (cut dsv->scm <> #\, #:format 'rfc4180)))
+
+(test-equal "dsv->scm: input 2"
+  '(("a\nb\nc\nd"))
+  (call-with-input-string
+      "\"a\nb\nc\nd\""
+    (cut dsv->scm <> #\, #:format 'rfc4180)))
+
+(test-equal "dsv->scm: input 3"
+  '(("aaa" "b\"bb" "ccc"))
+  (call-with-input-string
+      "\"aaa\",\"b\"\"bb\",\"ccc\""
+    (cut dsv->scm <> #:format 'rfc4180)))
+
+;; Check handling of quoted final fields in CRLF context
+(test-equal "dsv->scm: CRLF 1"
+  '(("aaa"))
+  (call-with-input-string "\"aaa\"\r\n"
+    (cut dsv->scm <> #:format 'rfc4180)))
+
+(test-equal "dsv->scm: CRLF 2"
+  '(("aaa" "bbb")
+    ("c\"cc" "ddd")
+    ("" "e\""))
+  (call-with-input-string "aaa,\"bbb\"\r\n\"c\"\"cc\",ddd\r\n,\"e\"\"\""
+    (cut dsv->scm <> #:format 'rfc4180)))
+
+;; Check handling of empty quoted strings.
+(test-equal "dsv->scm: empty quoted strings"
+  '((""))
+  (call-with-input-string
+      "\"\""
+    (cut dsv->scm <> #:format 'rfc4180)))
 
 (test-assert "dsv->scm, error handling"
   (and (catch 'dsv-parser-error
@@ -68,13 +78,17 @@
           #f)
          (const #t))))
 
+;; (set-debug! #t)
+
 (test-assert "dsv-string->scm"
   (and (equal? '(("a" "b"))
                (dsv-string->scm "a,b" #\, #:format 'rfc4180))
        (equal? '(("a,b" "c"))
                (dsv-string->scm "\"a,b\",c" #\, #:format 'rfc4180))
        (equal? '(("a,b\nc" "d"))
-               (dsv-string->scm "\"a,b\nc\",d" #\, #:format 'rfc4180))))
+               (dsv-string->scm "\"a,b\nc\",d" #\, #:format 'rfc4180)) ))
+       ;; (equal? '(("\"\"" ""))
+       ;;         (dsv-string->scm "\"\"\"\"\"\",\"\"" #:format 'rfc4180))))
 
 
 ;;; scm->dsv
