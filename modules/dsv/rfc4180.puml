@@ -1,0 +1,61 @@
+@startuml
+/'
+rfc4180.puml -- Finite state machine diagram for the RFC4180 parser.
+
+Copyright (C) 2020 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+The program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with the program.  If not, see <http://www.gnu.org/licenses/>.
+'/
+
+skinparam state {
+  BackgroundColor<<Error>> Orange
+}
+
+state "read-quoted-field" as read_quoted_field
+state "read-quote" as read_quote
+state "read-quote-crlf" as read_quote_crlf
+state "read-field" as read_field
+state "read-field-crlf" as read_field_crlf
+state "ERROR" as ERROR <<Error>>
+
+[*] --> read
+read --> [*]: eof-object?
+read --> read: (or delimiter? linefeed? carriage-return?)
+read --> read_quoted_field: double-quote?
+read --> read_field
+
+read_field -> read_field
+read_field --> read: (or eof-object? delimiter? linefeed?)
+read_field -> read_field_crlf: carriage-return?
+read_field --> ERROR: double-quote?
+
+read_field_crlf --> read: linefeed?
+read_field_crlf --> ERROR
+
+read_quoted_field -> read_quoted_field
+read_quoted_field --> read: linefeed?
+read_quoted_field --> read_quote: double-quote?
+read_quoted_field --> ERROR: eof-object?
+
+read_quote --> read_quoted_field
+read_quote --> read: delimiter?
+read_quote -> read_quote_crlf: carriage-return?
+read_quote --> ERROR
+read_quote ---> [*]: eof-object?
+
+read_quote_crlf --> read: linefeed?
+read_quote_crlf --> ERROR
+
+ERROR --> [*]
+@enduml
