@@ -24,7 +24,7 @@ jobs:
         run: autoreconf -vif
 
       - name: Configure
-        run: configure
+        run: ./configure
 
       - name: Run tests
         run: make check
