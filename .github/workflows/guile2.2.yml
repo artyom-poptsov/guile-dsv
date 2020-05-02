@@ -15,9 +15,16 @@ jobs:
         run: |
           sudo apt update
           sudo apt install guile-2.2 guile-2.2-libs guile-library
+          sudo apt install automake autoconf
         
       - name: Checkout repository 
         uses: actions/checkout@v2
+
+      - name: Autoreconf
+        run: autoreconf -vif
+
+      - name: Configure
+        run: configure
 
       - name: Run tests
         run: make check
