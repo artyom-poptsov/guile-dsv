@@ -62,46 +62,50 @@
       "\"\""
     (cut dsv->scm <> #:format 'rfc4180)))
 
-(test-assert "dsv->scm, error handling"
-  (and (catch 'dsv-parser-error
-         (lambda ()
-          (call-with-input-string
-           "\"a"
-           (cut dsv->scm <> #:format 'rfc4180))
-          #f)
-         (const #t))
-       (catch 'dsv-parser-error
-         (lambda ()
-          (call-with-input-string
-           "\"a\nb"
-           (cut dsv->scm <> #:format 'rfc4180))
-          #f)
-         (const #t))))
+
+;;; Error testing
 
-;; (set-debug! #t)
+(test-error "dsv->scm, error handling: unquoted quote 1"
+  'dsv-parser-error
+  (call-with-input-string
+      "\"a"
+    (cut dsv->scm <> #:format 'rfc4180)))
 
-(test-assert "dsv-string->scm"
-  (and (equal? '(("a" "b"))
-               (dsv-string->scm "a,b" #\, #:format 'rfc4180))
-       (equal? '(("a,b" "c"))
-               (dsv-string->scm "\"a,b\",c" #\, #:format 'rfc4180))
-       (equal? '(("a,b\nc" "d"))
-               (dsv-string->scm "\"a,b\nc\",d" #\, #:format 'rfc4180)) ))
-       ;; (equal? '(("\"\"" ""))
-       ;;         (dsv-string->scm "\"\"\"\"\"\",\"\"" #:format 'rfc4180))))
+(test-error "dsv->scm, error handling: unquoted quote 2"
+  'dsv-parser-error
+  (call-with-input-string
+      "\"a\nb"
+    (cut dsv->scm <> #:format 'rfc4180)))
+
+
+;;; dsv-string
+
+(test-equal "dsv-string->scm: two fields"
+  '(("a" "b"))
+  (dsv-string->scm "a,b" #\, #:format 'rfc4180))
+
+(test-equal "dsv-string->scm: two fields, one is quoted with comma"
+  '(("a,b" "c"))
+  (dsv-string->scm "\"a,b\",c" #\, #:format 'rfc4180))
+
+(test-equal "dsv-string->scm: two fields, one quoted with comma and newline"
+  '(("a,b\nc" "d"))
+  (dsv-string->scm "\"a,b\nc\",d" #\, #:format 'rfc4180))
 
 
 ;;; scm->dsv
 
-(test-assert "scm->dsv"
-  (and (string=? "aaa,\"b\"\"bb\",ccc\r\n"
-                 (call-with-output-string
-                  (cut scm->dsv '(("aaa" "b\"bb" "ccc")) <>
-                       #:format 'rfc4180)))
-       (string=? "a,b,c\r\nd,e,f\r\n"
-                 (call-with-output-string
-                  (cut scm->dsv '(("a" "b" "c") ("d" "e" "f")) <>
-                       #:format 'rfc4180)))))
+(test-equal "scm->dsv: one row, three fields, one with a double quote"
+  "aaa,\"b\"\"bb\",ccc\r\n"
+  (call-with-output-string
+    (cut scm->dsv '(("aaa" "b\"bb" "ccc")) <>
+         #:format 'rfc4180)))
+
+(test-equal "scm->dsv: two rows, three fields in a row"
+  "a,b,c\r\nd,e,f\r\n"
+  (call-with-output-string
+    (cut scm->dsv '(("a" "b" "c") ("d" "e" "f")) <>
+         #:format 'rfc4180)))
 
 (test-assert "scm->dsv-string"
   (and (let ((data '(("aaa" "b\"bb" "ccc"))))
@@ -114,19 +118,25 @@
 
 ;;; guess-delimiter
 
-(test-assert "guess-delimiter"
-  (and (equal? #\,     (guess-delimiter "a,b,c"))
-       (equal? #\:     (guess-delimiter "a:b:c"))
-       (equal? #\tab   (guess-delimiter "a	b	c"))
-       (equal? #\space (guess-delimiter "a b c"))
-       (equal? #\:     (guess-delimiter "a,b:c:d:e"))
-       (equal? #\,     (guess-delimiter "a,b,c,d:e"))
-       (equal? #f      (guess-delimiter "a,b:c"))))
+(test-equal "guess-delimiter: comma 1" #\,     (guess-delimiter "a,b,c"))
+(test-equal "guess-delimiter: comma 2" #\,     (guess-delimiter "a,b,c,d:e"))
+(test-equal "guess-delimiter: colon 1" #\:     (guess-delimiter "a:b:c"))
+(test-equal "guess-delimiter: colon 2" #\:     (guess-delimiter "a,b:c:d:e"))
+(test-equal "guess-delimiter: tab"     #\tab   (guess-delimiter "a	b	c"))
+(test-equal "guess-delimiter: space"   #\space (guess-delimiter "a b c"))
+(test-equal "guess-delimiter: #f"      #f      (guess-delimiter "a,b:c"))
 
-(test-assert "guess-delimiter, custom delimiters"
-  (and (equal? #\-     (guess-delimiter "a-b-c" '(#\- #\,)))
-       (equal? #f      (guess-delimiter "a,b,c" '(#\-)))
-       (equal? #f      (guess-delimiter "a,b,c" '()))))
+(test-equal "guess-delimiter, custom: dash, comma"
+  #\-
+  (guess-delimiter "a-b-c" '(#\- #\,)))
+
+(test-equal "guess-delimiter, custom: dash"
+  #f
+  (guess-delimiter "a,b,c" '(#\-)))
+
+(test-equal "guess-delimiter, custom: empty list"
+  #f
+  (guess-delimiter "a,b,c" '()))
 
 
 (test-end "rfc4180")
