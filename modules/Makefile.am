@@ -23,10 +23,6 @@ SUBDIRS = dsv
 
 SOURCES = dsv.scm
 
-EXTRA_DIST = \
-	srfi/srfi-64.scm		\
-	srfi/srfi-64.upstream.scm
-
 GOBJECTS = $(SOURCES:%.scm=%.go)
 
 moddir=$(guilesitedir)
