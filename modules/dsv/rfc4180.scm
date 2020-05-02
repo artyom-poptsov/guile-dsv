@@ -210,7 +210,11 @@
        ((eof-object? char)
         (dsv-error 'fsm-read-quoted-field
                    "Missing quote at the end of a quoted field"
-                   table row buffer))
+                   `((state  . ,%current-state)
+                     (table  . ,table)
+                     (row    . ,row)
+                     (buffer . ,buffer)
+                     (char   . ,char))))
        ((double-quote? char)
         (debug-fsm-transition %current-state 'read-quote)
         (fsm-read-quote table row buffer))
