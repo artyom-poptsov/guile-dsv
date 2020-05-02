@@ -1,6 +1,6 @@
 ;;; rfc4180.scm -- Tests for RFC 4180 parser.
 
-;; Copyright (C) 2015 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2015, 2020 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
