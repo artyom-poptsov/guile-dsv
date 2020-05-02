@@ -24,23 +24,38 @@
 
 ;;; dsv->scm
 
-(test-assert "dsv->scm"
-  (and (equal? '(("a" "b" "c")) (call-with-input-string "a:b:c\n"
-                                  (cut dsv->scm <>)))
-       (equal? '(("a:b" "c"))   (call-with-input-string "a\\:b:c\n"
-                                  (cut dsv->scm <>)))
-       (equal? '(("a,b" "c"))   (call-with-input-string "a\\,b,c\n"
-                                  (cut dsv->scm <> #\,)))
-       ;; Check order of read records
-       (equal? '(("1") ("2"))
-               (call-with-input-string
-                   "1\n2\n"
-                 (cut dsv->scm <>)))))
+(test-equal "dsv->scm: three fields"
+  '(("a" "b" "c"))
+  (call-with-input-string "a:b:c\n"
+    (cut dsv->scm <>)))
 
-(test-assert "dsv-string->scm"
-  (and (equal? '(("a" "b" "c")) (dsv-string->scm "a:b:c\n"))
-       (equal? '(("a" "b" "c")) (dsv-string->scm "a,b,c\n" #\,))
-       (equal? '(("a" "b" ""))  (dsv-string->scm "a:b:\n"))))
+(test-equal "dsv->scm: two fields with an escaped colon"
+  '(("a:b" "c"))
+  (call-with-input-string "a\\:b:c\n"
+    (cut dsv->scm <>)))
+
+(test-equal "dsv->scm: two fields with an escaped comma"
+  '(("a,b" "c"))
+  (call-with-input-string "a\\,b,c\n"
+    (cut dsv->scm <> #\,)))
+
+(test-equal "dsv->scm: two fields, check order"
+  '(("1") ("2"))
+  (call-with-input-string
+      "1\n2\n"
+    (cut dsv->scm <>)))
+
+(test-equal "dsv-string->scm: three fields, separated by a colon 1"
+  '(("a" "b" "c"))
+  (dsv-string->scm "a:b:c\n"))
+
+(test-equal "dsv-string->scm: three fields, separated by a colon 2"
+  '(("a" "b" ""))
+  (dsv-string->scm "a:b:\n"))
+
+(test-equal "dsv-string->scm: three fields, separated by a comma"
+  '(("a" "b" "c"))
+  (dsv-string->scm "a:b:c\n"))
 
 ;; Handling of commented lines
 (test-assert "dsv->scm, comment prefix"
