@@ -60,10 +60,6 @@
 
 ;;; Helper procedures
 
-(define* (string-drop-both s n #:optional (n-right n))
-  "Drop N chars from a string S on the both left and right sides."
-  (string-drop-right (string-drop s n) n-right))
-
 (define-syntax case-pred
   (syntax-rules (else)
     ((_ pred key ((datum ...) exp) ...)
@@ -73,37 +69,6 @@
      (cond
       ((or (pred key datum) ...) exp) ...
       (else else-exp ...)))))
-
-(define (get-quotation-status field)
-  "Get quotation status for a FIELD."
-  (case-pred (lambda (field regexp) (regexp-match? (string-match regexp field)))
-             field
-    (("^\".*\"$") 'quoted)
-    (("^\".+")    'quote-begin)
-    ((".+\"$")    'quote-end)
-    (("^\"$")     'quote-begin-or-end)))
-
-(define* (all-double-quotes-escaped? field)
-  "Check if all the double-quotes are escaped."
-  (even? (string-count field #\")))
-
-(define (validate-field parser state field)
-  "Validate a FIELD."
-  (case (get-quotation-status field)
-    ((quoted)
-     (cond
-      ((not (all-double-quotes-escaped? field))
-       (dsv-error state "A field contains unescaped double-quotes"
-                  parser field))))
-    (else
-     (cond
-      ((string-index field #\")
-       (dsv-error state "A field contains unescaped double-quotes"
-                  parser field))
-      ((string-contains field "\r\n")
-       (dsv-error state
-                  "Unexpected line break (CRLF) inside of an unquoted field"
-                  parser field))))))
 
 
 ;;; Writing
