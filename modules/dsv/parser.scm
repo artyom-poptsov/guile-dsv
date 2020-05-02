@@ -38,6 +38,7 @@
             parser-delimiter
             parser-comment-prefix
             parser-read-line
+            parser-read-char
             parser-string-split
             parser-delimiter->string
             parser-commented?
@@ -73,6 +74,9 @@
     (if (and (eqv? (parser-type parser) 'rfc4180) (not (eof-object? line)))
         (string-trim-right line #\cr)
         line)))
+
+(define (parser-read-char parser)
+  (read-char (parser-port parser)))
 
 (define (parser-string-split parser str)
   (string-split str (parser-delimiter parser)))
