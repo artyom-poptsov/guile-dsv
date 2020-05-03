@@ -161,17 +161,20 @@
                            (reverse res)))))
         (format-table (cons '("column" "width") wtable) '())))))
 
-(define (convert file delim source-format target-format)
+(define (convert file source-delim target-delim source-format target-format)
   "Convert a FILE from a SOURCE-FORMAT to a TARGET-FORMAT."
   (case target-format
     ((unix rfc4180)
-     (let ((delim (or delim (guess-file-delimiter file source-format))))
-       (unless delim
+     (let ((source-delim (or source-delim
+                             (guess-file-delimiter file source-format)))
+           (target-delim (or target-delim 'default)))
+       (unless source-delim
          (error "Could not determine a file delimiter" file))
        (let* ((p     (open-input-file file))
-              (table (remove-empty-rows (dsv->scm p delim
+              (table (remove-empty-rows (dsv->scm p source-delim
                                                   #:format source-format))))
-         (scm->dsv table #:format target-format))))
+         (scm->dsv table (current-output-port) target-delim
+                   #:format target-format))))
     (else
      (error "Unsupported target format" target-format))))
 
@@ -202,6 +205,9 @@ Options:
                              Example: \"v=|,h=-\"
   --to, -t <fmt>             Convert a file to a specified format, write
                              the result to stdout.
+  --to-delimiter, -T <delim> Convert delimiters to the specified variant.
+                             When this option is not used, default delimiters
+                             for the chosen output format will be used.
   --debug                    Enable state machine debugging.
 ")
   (exit))
@@ -210,6 +216,7 @@ Options:
   (let* ((option-spec '((help            (single-char #\h) (value #f))
                         (summary         (single-char #\s) (value #f))
                         (delimiter       (single-char #\D) (value #t))
+                        (to-delimiter    (single-char #\T) (value #t))
                         (file-format     (single-char #\F) (value #t))
                         (table-borders   (single-char #\b) (value #t))
                         (guess-delimiter (single-char #\d) (value #f))
@@ -222,6 +229,8 @@ Options:
          (guess-delimiter?  (option-ref options 'guess-delimiter #f))
          (file-format       (option-ref options 'file-format     "unix"))
          (delimiter         (and=> (option-ref options 'delimiter #f)
+                                   (cut string-ref <> 0)))
+         (to-delimiter      (and=> (option-ref options 'to-delimiter #f)
                                    (cut string-ref <> 0)))
          (table-borders     (option-ref options 'table-borders   ""))
          (to                (option-ref options 'to              #f))
@@ -240,7 +249,9 @@ Options:
      (guess-delimiter?
       (print-delimiter (car args) (string->dsv-format file-format)))
      (to
-      (convert (car args) delimiter
+      (convert (car args)
+               delimiter
+               to-delimiter
                (string->dsv-format file-format)
                (string->symbol to)))
      (else
