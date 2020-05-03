@@ -86,38 +86,46 @@
 
 ;;; scm->dsv
 
-(test-assert "scm->dsv"
-  (and (string=? "a:b:c\n"
-                 (call-with-output-string
-                  (cut scm->dsv '(("a" "b" "c")) <>)))
-       (string=? "a:b:c\nd:e:f\n"
-                 (call-with-output-string
-                  (cut scm->dsv '(("a" "b" "c") ("d" "e" "f")) <>)))))
+(test-equal "scm->dsv: one row, three fields separated by a colon"
+  "a:b:c\n"
+  (call-with-output-string
+    (cut scm->dsv '(("a" "b" "c")) <>)))
 
-(test-assert "scm->dsv-string"
-  (and (equal? "a:b:c\n" (scm->dsv-string '(("a" "b" "c"))))
-       (equal? "a,b,\n"  (scm->dsv-string '(("a" "b" "")) #\,))
-       (equal? "a:b:\n"  (scm->dsv-string '(("a" "b" ""))))))
+(test-equal "scm->dsv: two rows, three fields"
+  "a:b:c\nd:e:f\n"
+  (call-with-output-string
+    (cut scm->dsv '(("a" "b" "c") ("d" "e" "f")) <>)))
 
-(test-assert "scm->dsv, nonprintable characters"
-  (equal? "\\f:a\\nb:\\r:\\t:\\v\n"
-          (scm->dsv-string '(("\f" "a\nb" "\r" "\t" "\v")))))
+(test-equal "scm->dsv-string: three fields separated by a colon"
+  "a:b:c\n"
+  (scm->dsv-string '(("a" "b" "c"))))
 
-(test-assert "scm->dsv, backslash escaping"
-  (equal? "a\\\\b\n"
-          (scm->dsv-string '(("a\\b")))))
+(test-equal "scm->dsv-string: three fields separated by a comma, one is empty"
+  "a,b,\n"
+  (scm->dsv-string '(("a" "b" "")) #\,))
+
+(test-equal "scm->dsv-string: three fields separated by a colon, one is empty"
+  "a:b:\n"
+  (scm->dsv-string '(("a" "b" ""))))
+
+(test-equal "scm->dsv: nonprintable characters"
+  "\\f:a\\nb:\\r:\\t:\\v\n"
+  (scm->dsv-string '(("\f" "a\nb" "\r" "\t" "\v"))))
+
+(test-equal "scm->dsv: backslash escaping"
+  "a\\\\b\n"
+  (scm->dsv-string '(("a\\b"))))
 
 
 ;;; guess-delimiter
 
-(test-assert "guess-delimiter"
-  (and (equal? #\,     (guess-delimiter "a,b,c"))
-       (equal? #\:     (guess-delimiter "a:b:c"))
-       (equal? #\tab   (guess-delimiter "a	b	c"))
-       (equal? #\space (guess-delimiter "a b c"))
-       (equal? #\:     (guess-delimiter "a,b:c:d:e"))
-       (equal? #\,     (guess-delimiter "a,b,c,d:e"))
-       (equal? #f      (guess-delimiter "a,b:c"))))
+(test-equal "guess-delimiter: comma 1" #\,     (guess-delimiter "a,b,c"))
+(test-equal "guess-delimiter: comma 2" #\,     (guess-delimiter "a,b,c,d:e"))
+(test-equal "guess-delimiter: colon 1" #\:     (guess-delimiter "a:b:c"))
+(test-equal "guess-delimiter: colon 2" #\:     (guess-delimiter "a,b:c:d:e"))
+(test-equal "guess-delimiter: tab"     #\tab   (guess-delimiter "a	b	c"))
+(test-equal "guess-delimiter: space"   #\space (guess-delimiter "a b c"))
+(test-equal "guess-delimiter: #f"      #f      (guess-delimiter "a,b:c"))
 
 (test-end "dsv")
 
