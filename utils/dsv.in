@@ -231,6 +231,8 @@ Options:
     (set-debug! debug?)
 
     (cond
+     ((null? args)
+      (print-help-and-exit))
      (help-needed?
       (print-help-and-exit))
      (summary-needed?
