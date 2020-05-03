@@ -4,7 +4,7 @@
 
 ;;; dsv.in -- Get various information from DSV files.
 
-;; Copyright (C) 2015, 2016, 2017 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2015, 2016, 2017, 2020 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
 (use-modules (ice-9 getopt-long)
              (ice-9 rdelim)
              (ice-9 format)
+             (ice-9 textual-ports)
              (srfi  srfi-1)
              (srfi  srfi-26)
              (dsv)
@@ -56,14 +57,20 @@
     (length (dsv->scm p delim #:format fmt))))
 
 
-(define (guess-file-delimiter file fmt)
+(define (guess-file-delimiter input-port fmt)
   "Guess delimiter for a file."
-  (let guess ((p (open-input-file file)))
-    (let ((line (read-line p)))
-      (and (not (eof-object? line))
-           (let ((guessed-delim  (guess-delimiter line #:format fmt)))
-             (or guessed-delim
-                 (guess p)))))))
+  (let guess ((line (read-line input-port 'concat))
+              (buf  '()))
+    (and (not (eof-object? line))
+         (let ((guessed-delim (guess-delimiter line #:format fmt)))
+           (if guessed-delim
+               (begin
+                 (for-each (lambda (str)
+                             (unget-string input-port str))
+                           (cons line buf))
+                 guessed-delim)
+               (guess (read-line input-port)
+                      (cons line buf)))))))
 
 
 (define (get-width table)
@@ -116,38 +123,35 @@
            (car (dsv-string->scm borders #\,)))
       '()))
 
-(define (print-file file fmt borders delim)
+(define (print-file input-port fmt borders delim)
   "Pretty-print a FILE."
-  (let* ((p     (open-input-file file))
-         (delim (or delim (guess-file-delimiter file fmt))))
+  (let ((delim (or delim (guess-file-delimiter input-port fmt))))
 
     (unless delim
-      (error "Could not determine a file delimiter" file))
+      (error "Could not determine a file delimiter" input-port))
 
-    (let ((table (remove-empty-rows (dsv->scm p delim #:format fmt)))
+    (let ((table (remove-empty-rows (dsv->scm input-port delim #:format fmt)))
           (bspec (borders->alist borders)))
       (format-table table bspec))))
 
 
-(define (print-summary file fmt delim)
-  "Print summary information for a FILE of format FMT."
-  (let ((guessed-delim (or delim (guess-file-delimiter file fmt)))
+(define (print-summary input-port fmt delim)
+  "Print summary information for an INPUT-PORT of format FMT."
+  (let ((guessed-delim (or delim (guess-file-delimiter input-port fmt)))
         (f             (cut format #t <...>)))
-    (f "File:      ~a~%" file)
+
+    (f "File:      ~a~%" (or (port-filename input-port)
+                             ""))
     (f "Format:    ~a~%" fmt)
     (f "Delimiter: '~a'~a~%"
        (or guessed-delim "")
        (if guessed-delim
            (format #f " (0x~x)" (char->integer guessed-delim))
            ""))
-    (f "Records:   ~a~%"
-       (if guessed-delim
-           (rc file guessed-delim fmt)
-           ""))
-    (newline)
+
     (when guessed-delim
       (let* ((table  (remove-empty-rows
-                      (dsv->scm (open-input-file file) guessed-delim
+                      (dsv->scm input-port guessed-delim
                                 #:format fmt)))
              (wtable (let loop ((w   (get-width table))
                                 (col 1)
@@ -159,28 +163,29 @@
                                              (number->string (car w)))
                                        res))
                            (reverse res)))))
+        (f "Records:   ~a~%" (length table))
+        (newline)
         (format-table (cons '("column" "width") wtable) '())))))
 
-(define (convert file source-delim target-delim source-format target-format)
-  "Convert a FILE from a SOURCE-FORMAT to a TARGET-FORMAT."
+(define (convert input-port source-delim target-delim source-format target-format)
+  "Convert a data from an INPUT-PORT from a SOURCE-FORMAT to a TARGET-FORMAT."
   (case target-format
     ((unix rfc4180)
      (let ((source-delim (or source-delim
-                             (guess-file-delimiter file source-format)))
+                             (guess-file-delimiter input-port source-format)))
            (target-delim (or target-delim 'default)))
        (unless source-delim
-         (error "Could not determine a file delimiter" file))
-       (let* ((p     (open-input-file file))
-              (table (remove-empty-rows (dsv->scm p source-delim
-                                                  #:format source-format))))
+         (error "Could not determine a file delimiter" input-port))
+       (let ((table (remove-empty-rows (dsv->scm input-port source-delim
+                                                 #:format source-format))))
          (scm->dsv table (current-output-port) target-delim
                    #:format target-format))))
     (else
      (error "Unsupported target format" target-format))))
 
-(define (print-delimiter file fmt)
+(define (print-delimiter input-port fmt)
   "Guess and print FILE delimiter."
-  (let ((guessed-delim (guess-file-delimiter file fmt)))
+  (let ((guessed-delim (guess-file-delimiter input-port fmt)))
     (format #t "~a~%" (or guessed-delim ""))))
 
 (define (print-help-and-exit)
@@ -239,25 +244,29 @@ Options:
 
     (set-debug! debug?)
 
-    (cond
-     ((null? args)
+    (when help-needed?
       (print-help-and-exit))
-     (help-needed?
-      (print-help-and-exit))
-     (summary-needed?
-      (print-summary (car args) (string->dsv-format file-format) delimiter))
-     (guess-delimiter?
-      (print-delimiter (car args) (string->dsv-format file-format)))
-     (to
-      (convert (car args)
-               delimiter
-               to-delimiter
-               (string->dsv-format file-format)
-               (string->symbol to)))
-     (else
-      (print-file (car args) (string->dsv-format file-format) table-borders
-                  delimiter)))
 
+    (let ((input-port (if (null? args)
+                          (current-input-port)
+                          (open-input-file (car args)))))
+      (cond
+       (summary-needed?
+        (print-summary input-port (string->dsv-format file-format) delimiter))
+       (guess-delimiter?
+        (print-delimiter input-port (string->dsv-format file-format)))
+       (to
+        (convert input-port
+                 delimiter
+                 to-delimiter
+                 (string->dsv-format file-format)
+                 (string->symbol to)))
+       (else
+        (print-file input-port
+                    (string->dsv-format file-format) table-borders
+                    delimiter)))
+
+      (close input-port))
     (exit)))
 
 
