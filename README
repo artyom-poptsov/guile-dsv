@@ -1,64 +1,73 @@
 # -*- mode: org; -*-
+* Guile-DSV
 
 Guile-DSV is a GNU Guile module for working with the [[https://en.wikipedia.org/wiki/Delimiter-separated_values][delimiter-separated
 values]] (DSV) data format.
 
 Guile-DSV supports [[http://www.catb.org/~esr/writings/taoup/html/ch05s02.html#id2901882][the Unix-style DSV format]] and [[https://tools.ietf.org/html/rfc4180][RFC 4180]] format.
 
-* Requirements
-  - [[https://www.gnu.org/software/guile/][GNU Guile]] 2.0.12+
-  - [[http://www.nongnu.org/guile-lib/][Guile Library]] 0.1.9+
+Also Guile-DSV ships with a program named =dsv= (source code is here:
+=utils/dsv.in=) that allows to read and process DSV format (including
+delimiter change and conversion from one standard to another.)
 
-** Build dependencies
+** Requirements
+   - [[https://www.gnu.org/software/guile/][GNU Guile]] 2.0.12+
+   - [[http://www.nongnu.org/guile-lib/][Guile Library]] 0.1.9+
+
+*** Build dependencies
     - Texinfo (contains =makeinfo= tool that is required for making the
       documentation in Texinfo format)
+    - Texlive (also is needed for documentation.)
 
-* Distribution
+** Distribution
+   Files:
+   - AUTHORS contains list of people who contributed to the library
+     development.
+   - COPYING contains the terms of GNU General Public License.
+   - INSTALL contains general instructions for building/installing of
+     Guile-DSV
+   - NEWS describes user-visible changes.
+   - TODO contains plans for the further development and list of known bugs.
 
-Files:
- - AUTHORS contains list of people who contributed to the library
-   development.
- - COPYING contains the terms of GNU General Public License.
- - INSTALL contains general instructions for building/installing of
-   Guile-DSV
- - NEWS describes user-visible changes.
- - TODO contains plans for the further development and list of known bugs.
+   Directories:
+   - doc      -- Documentation in Texinfo format.
+   - modules  -- Guile modules.
+   - utils    -- Utility programs based on Guile-DSV.
+   - tests    -- Unit tests.
 
-Directories:
- - doc      -- Documentation in Texinfo format.
- - modules  -- Guile modules.
- - tests    -- Unit tests.
+   Files are usually installed according to the prefix specified to
+   =configure= script, =/usr/local= by default. Building and installing gives
+   you:
 
-Files are usually installed according to the prefix specified to
-=configure= script, =/usr/local= by default.  Building and installing
-gives you:
+   Guile modules, in =${GUILE_SITE}=:
+   - dsv.scm
+   - dsv/rfc4180.scm
+   - dsv/unix.scm
+   - dsv/parser.scm
+   - dsv/builder.scm
+   - dsv/common.scm
 
-Guile modules, in =${GUILE_SITE}=:
- - dsv.scm
- - dsv/rfc4180.scm
- - dsv/unix.scm
- - dsv/parser.scm
- - dsv/builder.scm
- - dsv/common.scm
+   All the modules will be compiled and produced .go files will be installed
+   to =site-ccache= directory which is something like this:
+   =${libdir}/guile/2.0/site-ccache/=.
 
-All the modules will be compiled and produced .go files will be installed to
-=site-ccache= directory which is something like this:
-=${libdir}/guile/2.0/site-ccache/=.
+   Documentation in Info format, in =${prefix}/share/info/=:
+   - guile-dsv.info
 
-Documentation in Info format, in =${prefix}/share/info/=:
- - guile-dsv.info
+   Utility program in =${PREFIX}/bin=:
+   - dsv
 
-* Installation
+** Installation
 
-For a basic explanation of the installation of the package, see the
-INSTALL file.
+ For a basic explanation of the installation of the package, see the
+ INSTALL file.
 
-Please *note* that you will need [[https://www.gnu.org/software/automake/][Automake]] 1.12 or later to run
-self-tests with =make check= (but the library itself can be built with
-older Automake version such as 1.11).
+ Please *note* that you will need [[https://www.gnu.org/software/automake/][Automake]] 1.12 or later to run
+ self-tests with =make check= (but the library itself can be built with
+ older Automake version such as 1.11).
 
-*important* You probably want to call configure with the
-=--with-guilesitedir= option so that this package is installed in
-Guile's default path.  But, if you don't know where your Guile site
-directory is, run =configure= without the option, and it will give you
-a suggestion.
+ *important* You probably want to call configure with the
+ =--with-guilesitedir= option so that this package is installed in
+ Guile's default path.  But, if you don't know where your Guile site
+ directory is, run =configure= without the option, and it will give you
+ a suggestion.
