@@ -7,6 +7,28 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   are permitted in any medium without royalty provided the copyright
   notice and this notice are preserved.
 
+* Changes in version 0.3.0 (2020-05-11)
+** Remove bundled SRFI-64
+   This module is shipped with Guile since version 2.0.12.
+** Improve =dsv= tool (=utils/dsv.in=)
+   - The tool now is capable of converting delimiters and reading data from
+     stdin.
+   - Add check for empty argument: print help message if no arguments
+     specified.
+** Bugfixes
+*** Fix quote handling in RFC4180 data
+    The library would always fail to correctly parse RFC4180 format because there
+    was an error in the state machine: it considered even number of double quotes
+    as a proof that the input data was correct.
+  
+    This change fixes the problem (#7 on GitHub) by re-writing the FSM to follow
+    the standard more closely. Also now the FSM for RFC4180 reads data character
+    by character which is more elegant and controllable.
+  
+    Thanks to Alex Sassmannshausen for attracting my attention to the parser
+    issues in <https://github.com/artyom-poptsov/guile-dsv/issues/7>
+** Improve tests
+   Expand test suite, make tests more fine-grained.
 * Changes in version 0.2.1 (2017-11-25)
 ** Add Guix package recipe
    Guile-DSV now has GNU Guix <https://www.gnu.org/software/guix/> package
