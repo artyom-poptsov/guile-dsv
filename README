@@ -71,3 +71,96 @@ delimiter change and conversion from one standard to another.)
  Guile's default path.  But, if you don't know where your Guile site
  directory is, run =configure= without the option, and it will give you
  a suggestion.
+
+** =dsv= tool
+*** Options
+#+begin_example
+$ dsv --help
+Usage: dsv [options] <file>
+
+The default behaviour of the program is to print a formatted table from a
+<file> to stdout.  The options listed below can be used to change or modify
+this behaviour.
+
+Options:
+  --help, -h                 Print this message and exit.
+  --summary, -s              Print summary information for a file.
+  --delimiter, -D <delim>    Set a delimiter.
+  --guess-delimiter, -d      Guess a file delimiter and print the result.
+  --file-format, -F <fmt>    Set a file format.  Possible formats are:
+                             "unix" (default), "rfc4180"
+  --table-borders, -b <spec> Set table borders for printing.  Spec is expected
+                             to be a comma-separated list of key=value pairs,
+                             where possible keys are: "v" (vertical border),
+                             "h" (horizontal border).
+                             Example: "v=|,h=-"
+  --to, -t <fmt>             Convert a file to a specified format, write
+                             the result to stdout.
+  --to-delimiter, -T <delim> Convert delimiters to the specified variant.
+                             When this option is not used, default delimiters
+                             for the chosen output format will be used.
+  --debug                    Enable state machine debugging.
+#+end_example
+
+*** Print DSV files
+    To show DSV files (Unix-style) in human-readable manner, just invoke the
+    tool like this:
+#+begin_example shell
+$ dsv /etc/passwd | head -4
+root                      x       0           0           root                                     /root                            /bin/bash               
+daemon                    x       1           1           daemon                                   /usr/sbin                        /usr/sbin/nologin       
+bin                       x       2           2           bin                                      /bin                             /usr/sbin/nologin       
+sys                       x       3           3           sys                                      /dev                             /usr/sbin/nologin
+#+end_example
+ 
+    Show a DSV file as a fancy table with custom borders:
+#+begin_example shell
+$ dsv -b "v=|,h=-" /etc/passwd | head -5
+root                     | x      | 0          | 0          | root                                    | /root                           | /bin/bash              | 
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+daemon                   | x      | 1          | 1          | daemon                                  | /usr/sbin                       | /usr/sbin/nologin      | 
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+bin                      | x      | 2          | 2          | bin                                     | /bin                            | /usr/sbin/nologin      |
+#+end_example
+*** Try to guess delimiter in a file
+#+begin_example shell
+$ dsv -d /etc/passwd
+:
+#+end_example
+
+*** Show summary
+#+begin_example shell
+$ dsv -s /etc/passwd
+File:      /etc/passwd
+Format:    unix
+Delimiter: ':' (0x3a)
+Records:   50
+
+column       width       
+1            19          
+2            1           
+3            5           
+4            5           
+5            34          
+6            26          
+7            17
+#+end_example
+
+*** Convert files between formats
+    From Unix DSV to RFC4180:
+#+begin_example shell
+$ dsv -t rfc4180 /etc/passwd | head -4
+root,x,0,0,root,/root,/bin/bash
+daemon,x,1,1,daemon,/usr/sbin,/usr/sbin/nologin
+bin,x,2,2,bin,/bin,/usr/sbin/nologin
+sys,x,3,3,sys,/dev,/usr/sbin/nologin
+#+end_example
+
+    Convert delimiters:
+#+begin_example shell
+$ dsv -t unix -T "|" /etc/passwd | head -4
+root|x|0|0|root|/root|/bin/bash
+daemon|x|1|1|daemon|/usr/sbin|/usr/sbin/nologin
+bin|x|2|2|bin|/bin|/usr/sbin/nologin
+sys|x|3|3|sys|/dev|/usr/sbin/nologin
+#+end_example
