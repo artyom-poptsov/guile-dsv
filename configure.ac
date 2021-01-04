@@ -27,7 +27,7 @@ AC_INIT([Guile-DSV], [0.3.0], [poptsov.artyom@gmail.com],
 
 AC_COPYRIGHT(GUILE_DSV_CONFIGURE_COPYRIGHT)
 AC_CONFIG_AUX_DIR([build-aux])
-AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_MACRO_DIR([build-aux/m4])
 
 AM_INIT_AUTOMAKE([gnu silent-rules -Wall -Wno-portability
                       color-tests])
@@ -55,8 +55,8 @@ if test "x$guilesitedir" = "x"; then
 fi
 AC_SUBST([guilesitedir])
 
-AC_CONFIG_FILES([Makefile am/Makefile build-aux/Makefile tests/Makefile])
-AC_CONFIG_FILES([doc/Makefile m4/Makefile modules/Makefile modules/dsv/Makefile])
+AC_CONFIG_FILES([Makefile build-aux/am/Makefile build-aux/Makefile tests/Makefile])
+AC_CONFIG_FILES([doc/Makefile build-aux/m4/Makefile modules/Makefile modules/dsv/Makefile])
 AC_CONFIG_FILES([utils/Makefile])
 
 dnl texinfo package required to make the documentation in Texinfo format.

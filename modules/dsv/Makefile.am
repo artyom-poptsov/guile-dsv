@@ -17,7 +17,7 @@
 ## You should have received a copy of the GNU General Public License
 ## along with Guile-DSV.  If not, see <http://www.gnu.org/licenses/>.
 
-include $(top_srcdir)/am/guilec
+include $(top_srcdir)/build-aux/am/guilec
 
 SOURCES = rfc4180.scm unix.scm parser.scm builder.scm common.scm
 
