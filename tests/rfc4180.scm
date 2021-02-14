@@ -139,8 +139,10 @@
   (guess-delimiter "a,b,c" '()))
 
 
+(define exit-status (test-runner-fail-count (test-runner-current)))
+
 (test-end "rfc4180")
 
-(exit (= (test-runner-fail-count (test-runner-current)) 0))
+(exit (zero? exit-status))
 
 ;;; rfc4180.scm ends here.

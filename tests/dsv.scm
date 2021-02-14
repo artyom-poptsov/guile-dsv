@@ -132,8 +132,10 @@
 (test-equal "guess-delimiter: space"   #\space (guess-delimiter "a b c"))
 (test-equal "guess-delimiter: #f"      #f      (guess-delimiter "a,b:c"))
 
+(define exit-status (test-runner-fail-count (test-runner-current)))
+
 (test-end "dsv")
 
-(exit (= (test-runner-fail-count (test-runner-current)) 0))
+(exit (zero? exit-status))
 
 ;;; dsv.scm ends here.

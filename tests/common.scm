@@ -58,6 +58,8 @@
   (buffer->string '(#\o #\l #\l #\e #\h)))
 
 
+(define exit-status (test-runner-fail-count (test-runner-current)))
+
 (test-end "common")
 
-(exit (= (test-runner-fail-count (test-runner-current)) 0))
+(exit (zero? exit-status))
