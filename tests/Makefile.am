@@ -18,6 +18,7 @@
 ## along with Guile-DSV.  If not, see <http://www.gnu.org/licenses/>.
 
 SCM_TESTS = \
+	common.scm	\
 	dsv.scm		\
 	rfc4180.scm
 
