@@ -96,7 +96,7 @@
 
 
 (define (dsv->scm parser)
-  (define (fsm-error state message table row buffer)
+  (define (fsm-error state message table row buffer char)
     (dsv-error state
                message
                `((state  . ,state)
@@ -142,7 +142,7 @@
        ((eof-object? char)
         (fsm-error %current-state
                    "EOF escaped with a backslash"
-                   table row buffer))
+                   table row buffer char))
        ((char=? char #\n)
         (fsm-read table row (cons #\newline buffer)))
        ((char=? char #\t)
