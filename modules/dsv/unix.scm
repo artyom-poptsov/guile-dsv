@@ -97,7 +97,7 @@
 
 (define (dsv->scm parser)
   (define (fsm-error state message table row buffer)
-    (dsv-error %current-state
+    (dsv-error state
                message
                `((state  . ,state)
                  (table  . ,table)
