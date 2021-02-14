@@ -96,6 +96,14 @@
 
 
 (define (dsv->scm parser)
+  (define (fsm-error state message table row buffer)
+    (dsv-error %current-state
+               message
+               `((state  . ,state)
+                 (table  . ,table)
+                 (row    . ,row)
+                 (buffer . ,buffer)
+                 (char   . ,char))))
 
   (define (fsm-append-row table row buffer)
     (define %current-state 'append-row)
@@ -131,6 +139,10 @@
     (let ((char (parser-read-char parser)))
       (debug-fsm-transition %current-state 'read)
       (cond
+       ((eof-object? char)
+        (fsm-error %current-state
+                   "EOF escaped with a backslash"
+                   table row buffer))
        ((char=? char #\n)
         (fsm-read table row (cons #\newline buffer)))
        ((char=? char #\t)

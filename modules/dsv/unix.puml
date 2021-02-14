@@ -27,7 +27,7 @@ state "append-field" as append_field
 state "append-last-field" as append_last_field
 state "append-row"   as append_row
 state "skip-comment" as skip_comment
-state "ERROR" as ERROR <<Error>>
+state "error" as error <<Error>>
 
 /' fsm-read '/
 [*] --> read
@@ -53,5 +53,7 @@ append_field --> read
 
 /' fsm-read-escaped-char '/
 read_escaped_char --> read
+read_escaped_char --> error: eof-object?
 
+error --> [*]
 @enduml
