@@ -1,4 +1,4 @@
-;;; rfc4180.scm -- DSV parser for RFC 4180 format.
+;;; rfc4180.scm -- DSV parser for Unix format.
 
 ;; Copyright (C) 2015-2021 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
