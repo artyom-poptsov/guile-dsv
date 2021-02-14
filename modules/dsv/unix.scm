@@ -78,96 +78,108 @@
   (call-with-input-string str (cut make-parser <> delimiter known-delimiters
                                    comment-prefix)))
 
-(define (deserealize-nonprintable-chars str)
-  "Replace C-style backslash escapes with actual chars."
-  (let subst ((s   str)
-              (lst %char-mapping))
-    (if (not (null? lst))
-        (let ((s (substitute s
-                             (string-append "\\" (cdar lst))
-                             (string (caar lst)))))
-          (subst s (cdr lst)))
-        s)))
+
+(define (linefeed? char)
+  (and (char? char) (char=? char #\newline)))
 
-(define (unescape-backslash str)
-  (substitute str "\\\\\\\\" "\\"))
+(define (carriage-return? char)
+  (and (char? char) (char=? char #\return)))
 
-(define (unsescape parser str)
-  (unescape-backslash
-   (unescape-chars str (parser-delimiter parser) #\\)))
+(define (delimiter? parser char)
+  (and (char? char) (char=? char (parser-delimiter parser))))
 
-(define (deserealize parser str)
-  (unsescape parser (deserealize-nonprintable-chars str)))
+(define (buffer->string buffer)
+  (list->string (reverse buffer)))
+
+(define (backslash? char)
+  (char=? #\\ char))
 
 
-(define (string-split/escaped str delimiter)
-  "Split a string STR into the list of the substrings delimited by appearances
-of the DELIMITER.
-
-This procedure is simlar to string-split, but works correctly with
-escaped delimiter -- that is, skips it.  E.g.:
-
-  (string-split/escaped \"car:cdr:ca\\:dr\" #\\:)
-  => (\"car\" \"cdr\" \"ca\\:dr\")
-"
-  (let ((fields (string-split str delimiter)))
-    (fold (lambda (field prev)
-            (if (and (not (null? prev))
-                     (string-suffix? "\\" (last prev)))
-                (append (drop-right prev 1)
-                        (list (string-append
-                               (string-drop-right (last prev) 1)
-                               (string delimiter)
-                               field)))
-                (append prev (list field))))
-          '()
-          fields)))
-
-
-(define* (splice lst-1 lst-2 #:optional (delimiter ""))
-  (cond
-   ((null? lst-1)
-    lst-2)
-   ((null? lst-2)
-    lst-1)
-   ((and (null? lst-1) (null? lst-2))
-    '())
-   (else
-    (append (drop-right lst-1 1)
-            (list (string-append (string-drop-right (last lst-1) 1)
-                                 delimiter
-                                 (car lst-2)))
-            (drop lst-2 1)))))
-
 (define (dsv->scm parser)
-  (define (fsm-read-ln dsv-list buffer)
-    (debug-fsm-transition 'read-ln)
-    (let ((line (parser-read-line parser)))
-      (if (eof-object? line)
-          (fsm-end dsv-list)
-          (cond
-           ((parser-commented? parser line)
-            (debug-fsm 'read-ln "the line is commented out~%")
-            (debug-fsm-transition 'read-ln 'read-ln)
-            (fsm-read-ln dsv-list buffer))
-           (else
-            (let ((rec (string-split/escaped line (parser-delimiter parser))))
-              (cond
-               ((string-suffix? "\\" (last rec))
-                (debug-fsm-transition 'read 'read-ln)
-                (fsm-read-ln dsv-list (splice buffer rec)))
-               (else
-                (debug-fsm-transition 'read-ln 'deserealize)
-                (fsm-deserealize dsv-list (splice buffer rec))))))))))
-  (define (fsm-deserealize dsv-list buffer)
-    (let ((buffer (map (cut deserealize parser <>) buffer)))
-      (debug-fsm-transition 'deserealize 'add)
-      (fsm-add dsv-list buffer)))
-  (define (fsm-add dsv-list buffer)
-    (fsm-read-ln (cons buffer dsv-list) '()))
-  (define (fsm-end dsv-list)
-    (reverse dsv-list))
-  (fsm-read-ln '() '()))
+
+  (define (fsm-append-row table row buffer)
+    (define %current-state 'append-row)
+    (debug-fsm-transition %current-state 'read)
+    (fsm-read (append table (list (append row (list (buffer->string buffer)))))
+              '()
+              '()))
+
+  (define (fsm-append-field table row buffer)
+    (define %current-state 'append-field)
+    (debug-fsm-transition %current-state 'read)
+    (fsm-read table (append row (list (buffer->string buffer))) '()))
+
+  (define (fsm-append-last-field table row buffer)
+    (define %current-state 'append-last-field)
+    (debug-fsm-transition %current-state 'return-result)
+    (if (null? buffer)
+        (fsm-return-result table row '())
+        (fsm-return-result table
+                           (append row (list (buffer->string buffer)))
+                           '())))
+
+  (define (fsm-return-result table row buffer)
+    (define %current-state 'return-result)
+    (debug-fsm-transition %current-state 'end 'final)
+    ;; (format #t "table: ~a; row: ~a; buffer: ~a~%" table row buffer)
+    (if (null? row)
+        table
+        (append table (list row))))
+
+  (define (fsm-read-escaped-char table row buffer)
+    (define %current-state 'read-escaped-char)
+    (let ((char (parser-read-char parser)))
+      (debug-fsm-transition %current-state 'read)
+      (cond
+       ((char=? char #\n)
+        (fsm-read table row (cons #\newline buffer)))
+       ((char=? char #\t)
+        (fsm-read table row (cons #\tab buffer)))
+       ((char=? char #\v)
+        (fsm-read table row (cons #\vtab buffer)))
+       ((char=? char #\r)
+        (fsm-read table row (cons #\return buffer)))
+       ((char=? char #\f)
+        (fsm-read table row (cons #\page buffer)))
+       ((or (linefeed? char) (carriage-return? char))
+            (fsm-read table row buffer))
+       (else
+        (fsm-read table row (cons char buffer))))))
+
+  (define (fsm-skip-comment table row buffer)
+    (define %current-state 'skip-comment)
+    (let ((char (parser-read-char parser)))
+      (cond
+       ((or (carriage-return? char) (linefeed? char))
+        (debug-fsm-transition %current-state 'read)
+        (fsm-read table row buffer))
+       (else
+        (fsm-skip-comment table row buffer)))))
+
+  (define (fsm-read table row buffer)
+    (define %current-state 'read)
+    (let ((char (parser-read-char parser)))
+      (cond
+       ((eof-object? char)
+        (debug-fsm-transition %current-state 'append-last-field)
+        (fsm-append-last-field table row buffer))
+       ((parser-comment-prefix? parser (string char))
+        ;; TODO: Improve comment prefix detection
+        (debug-fsm-transition %current-state 'skip-comment)
+        (fsm-skip-comment table row buffer))
+       ((or (carriage-return? char)  (linefeed? char))
+        (debug-fsm-transition %current-state 'append-row)
+        (fsm-append-row table row buffer))
+       ((delimiter? parser char)
+        (debug-fsm-transition %current-state 'append-field)
+        (fsm-append-field table row buffer))
+       ((backslash? char)
+        (debug-fsm-transition %current-state 'read-escaped-char)
+        (fsm-read-escaped-char table row buffer))
+       (else
+        (fsm-read table row (cons char buffer))))))
+
+  (fsm-read '() '() '()))
 
 
 (define (make-builder input-data port delimiter line-break)
