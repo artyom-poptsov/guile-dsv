@@ -72,16 +72,17 @@
                 "# this is a comment"
                 (cut dsv->scm <> #:comment-prefix 'none)))))
 
-(test-assert "dsv-string->scm, nonprintable characters"
-  (equal? '(("\f" "a\nb" "\r" "\t" "\v"))
-          (dsv-string->scm "\\f:a\\nb:\\r:\\t:\\v\n")))
+(test-equal "dsv-string->scm, nonprintable characters"
+  '(("\f" "a\nb" "\r" "\t" "\v"))
+  (dsv-string->scm "\\f:a\\nb:\\r:\\t:\\v\n"))
 
-(test-assert "dsv-string->scm, backslash unescaping"
-  (equal? '(("a\\b"))
-          (dsv-string->scm "a\\\\b\n")))
+(test-equal "dsv-string->scm, backslash unescaping"
+  '(("a\\b"))
+  (dsv-string->scm "a\\\\b\n"))
 
-(test-assert "dsv-string->scm, record continuation"
-    (equal? '(("a b" "c")) (dsv-string->scm "a \\\nb:c\n")))
+(test-equal "dsv-string->scm, record continuation"
+  '(("a b" "c"))
+  (dsv-string->scm "a \\\nb:c\n"))
 
 
 ;;; scm->dsv
