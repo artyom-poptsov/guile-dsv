@@ -79,22 +79,7 @@
                                    comment-prefix)))
 
 
-(define (linefeed? char)
-  (and (char? char) (char=? char #\newline)))
 
-(define (carriage-return? char)
-  (and (char? char) (char=? char #\return)))
-
-(define (delimiter? parser char)
-  (and (char? char) (char=? char (parser-delimiter parser))))
-
-(define (buffer->string buffer)
-  (list->string (reverse buffer)))
-
-(define (backslash? char)
-  (char=? #\\ char))
-
-
 (define (dsv->scm parser)
   (define (fsm-error state message table row buffer char)
     (dsv-error state

@@ -126,23 +126,6 @@
 
 ;; (define (test)
 ;;   (display (frame-procedure-name (stack-ref (make-stack #t) 1))))
-
-;;;; Helper procedures.
-
-(define (double-quote? char)
-  (and (char? char) (char=? char #\")))
-
-(define (linefeed? char)
-  (and (char? char) (char=? char #\newline)))
-
-(define (carriage-return? char)
-  (and (char? char) (char=? char #\return)))
-
-(define (delimiter? parser char)
-  (and (char? char) (char=? char (parser-delimiter parser))))
-
-(define (buffer->string buffer)
-  (list->string (reverse buffer)))
 
 
 ;;;; The parser itself.
@@ -286,7 +269,6 @@
         (else
          (debug-fsm-transition %current-state 'read-field)
          (fsm-read-field table row (cons char buffer))))))
-
     (fsm-read '() '() '()))
 
 (define guess-delimiter (make-delimiter-guesser dsv->scm))

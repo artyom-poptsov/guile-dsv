@@ -43,7 +43,7 @@
             parser-delimiter->string
             parser-commented?
             parser-comment-prefix?
-
+            delimiter?
             ;; Variables
             %known-delimiters))
 
@@ -89,6 +89,9 @@
   "Check if a STR is a comment prefix."
   (and (string? (parser-comment-prefix parser))
        (string=? str (parser-comment-prefix parser))))
+
+(define (delimiter? parser char)
+  (and (char? char) (char=? char (parser-delimiter parser))))
 
 (define (parser-commented? parser str)
   "Check if a string STR is commented."

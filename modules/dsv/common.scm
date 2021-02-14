@@ -1,6 +1,6 @@
 ;;; common.scm -- Common code for DSV parsers
 
-;; Copyright (C) 2015 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2015-2021 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -31,7 +31,14 @@
             dsv-error
 
             value-or-default
-            substitute unescape-chars))
+            substitute unescape-chars
+            ;; Predicates
+            linefeed?
+            carriage-return?
+            backslash?
+            double-quote?
+            ;; Converters
+            buffer->string))
 
 
 (define-with-docs *debug?*
@@ -93,5 +100,24 @@ it as a debug message.."
 
 (define (unescape-chars str char escape-char)
   (substitute str (string escape-char char) (string char)))
+
+
+
+(define (linefeed? char)
+  (and (char? char) (char=? char #\newline)))
+
+(define (carriage-return? char)
+  (and (char? char) (char=? char #\return)))
+
+(define (double-quote? char)
+  (and (char? char) (char=? char #\")))
+
+(define (backslash? char)
+  (char=? #\\ char))
+
+
+
+(define (buffer->string buffer)
+  (list->string (reverse buffer)))
 
 ;;; common.scm ends here
