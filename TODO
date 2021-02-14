@@ -3,7 +3,7 @@
 #+TITLE:   Guile-DSV TODO's, ideas and known bugs
 #+STARTUP: content hidestars
 
-Copyright (C) 2015 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+Copyright (C) 2015-2021 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 
   Copying and distribution of this file, with or without modification,
   are permitted in any medium without royalty provided the copyright
@@ -13,7 +13,6 @@ Copyright (C) 2015 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ** Implement empty rows skipping
    Add a flag for 'dsv->scm' and 'dsv-string->scm' that tells the procedures
    to skip empty rows.
-** Add converters between Unix-style DSV and RFC 4180 CSV format and vice versa
 * Unix
 * RFC 4180
 ** Probably commented lines should be handled somehow?
