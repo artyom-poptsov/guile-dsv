@@ -84,6 +84,10 @@
   '(("a b" "c"))
   (dsv-string->scm "a \\\nb:c\n"))
 
+(test-error "dsv->scm: Escaped EOF error check"
+  'dsv-error
+  (dsv-string->scm "a:b:c\\"))
+
 
 ;;; scm->dsv
 
