@@ -7,6 +7,12 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   are permitted in any medium without royalty provided the copyright
   notice and this notice are preserved.
 
+* Changes in version 0.4.0 (2020-02-14)
+** Allow to build with GNU Guile 3
+** Improve the performance of Unix DSV parser
+   According to tests on 50k+ datasets, the parser should be almost 3x faster
+   now.
+** Expand the test suite
 * Changes in version 0.3.0 (2020-05-11)
 ** Remove bundled SRFI-64
    This module is shipped with Guile since version 2.0.12.
