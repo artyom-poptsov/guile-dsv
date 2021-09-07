@@ -1,5 +1,7 @@
 # -*- mode: org; -*-
 * Guile-DSV
+[[https://github.com/artyom-poptsov/guile-dsv/actions/workflows/guile2.2.yml/badge.svg]]
+[[https://github.com/artyom-poptsov/guile-dsv/actions/workflows/guile3.0.yml/badge.svg]]
 
 Guile-DSV is a GNU Guile module for working with the [[https://en.wikipedia.org/wiki/Delimiter-separated_values][delimiter-separated
 values]] (DSV) data format.
