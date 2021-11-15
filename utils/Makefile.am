@@ -1,6 +1,6 @@
 ## Makefile.am -- Config file for GNU Automake.
 ##
-## Copyright (C) 2016 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+## Copyright (C) 2016-2021 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ##
 ## This file is part of Guile-DSV.
 ##
@@ -28,7 +28,8 @@ SUFFIXES = .in
 substitute = sed -e 's,[@]GUILE[@],$(GUILE),g'
 
 .in:
-	$(substitute) "$^" > "$@.tmp" && 	\
+	@echo "  GEN      $@"
+	@$(substitute) "$^" > "$@.tmp" && 	\
 	chmod +x "$@.tmp" &&			\
 	mv "$@.tmp" "$@"
 
