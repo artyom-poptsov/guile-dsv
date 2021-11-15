@@ -92,26 +92,27 @@
   (let* ((padding 5)
          (vborder      (or (assoc-ref borders "v") ""))
          (hborder      (assoc-ref borders "h"))
+         (joint        (assoc-ref borders "j"))
          (width        (get-width table))
          (format-field (lambda (field width)
                          "Print a FIELD in a column with given WIDTH."
-                         (format #t (format #f "~~~da ~~a " (+ width padding))
+                         (format #t (format #f " ~~~da ~~a" (+ width padding))
                                  field vborder)))
-         (display-hborder (lambda ()
+         (display-hborder (lambda (width)
                             "Display a horisontal table border."
-                            (let ((total-width (+ (reduce + 0 width)
-                                                  (* (length width)
-                                                     (+ padding 3))
-                                                  -1)))
+                            (let ((total-width (+ width padding 2)))
                               (do ((i 0 (1+ i)))
                                   ((= i total-width))
                                 (display hborder))
-                              (newline)))))
+                              (if joint
+                                  (display joint)
+                                  (display hborder))))))
     (for-each (lambda (row)
                 (for-each format-field row width)
                 (newline)
                 (when hborder
-                  (display-hborder)))
+                  (for-each display-hborder width)
+                  (newline)))
               table)))
 
 (define (borders->alist borders)
@@ -206,8 +207,8 @@ Options:
   --table-borders, -b <spec> Set table borders for printing.  Spec is expected
                              to be a comma-separated list of key=value pairs,
                              where possible keys are: \"v\" (vertical border),
-                             \"h\" (horizontal border).
-                             Example: \"v=|,h=-\"
+                             \"h\" (horizontal border), \"j\" (joints).
+                             Example: \"v=|,h=-,j=+\"
   --to, -t <fmt>             Convert a file to a specified format, write
                              the result to stdout.
   --to-delimiter, -T <delim> Convert delimiters to the specified variant.

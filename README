@@ -94,8 +94,8 @@ Options:
   --table-borders, -b <spec> Set table borders for printing.  Spec is expected
                              to be a comma-separated list of key=value pairs,
                              where possible keys are: "v" (vertical border),
-                             "h" (horizontal border).
-                             Example: "v=|,h=-"
+                             "h" (horizontal border), "j" (joints).
+                             Example: "v=|,h=-,j=+"
   --to, -t <fmt>             Convert a file to a specified format, write
                              the result to stdout.
   --to-delimiter, -T <delim> Convert delimiters to the specified variant.
