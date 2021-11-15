@@ -1,6 +1,7 @@
 ;; guix.scm --- GNU Guix package recipe    -*- coding: utf-8 -*-
 ;;
 ;; Copyright (C) 2017 Alex Sassmannshausen <alex@pompo.co>
+;; Copyright (C) 2021 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; Author: Alex Sassmannshausen <alex@pompo.co>
 ;; Created: 2 November 2017
@@ -44,7 +45,7 @@
 
 (package
   (name "guile-dsv")
-  (version "0.2.1")
+  (version "0.4.0")
   (source (string-append "./" name "-" version ".tar.gz"))
   (build-system gnu-build-system)
   (native-inputs
