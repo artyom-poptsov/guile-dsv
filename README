@@ -136,6 +136,30 @@ $ head -3 /etc/passwd | dsv -D: -b "t=─,h=─,j=┼,v=│,hl=├,hr=┤,bl=└
 │ bin         │ x      │ 2      │ 2      │ bin         │ /bin           │ /usr/sbin/nologin      │
 └─────────────┴────────┴────────┴────────┴─────────────┴────────────────┴────────────────────────┘
 #+end_example
+
+    There are table presets that can be used to draw tables with specified
+    border styles:
+#+begin_example shell
+$ echo -e "a1,b1,c1\na2,b2,c2\n" | dsv -D, -b "graphic"
+┌─────────┬─────────┬─────────┐
+│ a1      │ b1      │ c1      │
+├─────────┼─────────┼─────────┤
+│ a2      │ b2      │ c2      │
+└─────────┴─────────┴─────────┘
+$ echo -e "a1,b1,c1\na2,b2,c2\n" | dsv -D, -b "graphic-bold"
+┏━━━━━━━━━┰━━━━━━━━━┰━━━━━━━━━┓
+┃ a1      ┃ b1      ┃ c1      ┃
+┣━━━━━━━━━╋━━━━━━━━━╋━━━━━━━━━┫
+┃ a2      ┃ b2      ┃ c2      ┃
+┗━━━━━━━━━┻━━━━━━━━━┻━━━━━━━━━┛
+$ echo -e "a1,b1,c1\na2,b2,c2\n" | dsv -D, -b "graphic-double"
+╔═════════╦═════════╦═════════╗
+║ a1      ║ b1      ║ c1      ║
+╠═════════╬═════════╬═════════╣
+║ a2      ║ b2      ║ c2      ║
+╚═════════╩═════════╩═════════╝
+#+end_example
+
 *** Try to guess delimiter in a file
 #+begin_example shell
 $ dsv -d /etc/passwd
