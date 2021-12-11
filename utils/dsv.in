@@ -48,6 +48,7 @@
              (ice-9 textual-ports)
              (ice-9 regex)
              (ice-9 ftw)
+             (scheme documentation)
              (srfi  srfi-1)
              (srfi  srfi-26)
              (dsv)
@@ -58,8 +59,9 @@
 (define %table-presets-path
   "@DATA_DIR@/presets/")
 
-(define %table-parameters
-  '((t   . top)
+(define-with-docs %table-parameters
+  "Associative list of all known table parameters."
+  '((t . top)
     (tl  . top-left)
     (tr  . top-right)
     (tj  . top-joint)
@@ -75,6 +77,7 @@
     (bj  . bottom-joint)))
 
 (define (print-table-parameters port)
+  "Print all known table parameters to a PORT."
   (for-each (lambda (param)
               (format port
                       "  ~4a ~a~%"
@@ -83,6 +86,7 @@
             %table-parameters))
 
 (define (print-table-presets port)
+  "Print all known table presets to a PORT."
   (let ((dir (scandir %table-presets-path
                       (lambda (name)
                         (not (string-prefix? "." name))))))
@@ -378,6 +382,8 @@ Options:
 Table parameters:
 ")
     (print-table-parameters (current-output-port))
+    (display "\nTable presets:\n")
+    (print-table-presets (current-output-port))
   (exit))
 
 (define (main args)
