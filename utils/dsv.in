@@ -54,6 +54,9 @@
 
 
 
+(define %table-presets-path
+  "@DATA_DIR@/presets/")
+
 (define %table-parameters
   '((t   . top)
     (tl  . top-left)
@@ -240,6 +243,23 @@
            (car (dsv-string->scm borders #\,)))
       '()))
 
+(define (load-table-borders file)
+  "Read table borders specification form a FILE.  Return the specification as a
++list."
+  (let* ((file-path (string-append %table-presets-path
+                                   file
+                                   ".scm"))
+         (p (open-input-file file-path)))
+    (unless p
+      (error "Could not open file" file-path))
+    (let ((result (read p)))
+      (close p)
+      result)))
+
+(define (preset-name? spec)
+  "Check if a SPEC is a table preset name."
+  (string-match "^[a-zA-Z\\-]+$" spec))
+
 (define (print-file input-port fmt borders delim)
   "Pretty-print a FILE."
   (let ((delim (or delim (guess-file-delimiter input-port fmt))))
@@ -248,7 +268,9 @@
       (error "Could not determine a file delimiter" input-port))
 
     (let ((table (remove-empty-rows (dsv->scm input-port delim #:format fmt)))
-          (bspec (borders->alist borders)))
+          (bspec (if (preset-name? borders)
+                     (load-table-borders borders)
+                     (borders->alist borders))))
       (format-table table bspec))))
 
 
