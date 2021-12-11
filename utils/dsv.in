@@ -61,20 +61,34 @@
 
 (define-with-docs %table-parameters
   "Associative list of all known table parameters."
-  '((t . top)
-    (tl  . top-left)
-    (tr  . top-right)
-    (tj  . top-joint)
-    (h   . horizontal)
-    (hl  . horizontal-left)
-    (hr  . horizontal-right)
-    (hj  . horizontal-joint)
-    (j   . horizontal-joint)
-    (v   . vertical)
-    (b   . bottom)
-    (bl  . bottom-left)
-    (br  . bottom-right)
-    (bj  . bottom-joint)))
+  '((bt  . border-top)
+    (btl . border-top-left)
+    (btr . border-top-right)
+    (btj . border-top-joint)
+    (bl  . border-left)
+    (blj . border-left-joint)
+    (br  . border-right)
+    (brj . border-right-joint)
+    (bb  . border-bottom)
+    (bbl . border-bottom-left)
+    (bbr . border-bottom-right)
+    (bbj . border-bottom-joint)
+    ;; Inner table lines.
+    (rs  . row-separator)
+    (rj  . row-joint)
+    (cs  . column-separator)
+    ;; Headers.
+    (ht  . header-top)
+    (htl . header-top-left)
+    (htr . header-top-right)
+    (htj . header-top-joint)
+    (hl  . header-left)
+    (hr  . header-right)
+    (hcs . header-column-separator)
+    (hb  . header-bottom)
+    (hbl . header-bottom-left)
+    (hbr . header-bottom-right)
+    (hbj . header-bottom-joint)))
 
 (define (print-table-parameters port)
   "Print all known table parameters to a PORT."
@@ -149,93 +163,116 @@
                   (map max res w)))))
         res)))
 
-(define (format-table table borders)
+(define* (format-table table borders #:key (with-header? #f))
   "Format file and print it."
   (let* ((padding 5)
-         (vborder          (or (assoc-ref borders 'vertical) ""))
-         (hborder          (assoc-ref borders 'horizontal))
-         (joint            (assoc-ref borders 'horizontal-joint))
-         (top              (or (assoc-ref borders 'top)
-                               hborder))
-         (top-left         (or (assoc-ref borders 'top-left)
-                               joint))
-         (top-right        (or (assoc-ref borders 'top-right)
-                               joint))
-         (top-joint        (or (assoc-ref borders 'top-joint)
-                               joint))
-         (horizontal-left  (or (assoc-ref borders 'horizontal-left)
-                               vborder))
-         (horizontal-right (or (assoc-ref borders 'horizontal-right)
-                               vborder))
-         (horizontal-joint (or (assoc-ref borders 'horizontal-joint)
-                               joint))
-         (bottom           (or (assoc-ref borders 'bottom)
-                               top))
-         (bottom-left      (or (assoc-ref borders 'bottom-left)
-                               joint))
-         (bottom-right     (or (assoc-ref borders 'bottom-right)
-                               joint))
-         (bottom-joint     (or (assoc-ref borders 'bottom-joint)
-                               joint))
+         (column-separator    (or (assoc-ref borders 'column-separator) ""))
+         (row-separator       (assoc-ref borders 'row-separator))
+         (row-joint           (assoc-ref borders 'row-joint))
+         (border-top          (assoc-ref borders 'border-top))
+         (border-top-left     (assoc-ref borders 'border-top-left))
+         (border-top-right    (assoc-ref borders 'border-top-right))
+         (border-top-joint    (assoc-ref borders 'border-top-joint))
+         (border-left         (assoc-ref borders 'border-left))
+         (border-left-joint   (assoc-ref borders 'border-left-joint))
+         (border-right        (assoc-ref borders 'border-right))
+         (border-right-joint  (assoc-ref borders 'border-right-joint))
+         (border-bottom       (assoc-ref borders 'border-bottom))
+         (border-bottom-left  (assoc-ref borders 'border-bottom-left))
+         (border-bottom-right (assoc-ref borders 'border-bottom-right))
+         (border-bottom-joint (assoc-ref borders 'border-bottom-joint))
+         (header-top          (assoc-ref borders 'header-top))
+         (header-top-left     (assoc-ref borders 'header-top-left))
+         (header-top-right    (assoc-ref borders 'header-top-right))
+         (header-top-joint    (assoc-ref borders 'header-top-joint))
+         (header-left         (assoc-ref borders 'header-left))
+         (header-right        (assoc-ref borders 'header-right))
+         (header-column-separator (assoc-ref borders
+                                             'header-column-separator))
+         (header-bottom       (assoc-ref borders 'header-bottom))
+         (header-bottom-left  (assoc-ref borders 'header-bottom-left))
+         (header-bottom-right (assoc-ref borders 'header-bottom-right))
+         (header-bottom-joint (assoc-ref borders 'header-bottom-joint))
          (width        (get-width table))
          (format-field (lambda (field width)
                          "Print a FIELD in a column with given WIDTH."
                          (format #t (format #f " ~~~da ~~a" (+ width padding))
-                                 field vborder)))
-         (display-top     (lambda (widths)
-                            "Display a top horisontal table border."
-                            (display top-left)
-                            (let loop ((w widths))
-                              (unless (null? w)
-                                (let ((row-width (+ (car w) padding 2)))
-                                  (display (string-join (make-list row-width
-                                                                   top)
-                                                        ""))
-                                  (unless (null? (cdr w))
-                                    (display top-joint)))
-                                (loop (cdr w))))
-                            (display top-right)
-                            (newline)))
-         (display-bottom  (lambda (widths)
-                            "Display a top horisontal table border."
-                            (display bottom-left)
-                            (let loop ((w widths))
-                              (unless (null? w)
-                                (let ((row-width (+ (car w) padding 2)))
-                                  (display (string-join (make-list row-width
-                                                                   bottom)
-                                                        ""))
-                                  (unless (null? (cdr w))
-                                    (display bottom-joint)))
-                                (loop (cdr w))))
-                            (display bottom-right)
-                            (newline)))
-         (display-hborder (lambda (widths)
-                            "Display a top horisontal table border."
-                            (display horizontal-left)
-                            (let loop ((w widths))
-                              (unless (null? w)
-                                (let ((row-width (+ (car w) padding 2)))
-                                  (display (string-join (make-list row-width
-                                                                   hborder)
-                                                        ""))
-                                  (unless (null? (cdr w))
-                                    (display horizontal-joint)))
-                                (loop (cdr w))))
-                            (display horizontal-right)
-                            (newline))))
-    (when top
-      (display-top width))
+                                 field column-separator)))
+         (display-top-border
+          (lambda (widths)
+            "Display a top horisontal table border."
+            (display border-top-left)
+            (let loop ((w widths))
+              (unless (null? w)
+                (let ((row-width (+ (car w) padding 2)))
+                  (display (string-join (make-list row-width
+                                                   border-top)
+                                        ""))
+                  (unless (null? (cdr w))
+                    (if border-top-joint
+                        (display border-top-joint)
+                        (display border-top))))
+                (loop (cdr w))))
+            (display border-top-right)
+            (newline)))
+         (display-bottom-border
+          (lambda (widths)
+            "Display a top horisontal table border."
+            (display border-bottom-left)
+            (let loop ((w widths))
+              (unless (null? w)
+                (let ((row-width (+ (car w) padding 2)))
+                  (display (string-join (make-list row-width
+                                                   border-bottom)
+                                        ""))
+                  (unless (null? (cdr w))
+                    (if border-bottom-joint
+                        (display border-bottom-joint)
+                        (display border-bottom))))
+                (loop (cdr w))))
+            (display border-bottom-right)
+            (newline)))
+         (display-row-separator
+          (lambda (widths)
+            "Display a top horisontal table border."
+            (if border-left-joint
+                (display border-left-joint)
+                (display " "))
+            (let loop ((w widths))
+              (unless (null? w)
+                (let ((row-width (+ (car w) padding 2)))
+                  (display (string-join (make-list row-width
+                                                   row-separator)
+                                        ""))
+                  (unless (null? (cdr w))
+                    (if border-top-joint
+                        (display row-joint)
+                        (display row-separator))))
+                (loop (cdr w))))
+            (if border-right-joint
+                (display border-right-joint)
+                (display " "))
+            (newline))))
+
+    ;; TODO: Add header if specified.
+    ;; (if with-header?
+    ;;     (begin
+    ;;       (when header-top
+    ;;         (display-top width))
+
+    (when border-top
+      (display-top-border width))
     (let loop ((t table))
       (unless (null? t)
-        (when vborder
-          (display vborder))
+        (when column-separator
+          (display column-separator))
         (for-each format-field (car t) width)
         (newline)
-        (when hborder
+        (when row-separator
           (if (null? (cdr t))
-              (display-bottom width)
-              (display-hborder width)))
+              (when border-bottom
+                (display-bottom-border width))
+              (display-row-separator width)))
         (loop (cdr t))))))
 
 (define (shorthand->table-parameter sh)
@@ -282,7 +319,7 @@
   "Check if a SPEC is a table preset name."
   (string-match "^[a-zA-Z\\-]+$" spec))
 
-(define (print-file input-port fmt borders delim)
+(define* (print-file input-port fmt borders delim #:key (with-header? #f))
   "Pretty-print a FILE."
   (let ((delim (or delim (guess-file-delimiter input-port fmt))))
 
@@ -293,7 +330,7 @@
           (bspec (if (preset-name? borders)
                      (load-table-borders borders)
                      (borders->alist borders))))
-      (format-table table bspec))))
+      (format-table table bspec #:with-header? with-header?))))
 
 
 (define (print-summary input-port fmt delim)
@@ -394,6 +431,7 @@ Table parameters:
                         (delimiter       (single-char #\D) (value #t))
                         (to-delimiter    (single-char #\T) (value #t))
                         (file-format     (single-char #\F) (value #t))
+                        (with-header     (single-char #\H) (value #f))
                         (table-borders   (single-char #\b) (value #t))
                         (guess-delimiter (single-char #\d) (value #f))
                         (to              (single-char #\t) (value #t))
@@ -408,6 +446,7 @@ Table parameters:
                                    (cut string-ref <> 0)))
          (to-delimiter      (and=> (option-ref options 'to-delimiter #f)
                                    (cut string-ref <> 0)))
+         (with-header?      (option-ref options 'with-header     #f))
          (table-borders     (option-ref options 'table-borders   ""))
          (to                (option-ref options 'to              #f))
          (debug?            (option-ref options 'debug           #f))
@@ -435,7 +474,8 @@ Table parameters:
        (else
         (print-file input-port
                     (string->dsv-format file-format) table-borders
-                    delimiter)))
+                    delimiter
+                    #:with-header? with-header?)))
 
       (close input-port))
     (exit)))
