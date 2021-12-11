@@ -70,6 +70,14 @@
     (br  . bottom-right)
     (bj  . bottom-joint)))
 
+(define (print-table-parameters port)
+  (for-each (lambda (param)
+              (format port
+                      "  ~4a ~a~%"
+                      (car param)
+                      (cdr param)))
+            %table-parameters))
+
 
 
 (define (string->dsv-format str)
@@ -212,7 +220,15 @@
 
 (define (shorthand->table-parameter sh)
   "Convert a shorthand SH to a table parameter."
-  (assoc-ref %table-parameters sh))
+  (let ((param (assoc-ref %table-parameters sh)))
+    (unless param
+      (format (current-error-port)
+              "ERROR: Unknown table parameter: ~a~%" sh)
+      (format (current-error-port)
+              "Known table parameters are:~%")
+      (print-table-parameters (current-error-port))
+      (exit 1))
+    param))
 
 (define (borders->alist borders)
   "Convert BORDERS spec to an alist."
@@ -323,12 +339,7 @@ Options:
 
 Table parameters:
 ")
-    (for-each (lambda (param)
-                (format #t
-                        "  ~4a ~a~%"
-                        (car param)
-                        (cdr param)))
-              %table-parameters)
+    (print-table-parameters (current-output-port))
   (exit))
 
 (define (main args)
