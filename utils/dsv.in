@@ -224,10 +224,12 @@
                                 (loop (cdr w))))
                             (display horizontal-right)
                             (newline))))
-    (display-top width)
+    (when top
+      (display-top width))
     (let loop ((t table))
       (unless (null? t)
-        (display vborder)
+        (when vborder
+          (display vborder))
         (for-each format-field (car t) width)
         (newline)
         (when hborder
