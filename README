@@ -140,6 +140,12 @@ $ head -3 /etc/passwd | dsv -D: -b "t=─,h=─,j=┼,v=│,hl=├,hr=┤,bl=└
     There are table presets that can be used to draw tables with specified
     border styles:
 #+begin_example shell
+$ echo -e "a1,b1,c1\na2,b2,c2\n" | dsv -D, -b "ascii"
+.-----------------------------.
+| a1      | b1      | c1      |
+|---------+---------+---------|
+| a2      | b2      | c2      |
+'-----------------------------'
 $ echo -e "a1,b1,c1\na2,b2,c2\n" | dsv -D, -b "graphic"
 ┌─────────┬─────────┬─────────┐
 │ a1      │ b1      │ c1      │
