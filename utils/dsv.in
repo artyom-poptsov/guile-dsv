@@ -23,6 +23,21 @@
 ;;; Commentary:
 
 ;; A handy tool to get various information from DSV files.
+;;
+;; Configurable table elements:
+;;   - top (t)
+;;   - top-left (tl)
+;;   - top-right (tr)
+;;   - top-joint (tj)
+;;   - horizontal (h)
+;;   - horizontal-left (hl)
+;;   - horizontal-right (hr)
+;;   - horizontal-joint (hj)
+;;   - vertical (v)
+;;   - bottom (b)
+;;   - bottom-left (bl)
+;;   - bottom-right (br)
+;;   - bottom-joint (bj)
 
 
 ;;; Code:
@@ -90,30 +105,90 @@
 (define (format-table table borders)
   "Format file and print it."
   (let* ((padding 5)
-         (vborder      (or (assoc-ref borders "v") ""))
-         (hborder      (assoc-ref borders "h"))
-         (joint        (assoc-ref borders "j"))
+         (vborder          (or (assoc-ref borders "v") ""))
+         (hborder          (assoc-ref borders "h"))
+         (joint            (or (assoc-ref borders "j")
+                               (assoc-ref borders "hj")))
+         (top              (or (assoc-ref borders "t")
+                               hborder))
+         (top-left         (or (assoc-ref borders "tl")
+                               joint))
+         (top-right        (or (assoc-ref borders "tr")
+                               joint))
+         (top-joint        (or (assoc-ref borders "tj")
+                               joint))
+         (horizontal-left  (or (assoc-ref borders "hl")
+                              vborder))
+         (horizontal-right (or (assoc-ref borders "hr")
+                               vborder))
+         (horizontal-joint (or (assoc-ref borders "hj")
+                               joint))
+         (bottom           (or (assoc-ref borders "b")
+                               top))
+         (bottom-left      (or (assoc-ref borders "bl")
+                               joint))
+         (bottom-right     (or (assoc-ref borders "br")
+                               joint))
+         (bottom-joint     (or (assoc-ref borders "bj")
+                               joint))
          (width        (get-width table))
          (format-field (lambda (field width)
                          "Print a FIELD in a column with given WIDTH."
                          (format #t (format #f " ~~~da ~~a" (+ width padding))
                                  field vborder)))
-         (display-hborder (lambda (width)
-                            "Display a horisontal table border."
-                            (let ((total-width (+ width padding 2)))
-                              (do ((i 0 (1+ i)))
-                                  ((= i total-width))
-                                (display hborder))
-                              (if joint
-                                  (display joint)
-                                  (display hborder))))))
-    (for-each (lambda (row)
-                (for-each format-field row width)
-                (newline)
-                (when hborder
-                  (for-each display-hborder width)
-                  (newline)))
-              table)))
+         (display-top     (lambda (widths)
+                            "Display a top horisontal table border."
+                            (display top-left)
+                            (let loop ((w widths))
+                              (unless (null? w)
+                                (let ((row-width (+ (car w) padding 2)))
+                                  (display (string-join (make-list row-width
+                                                                   top)
+                                                        ""))
+                                  (unless (null? (cdr w))
+                                    (display top-joint)))
+                                (loop (cdr w))))
+                            (display top-right)
+                            (newline)))
+         (display-bottom  (lambda (widths)
+                            "Display a top horisontal table border."
+                            (display bottom-left)
+                            (let loop ((w widths))
+                              (unless (null? w)
+                                (let ((row-width (+ (car w) padding 2)))
+                                  (display (string-join (make-list row-width
+                                                                   bottom)
+                                                        ""))
+                                  (unless (null? (cdr w))
+                                    (display bottom-joint)))
+                                (loop (cdr w))))
+                            (display bottom-right)
+                            (newline)))
+         (display-hborder (lambda (widths)
+                            "Display a top horisontal table border."
+                            (display horizontal-left)
+                            (let loop ((w widths))
+                              (unless (null? w)
+                                (let ((row-width (+ (car w) padding 2)))
+                                  (display (string-join (make-list row-width
+                                                                   hborder)
+                                                        ""))
+                                  (unless (null? (cdr w))
+                                    (display horizontal-joint)))
+                                (loop (cdr w))))
+                            (display horizontal-right)
+                            (newline))))
+    (display-top width)
+    (let loop ((t table))
+      (unless (null? t)
+        (display vborder)
+        (for-each format-field (car t) width)
+        (newline)
+        (when hborder
+          (if (null? (cdr t))
+              (display-bottom width)
+              (display-hborder width)))
+        (loop (cdr t))))))
 
 (define (borders->alist borders)
   "Convert BORDERS spec to an alist."
@@ -204,11 +279,28 @@ Options:
   --guess-delimiter, -d      Guess a file delimiter and print the result.
   --file-format, -F <fmt>    Set a file format.  Possible formats are:
                              \"unix\" (default), \"rfc4180\"
-  --table-borders, -b <spec> Set table borders for printing.  Spec is expected
-                             to be a comma-separated list of key=value pairs,
-                             where possible keys are: \"v\" (vertical border),
-                             \"h\" (horizontal border), \"j\" (joints).
-                             Example: \"v=|,h=-,j=+\"
+  --table-borders, -b <spec> Set table borders for printing.  The value can be
+                             either a borders specification or a preset name.
+
+                             Spec is expected to be a comma-separated list of
+                             key=value pairs, where possible keys are:
+                               - \"t\"         (top)
+                               - \"tl\"        (top-left)
+                               - \"tr\"        (top-right)
+                               - \"tj\"        (top-joint)
+                               - \"h\"         (horizontal)
+                               - \"hl\"        (horizontal-left)
+                               - \"hr\"        (horizontal-right)
+                               - \"hj\", \"j\"   (horizontal-joint)
+                               - \"v\"         (vertical)
+                               - \"b\"         (bottom)
+                               - \"bl\"        (bottom-left)
+                               - \"br\"        (bottom-right)
+                               - \"bj\"        (bottom-joint)
+
+                             Example values:
+                               - \"v=|,h=-,j=+\"
+
   --to, -t <fmt>             Convert a file to a specified format, write
                              the result to stdout.
   --to-delimiter, -T <delim> Convert delimiters to the specified variant.
