@@ -21,7 +21,8 @@ dist_presets_DATA = \
 	ascii.scm		\
 	graphic.scm		\
 	graphic-bold.scm	\
-	graphic-double.scm
+	graphic-double.scm	\
+	org.scm
 
 presetsdir = $(pkgdatadir)/presets
 
