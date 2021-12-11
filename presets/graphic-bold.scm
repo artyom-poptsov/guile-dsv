@@ -10,7 +10,7 @@
  (top              . "━")
  (top-left         . "┏")
  (top-right        . "┓")
- (top-joint        . "┰")
+ (top-joint        . "┳")
  (horizontal       . "━")
  (horizontal-left  . "┣")
  (horizontal-right . "┫")
