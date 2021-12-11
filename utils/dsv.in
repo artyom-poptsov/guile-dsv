@@ -198,61 +198,47 @@
                          "Print a FIELD in a column with given WIDTH."
                          (format #t (format #f " ~~~da ~~a" (+ width padding))
                                  field column-separator)))
-         (display-top-border
-          (lambda (widths)
-            "Display a top horisontal table border."
-            (display border-top-left)
-            (let loop ((w widths))
-              (unless (null? w)
-                (let ((row-width (+ (car w) padding 2)))
-                  (display (string-join (make-list row-width
-                                                   border-top)
-                                        ""))
-                  (unless (null? (cdr w))
-                    (if border-top-joint
-                        (display border-top-joint)
-                        (display border-top))))
-                (loop (cdr w))))
-            (display border-top-right)
-            (newline)))
-         (display-bottom-border
-          (lambda (widths)
-            "Display a top horisontal table border."
-            (display border-bottom-left)
-            (let loop ((w widths))
-              (unless (null? w)
-                (let ((row-width (+ (car w) padding 2)))
-                  (display (string-join (make-list row-width
-                                                   border-bottom)
-                                        ""))
-                  (unless (null? (cdr w))
-                    (if border-bottom-joint
-                        (display border-bottom-joint)
-                        (display border-bottom))))
-                (loop (cdr w))))
-            (display border-bottom-right)
-            (newline)))
-         (display-row-separator
-          (lambda (widths)
-            "Display a top horisontal table border."
-            (if border-left-joint
-                (display border-left-joint)
-                (display " "))
-            (let loop ((w widths))
-              (unless (null? w)
-                (let ((row-width (+ (car w) padding 2)))
-                  (display (string-join (make-list row-width
-                                                   row-separator)
-                                        ""))
-                  (unless (null? (cdr w))
-                    (if border-top-joint
-                        (display row-joint)
-                        (display row-separator))))
-                (loop (cdr w))))
-            (if border-right-joint
-                (display border-right-joint)
-                (display " "))
-            (newline))))
+         (display-line (lambda (widths middle left right joint)
+                         (if left
+                             (display left)
+                             (display " "))
+                         (let loop ((w widths))
+                           (unless (null? w)
+                             (let ((row-width (+ (car w) padding 2)))
+                               (display (string-join (make-list row-width
+                                                                middle)
+                                                     ""))
+                               (unless (null? (cdr w))
+                                 (if joint
+                                     (display joint)
+                                     (display " "))))
+                             (loop (cdr w))))
+                         (if right
+                             (display right)
+                             (display " "))
+                         (newline)))
+
+         (display-top-border (lambda (widths)
+                               "Display a top horisontal table border."
+                               (display-line widths
+                                             border-top
+                                             border-top-left
+                                             border-top-right
+                                             border-top-joint)))
+         (display-bottom-border (lambda (widths)
+                                  "Display a top horisontal table border."
+                                  (display-line widths
+                                                border-bottom
+                                                border-bottom-left
+                                                border-bottom-right
+                                                border-bottom-joint)))
+         (display-row-separator (lambda (widths)
+                                  "Display a top horisontal table border."
+                                  (display-line widths
+                                                row-separator
+                                                border-left-joint
+                                                border-right-joint
+                                                row-joint))))
 
     ;; TODO: Add header if specified.
     ;; (if with-header?
