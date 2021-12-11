@@ -7,6 +7,15 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   are permitted in any medium without royalty provided the copyright
   notice and this notice are preserved.
 
+* Changes in version 0.4.1 (2021-12-11)
+** Changes in the =dsv= tool
+*** Allow to specify wider range of table border parameters
+*** Allow to use table border presets
+    Currently the following presets are available:
+    - ascii
+    - graphic
+    - graphic-bold
+    - graphic-double
 * Changes in version 0.4.0 (2020-02-14)
 ** Allow to build with GNU Guile 3
 ** Improve the performance of Unix DSV parser
