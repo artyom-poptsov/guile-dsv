@@ -308,20 +308,8 @@ Options:
                              either a borders specification or a preset name.
 
                              Spec is expected to be a comma-separated list of
-                             key=value pairs, where possible keys are:
-                               - \"t\"         (top)
-                               - \"tl\"        (top-left)
-                               - \"tr\"        (top-right)
-                               - \"tj\"        (top-joint)
-                               - \"h\"         (horizontal)
-                               - \"hl\"        (horizontal-left)
-                               - \"hr\"        (horizontal-right)
-                               - \"hj\", \"j\"   (horizontal-joint)
-                               - \"v\"         (vertical)
-                               - \"b\"         (bottom)
-                               - \"bl\"        (bottom-left)
-                               - \"br\"        (bottom-right)
-                               - \"bj\"        (bottom-joint)
+                             key=value pairs.  The list of possible keys can be
+                             found below (see \"Table parameters\".)
 
                              Example values:
                                - \"v=|,h=-,j=+\"
@@ -332,7 +320,15 @@ Options:
                              When this option is not used, default delimiters
                              for the chosen output format will be used.
   --debug                    Enable state machine debugging.
+
+Table parameters:
 ")
+    (for-each (lambda (param)
+                (format #t
+                        "  ~4a ~a~%"
+                        (car param)
+                        (cdr param)))
+              %table-parameters)
   (exit))
 
 (define (main args)
