@@ -196,8 +196,27 @@
          (width        (get-width table))
          (format-field (lambda (field width)
                          "Print a FIELD in a column with given WIDTH."
-                         (format #t (format #f " ~~~da ~~a" (+ width padding))
-                                 field column-separator)))
+                         (format #t (format #f " ~~~da " (+ width padding))
+                                 field)))
+         (format-row   (lambda (row width border-left border-right separator)
+                         (if border-left
+                             (display border-left)
+                             (display " "))
+                         (let field-loop ((fields       row)
+                                          (field-widths width))
+                           (unless (null? fields)
+                             (let ((f (car fields))
+                                   (w (car field-widths)))
+                               (format-field f w)
+                               (if (null? (cdr fields))
+                                   (if border-right
+                                       (display border-right)
+                                       (display " "))
+                                   (if separator
+                                       (display separator)
+                                       (display " ")))
+                               (field-loop (cdr fields) (cdr field-widths)))))
+                         (newline)))
          (display-line (lambda (widths middle left right joint)
                          (if left
                              (display left)
@@ -217,7 +236,20 @@
                              (display right)
                              (display " "))
                          (newline)))
-
+         (display-header-border-top
+          (lambda (widths)
+            (display-line widths
+                          header-top
+                          header-top-left
+                          header-top-right
+                          header-top-joint)))
+         (display-header-border-bottom
+          (lambda (widths)
+            (display-line widths
+                          header-bottom
+                          header-bottom-left
+                          header-bottom-right
+                          header-bottom-joint)))
          (display-top-border (lambda (widths)
                                "Display a top horisontal table border."
                                (display-line widths
@@ -238,28 +270,37 @@
                                                 row-separator
                                                 border-left-joint
                                                 border-right-joint
-                                                row-joint))))
-
-    ;; TODO: Add header if specified.
-    ;; (if with-header?
-    ;;     (begin
-    ;;       (when header-top
-    ;;         (display-top width))
-
-    (when border-top
-      (display-top-border width))
-    (let loop ((t table))
-      (unless (null? t)
-        (when column-separator
-          (display column-separator))
-        (for-each format-field (car t) width)
-        (newline)
-        (when row-separator
-          (if (null? (cdr t))
-              (when border-bottom
-                (display-bottom-border width))
-              (display-row-separator width)))
-        (loop (cdr t))))))
+                                                row-joint)))
+         (display-table (lambda (table)
+                          (unless with-header?
+                            (when border-top
+                              (display-top-border width)))
+                          (let loop ((t table))
+                            (unless (null? t)
+                              (format-row (car t)
+                                          width
+                                          border-left
+                                          border-right
+                                          column-separator)
+                              (when row-separator
+                                (if (null? (cdr t))
+                                    (when border-bottom
+                                      (display-bottom-border width))
+                                    (display-row-separator width)))
+                              (loop (cdr t)))))))
+    (if with-header?
+        (begin
+          (when header-top
+            (display-header-border-top width))
+          (format-row (car table)
+                      width
+                      header-left
+                      header-right
+                      header-column-separator)
+          (when header-bottom
+            (display-header-border-bottom width))
+          (display-table (cdr table)))
+        (display-table table))))
 
 (define (shorthand->table-parameter sh)
   "Convert a shorthand SH to a table parameter."
