@@ -23,21 +23,6 @@
 ;;; Commentary:
 
 ;; A handy tool to get various information from DSV files.
-;;
-;; Configurable table elements:
-;;   - top (t)
-;;   - top-left (tl)
-;;   - top-right (tr)
-;;   - top-joint (tj)
-;;   - horizontal (h)
-;;   - horizontal-left (hl)
-;;   - horizontal-right (hr)
-;;   - horizontal-joint (hj)
-;;   - vertical (v)
-;;   - bottom (b)
-;;   - bottom-left (bl)
-;;   - bottom-right (br)
-;;   - bottom-joint (bj)
 
 
 ;;; Code:
