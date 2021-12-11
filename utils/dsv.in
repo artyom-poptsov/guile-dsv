@@ -47,6 +47,7 @@
              (ice-9 format)
              (ice-9 textual-ports)
              (ice-9 regex)
+             (ice-9 ftw)
              (srfi  srfi-1)
              (srfi  srfi-26)
              (dsv)
@@ -80,6 +81,16 @@
                       (car param)
                       (cdr param)))
             %table-parameters))
+
+(define (print-table-presets port)
+  (let ((dir (scandir %table-presets-path
+                      (lambda (name)
+                        (not (string-prefix? "." name))))))
+    (for-each (lambda (d)
+                (format port
+                        "  ~a~%"
+                        (car (string-split d #\.))))
+              dir)))
 
 
 
@@ -246,15 +257,20 @@
 (define (load-table-borders file)
   "Read table borders specification form a FILE.  Return the specification as a
 +list."
-  (let* ((file-path (string-append %table-presets-path
+  (let ((file-path (string-append %table-presets-path
                                    file
-                                   ".scm"))
-         (p (open-input-file file-path)))
-    (unless p
-      (error "Could not open file" file-path))
-    (let ((result (read p)))
-      (close p)
-      result)))
+                                   ".scm")))
+    (unless (file-exists? file-path)
+      (format (current-error-port)
+              "Could not find a preset \"~a\" (no such file: \"~a\")~%" file file-path)
+      (format (current-error-port)
+              "Known presets are:~%")
+      (print-table-presets (current-error-port))
+      (exit 1))
+    (let ((p (open-input-file file-path)))
+      (let ((result (read p)))
+        (close p)
+        result))))
 
 (define (preset-name? spec)
   "Check if a SPEC is a table preset name."
