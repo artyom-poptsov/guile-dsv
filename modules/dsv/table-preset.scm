@@ -24,7 +24,7 @@
 ;;; Code:
 
 
-(define-module (dsv cli preset)
+(define-module (dsv table-preset)
   #:use-module (ice-9 ftw)
   #:use-module (ice-9 regex)
   #:use-module (scheme documentation)

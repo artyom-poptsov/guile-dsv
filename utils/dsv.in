@@ -37,8 +37,8 @@
              (dsv)
              (dsv common)
              (dsv table)
-             (dsv cli common)
-             (dsv cli preset))
+             (dsv table-preset)
+             (dsv cli common))
 
 
 
