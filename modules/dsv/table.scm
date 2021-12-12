@@ -26,6 +26,7 @@
 
 (define-module (dsv table)
   #:use-module (scheme documentation)
+  #:use-module (ice-9 format)
   #:export (%table-parameters
             print-table-parameters
             shorthand->table-parameter
