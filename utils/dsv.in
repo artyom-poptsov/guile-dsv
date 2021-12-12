@@ -70,19 +70,6 @@
                       (cons line buf)))))))
 
 
-(define (get-width table)
-  "Get maximum field width for each row of TABLE."
-  (let loop ((rows table)
-             (res  '()))
-    (if (not (null? rows))
-        (let ((w (map string-length (car rows))))
-          (cond
-           ((null? res)
-            (loop (cdr rows) w))
-           (else
-            (loop (cdr rows)
-                  (map max res w)))))
-        res)))
 
 (define (borders->alist borders)
   "Convert BORDERS spec to an alist."
