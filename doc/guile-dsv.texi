@@ -290,6 +290,54 @@ Examples:
 
 @end deffn
 
+@c -----------------------------------------------------------------------------
+@cindex Tables
+@section Tables
+
+Module @code{(dsv table)} provides procedures for working with parsed DSV
+tables.
+
+@deffn {Scheme Procedure} print-table-parameters port
+Print all known table parameters to a @var{port}.
+@end deffn
+
+@deffn {Scheme Procedure} shorthand->table-parameter sh
+Convert a shorthand @var{sh} to a table parameter.
+@end deffn
+
+@deffn {Scheme Procedure} get-width table
+Get maximum field width for each row of @var{table}.
+@end deffn
+
+@deffn {Scheme Procedure} format-table table borders @
+       [#:with-header?=#f] @
+       [#:port=(current-output-port)]
+
+Print a formatted @var{table} to a @var{port}, using @var{borders}
+specification.
+@end deffn
+
+@c -----------------------------------------------------------------------------
+@cindex Table Presets
+@section Table Presets
+
+Module @code{(dsv table-preset)} provides procedures for working with table
+presets.  A table preset is a pre-defined table style that specifies table
+outer borders, row separators etc.
+
+@deffn {Scheme Procedure} print-table-presets port
+Print all known table presets to a @var{port}.
+@end deffn
+
+@deffn {Scheme Procedure} load-table-preset name
+Read table preset @var{name} from a file.  Return the preset as a list.
+@end deffn
+
+@deffn {Scheme Procedure} table-preset-name? string
+Check if a @var{string} is a table preset name.
+@end deffn
+
+@c -----------------------------------------------------------------------------
 @section Debugging
 
 @deffn {Scheme Procedure} set-debug! enabled?
