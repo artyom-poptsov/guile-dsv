@@ -1,6 +1,6 @@
-;;; dsv.scm -- Tests for DSV parser.
+;;; table.scm -- Tests for parsed DSV tables.
 
-;; Copyright (C) 2014-2021 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2021 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
