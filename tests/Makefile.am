@@ -20,7 +20,8 @@
 SCM_TESTS = \
 	common.scm	\
 	dsv.scm		\
-	rfc4180.scm
+	rfc4180.scm	\
+	table.scm
 
 TESTS = ${SCM_TESTS}
 
