@@ -102,8 +102,12 @@
 
 
 
-(define* (format-table table borders #:key (with-header? #f))
-  "Format file and print it."
+(define* (format-table table
+                       borders
+                       #:key
+                       (with-header? #f)
+                       (port (current-output-port)))
+  "Format file and print it to a PORT."
   (let* ((padding 5)
          (column-separator    (or (assoc-ref borders 'column-separator) ""))
          (row-separator       (assoc-ref borders 'row-separator))
@@ -135,12 +139,13 @@
          (width        (get-width table))
          (format-field (lambda (field width)
                          "Print a FIELD in a column with given WIDTH."
-                         (format #t (format #f " ~~~da " (+ width padding))
+                         (format port
+                                 (format #f " ~~~da " (+ width padding))
                                  field)))
          (format-row   (lambda (row width border-left border-right separator)
                          (if border-left
-                             (display border-left)
-                             (display " "))
+                             (display border-left port)
+                             (display " " port))
                          (let field-loop ((fields       row)
                                           (field-widths width))
                            (unless (null? fields)
@@ -149,32 +154,33 @@
                                (format-field f w)
                                (if (null? (cdr fields))
                                    (if border-right
-                                       (display border-right)
-                                       (display " "))
+                                       (display border-right port)
+                                       (display " " port))
                                    (if separator
-                                       (display separator)
-                                       (display " ")))
+                                       (display separator port)
+                                       (display " " port)))
                                (field-loop (cdr fields) (cdr field-widths)))))
-                         (newline)))
+                         (newline port)))
          (display-line (lambda (widths middle left right joint)
                          (if left
-                             (display left)
-                             (display " "))
+                             (display left port)
+                             (display " " port))
                          (let loop ((w widths))
                            (unless (null? w)
                              (let ((row-width (+ (car w) padding 2)))
                                (display (string-join (make-list row-width
                                                                 middle)
-                                                     ""))
+                                                     "")
+                                        port)
                                (unless (null? (cdr w))
                                  (if joint
-                                     (display joint)
-                                     (display " "))))
+                                     (display joint port)
+                                     (display " " port))))
                              (loop (cdr w))))
                          (if right
-                             (display right)
-                             (display " "))
-                         (newline)))
+                             (display right port)
+                             (display " " port))
+                         (newline port)))
          (display-header-border-top
           (lambda (widths)
             (display-line widths
