@@ -31,7 +31,7 @@ SOURCES = \
 	table-preset.scm	\
 	common.scm
 
-EXTRA_DIST = \
+EXTRA_DIST += \
 	config.scm.in
 
 moddir=$(prefix)/share/guile/site/$(GUILE_EFFECTIVE_VERSION)/dsv
@@ -46,7 +46,7 @@ config.scm: config.scm.in
 	chmod +x "$@.tmp" &&			\
 	mv "$@.tmp" "$@"
 
-CLEANFILES = \
+CLEANFILES += \
 	config.scm
 
 # Makefile.am ends here
