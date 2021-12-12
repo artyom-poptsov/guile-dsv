@@ -7,6 +7,35 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   are permitted in any medium without royalty provided the copyright
   notice and this notice are preserved.
 
+* Changes in version 0.5.0 (2021-12-12)
+** Bugfixes
+*** Fix a regression in =dsv --summary= introduced in 0.4.1
+** API changes in the =dsv= tool
+    Make table style more configurable by adding new table parameters.  Some
+    old parameters are renamed to make the CLI API more consistent.
+** =dsv= now handles =--with-header= option
+    This option allows to use the first row of data as the table header.
+
+    When pseudo-graphical tables are printed to the screen the first row that
+    contains the header now has different style (which is configurable.)
+
+    Thanks to Dr. Arne Babenhauserheide <https://www.draketo.de/> for the
+    idea.
+** New table preset: "org"
+    This preset can be used to generate Emacs org-mode tables from data.
+
+    Thanks to Dr. Arne Babenhauserheide <https://www.draketo.de/> for the
+    idea.
+** All table presets are updated to provide styles for the header
+** New modules
+    Some code from the =dsv= tool is moved to separate modules available for
+    users:
+    - (dsv table)
+    - (dsv table-preset)
+
+    See the Texinfo documentation for more info.
+** Improve Autotools scripts
+** Update Texinfo documentation
 * Changes in version 0.4.1 (2021-12-11)
 ** Changes in the =dsv= tool
 *** Allow to specify wider range of table border parameters
