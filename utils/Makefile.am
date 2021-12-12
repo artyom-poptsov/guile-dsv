@@ -26,8 +26,7 @@ EXTRA_DIST = \
 SUFFIXES = .in
 
 substitute = \
-	sed -e 's,[@]GUILE[@],$(GUILE),g' \
-		-e "s,[@]DATA_DIR[@],$(pkgdatadir),g"
+	sed -e 's,[@]GUILE[@],$(GUILE),g'
 
 .in:
 	@echo "  GEN      $@"

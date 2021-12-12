@@ -19,15 +19,20 @@
 
 include $(top_srcdir)/build-aux/am/guilec
 
-SUBDIRS = cli
+SOURCES = \
+	config.scm	\
+	common.scm	\
+	table.scm	\
+	preset.scm
 
-SOURCES = rfc4180.scm unix.scm parser.scm builder.scm common.scm
+EXTRA_DIST = \
+	config.scm.in
 
 GOBJECTS = $(SOURCES:%.scm=%.go)
-moddir=$(guilesitedir)/dsv
+moddir=$(guilesitedir)/dsv/cli
 nobase_dist_mod_DATA = $(SOURCES)
 
-ccachedir=$(libdir)/guile/$(GUILE_EFFECTIVE_VERSION)/site-ccache/dsv
+ccachedir=$(libdir)/guile/$(GUILE_EFFECTIVE_VERSION)/site-ccache/dsv/cli
 nobase_nodist_ccache_DATA = $(GOBJECTS)
 
 # Make sure source files are installed first, so that the mtime of
@@ -39,7 +44,15 @@ guile_dsv_install_go_files = install-nobase_dist_ccacheDATA
 $(guile_dsv_install_go_files): install-nobase_dist_modDATA
 
 GUILE_WARNINGS = -Wunbound-variable -Warity-mismatch -Wformat
-SUFFIXES = .scm .go
+
+substitute = \
+	sed -e "s,[@]DATA_DIR[@],$(pkgdatadir),g"
+
+config.scm: config.scm.in
+	@echo "  GEN      $@"
+	@$(substitute) "$^" > "$@.tmp" && 	\
+	chmod +x "$@.tmp" &&			\
+	mv "$@.tmp" "$@"
 
 guilec_opts = --load-path=$(abs_top_srcdir)/modules/
 .scm.go:
@@ -51,6 +64,8 @@ clean-go:
 .PHONY: clean-go
 
 CLEANFILES = \
-	$(GOBJECTS)
+	$(GOBJECTS) \
+	config.scm
+
 
 # Makefile.am ends here
