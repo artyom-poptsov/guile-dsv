@@ -36,8 +36,8 @@
              (srfi  srfi-26)
              (dsv)
              (dsv common)
+             (dsv table)
              (dsv cli common)
-             (dsv cli table)
              (dsv cli preset))
 
 

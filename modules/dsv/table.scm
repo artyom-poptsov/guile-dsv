@@ -24,7 +24,7 @@
 
 ;;; Code:
 
-(define-module (dsv cli table)
+(define-module (dsv table)
   #:use-module (scheme documentation)
   #:export (%table-parameters
             print-table-parameters

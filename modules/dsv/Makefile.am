@@ -21,7 +21,13 @@ include $(top_srcdir)/build-aux/am/guile.am
 
 SUBDIRS = cli
 
-SOURCES = rfc4180.scm unix.scm parser.scm builder.scm common.scm
+SOURCES = \
+	rfc4180.scm	\
+	unix.scm	\
+	parser.scm	\
+	builder.scm	\
+	table.scm	\
+	common.scm
 
 moddir=$(prefix)/share/guile/site/$(GUILE_EFFECTIVE_VERSION)/dsv
 godir=$(libdir)/guile/$(GUILE_EFFECTIVE_VERSION)/site-ccache/dsv

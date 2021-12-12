@@ -22,7 +22,6 @@ include $(top_srcdir)/build-aux/am/guilec
 SOURCES = \
 	config.scm	\
 	common.scm	\
-	table.scm	\
 	preset.scm
 
 EXTRA_DIST = \
