@@ -34,6 +34,7 @@ delimiter change and conversion from one standard to another.)
    Directories:
    - doc      -- Documentation in Texinfo format.
    - modules  -- Guile modules.
+   - presets  -- Table presets.
    - utils    -- Utility programs based on Guile-DSV.
    - tests    -- Unit tests.
 
@@ -43,11 +44,15 @@ delimiter change and conversion from one standard to another.)
 
    Guile modules, in =${GUILE_SITE}=:
    - dsv.scm
+   - dsv/config.scm
    - dsv/rfc4180.scm
    - dsv/unix.scm
    - dsv/parser.scm
    - dsv/builder.scm
    - dsv/common.scm
+   - dsv/table.scm
+   - dsv/table-preset.scm
+   - dsv/cli/common.scm
 
    All the modules will be compiled and produced .go files will be installed
    to =site-ccache= directory which is something like this:
@@ -80,9 +85,9 @@ delimiter change and conversion from one standard to another.)
 $ dsv --help
 Usage: dsv [options] <file>
 
-The default behaviour of the program is to print a formatted table from a
+The default behavior of the program is to print a formatted table from a
 <file> to stdout.  The options listed below can be used to change or modify
-this behaviour.
+this behavior.
 
 Options:
   --help, -h                 Print this message and exit.
@@ -91,17 +96,59 @@ Options:
   --guess-delimiter, -d      Guess a file delimiter and print the result.
   --file-format, -F <fmt>    Set a file format.  Possible formats are:
                              "unix" (default), "rfc4180"
-  --table-borders, -b <spec> Set table borders for printing.  Spec is expected
-                             to be a comma-separated list of key=value pairs,
-                             where possible keys are: "v" (vertical border),
-                             "h" (horizontal border), "j" (joints).
-                             Example: "v=|,h=-,j=+"
+  --with-header, -H          Use the first row of a table as a header when
+                             printing the table to the screen.                             
+  --table-borders, -b <spec> Set table borders for printing.  The value can be
+                             either a borders specification or a preset name.
+
+                             Spec is expected to be a comma-separated list of
+                             key=value pairs.  The list of possible keys can be
+                             found below (see "Table parameters".)
+
+                             Example values:
+                               - "v=|,h=-,j=+"
+
   --to, -t <fmt>             Convert a file to a specified format, write
                              the result to stdout.
   --to-delimiter, -T <delim> Convert delimiters to the specified variant.
                              When this option is not used, default delimiters
                              for the chosen output format will be used.
   --debug                    Enable state machine debugging.
+
+Table parameters:
+  bt   border-top
+  btl  border-top-left
+  btr  border-top-right
+  btj  border-top-joint
+  bl   border-left
+  blj  border-left-joint
+  br   border-right
+  brj  border-right-joint
+  bb   border-bottom
+  bbl  border-bottom-left
+  bbr  border-bottom-right
+  bbj  border-bottom-joint
+  rs   row-separator
+  rj   row-joint
+  cs   column-separator
+  ht   header-top
+  htl  header-top-left
+  htr  header-top-right
+  htj  header-top-joint
+  hl   header-left
+  hr   header-right
+  hcs  header-column-separator
+  hb   header-bottom
+  hbl  header-bottom-left
+  hbr  header-bottom-right
+  hbj  header-bottom-joint
+
+Table presets:
+  ascii
+  graphic-bold
+  graphic-double
+  graphic
+  org
 #+end_example
 
 *** Print DSV files
@@ -138,32 +185,57 @@ $ head -3 /etc/passwd | dsv -D: -b "t=─,h=─,j=┼,v=│,hl=├,hr=┤,bl=└
 #+end_example
 
     There are table presets that can be used to draw tables with specified
-    border styles:
+    border styles.  Some examples:
 #+begin_example shell
-$ echo -e "a1,b1,c1\na2,b2,c2\n" | dsv -D, -b "ascii"
+$ echo -e "a,b,c\na1,b1,c1\na2,b2,c2\n" | dsv -b "ascii"
 .-----------------------------.
+| a       | b       | c       |
+|---------+---------+---------|
 | a1      | b1      | c1      |
 |---------+---------+---------|
 | a2      | b2      | c2      |
 '-----------------------------'
-$ echo -e "a1,b1,c1\na2,b2,c2\n" | dsv -D, -b "graphic"
+$ echo -e "a,b,c\na1,b1,c1\na2,b2,c2\n" | dsv -b "ascii" --with-header
+.-----------------------------.
+| a       | b       | c       |
+|=========+=========+=========|
+| a1      | b1      | c1      |
+|---------+---------+---------|
+| a2      | b2      | c2      |
+'-----------------------------'
+$ echo -e "a,b,c\na1,b1,c1\na2,b2,c2\n" | dsv -b "graphic"
 ┌─────────┬─────────┬─────────┐
+│ a       │ b       │ c       │
+├─────────┼─────────┼─────────┤
 │ a1      │ b1      │ c1      │
 ├─────────┼─────────┼─────────┤
 │ a2      │ b2      │ c2      │
 └─────────┴─────────┴─────────┘
-$ echo -e "a1,b1,c1\na2,b2,c2\n" | dsv -D, -b "graphic-bold"
+$ echo -e "a,b,c\na1,b1,c1\na2,b2,c2\n" | dsv -b "graphic-bold"
 ┏━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┓
+┃ a       ┃ b       ┃ c       ┃
+┣━━━━━━━━━╋━━━━━━━━━╋━━━━━━━━━┫
 ┃ a1      ┃ b1      ┃ c1      ┃
 ┣━━━━━━━━━╋━━━━━━━━━╋━━━━━━━━━┫
 ┃ a2      ┃ b2      ┃ c2      ┃
 ┗━━━━━━━━━┻━━━━━━━━━┻━━━━━━━━━┛
-$ echo -e "a1,b1,c1\na2,b2,c2\n" | dsv -D, -b "graphic-double"
+$ echo -e "a,b,c\na1,b1,c1\na2,b2,c2\n" | dsv -b "graphic-double"
 ╔═════════╦═════════╦═════════╗
+║ a       ║ b       ║ c       ║
+╠═════════╬═════════╬═════════╣
 ║ a1      ║ b1      ║ c1      ║
 ╠═════════╬═════════╬═════════╣
 ║ a2      ║ b2      ║ c2      ║
 ╚═════════╩═════════╩═════════╝
+$ echo -e "a,b,c\na1,b1,c1\na2,b2,c2\n" | dsv -b "org"
+| a       | b       | c       |
+| a1      | b1      | c1      |
+| a2      | b2      | c2      |
+$ echo -e "a,b,c\na1,b1,c1\na2,b2,c2\n" | dsv -b "org" --with-header
+| a       | b       | c       |
+|---------+---------+---------|
+| a1      | b1      | c1      |
+| a2      | b2      | c2      |
 #+end_example
 
 *** Try to guess delimiter in a file
