@@ -18,9 +18,10 @@
 ## along with Guile-DSV.  If not, see <http://www.gnu.org/licenses/>.
 
 SCM_TESTS = \
-	common.scm	\
-	dsv.scm		\
-	rfc4180.scm	\
+	common.scm		\
+	dsv.scm			\
+	rfc4180.scm		\
+	table-preset.scm	\
 	table.scm
 
 TESTS = ${SCM_TESTS}
