@@ -19,14 +19,14 @@
 
 include $(top_srcdir)/build-aux/am/guile.am
 
-SUBDIRS = cli
+SUBDIRS = . cli
 
 SOURCES = \
+	config.scm		\
 	rfc4180.scm		\
 	unix.scm		\
 	parser.scm		\
 	builder.scm		\
-	config.scm		\
 	table.scm		\
 	table-preset.scm	\
 	common.scm
