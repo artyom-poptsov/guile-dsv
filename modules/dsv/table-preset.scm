@@ -46,15 +46,15 @@
                         (car (string-split d #\.))))
               dir)))
 
-(define (load-table-preset file)
+(define (load-table-preset name)
   "Read table borders specification form a FILE.  Return the specification as a
-+list."
+list."
   (let ((file-path (string-append %table-presets-path
-                                  file
+                                  name
                                   ".scm")))
     (unless (file-exists? file-path)
       (format (current-error-port)
-              "Could not find a preset \"~a\" (no such file: \"~a\")~%" file file-path)
+              "Could not find a preset \"~a\" (no such file: \"~a\")~%" name file-path)
       (format (current-error-port)
               "Known presets are:~%")
       (print-table-presets (current-error-port))
@@ -64,8 +64,8 @@
         (close p)
         result))))
 
-(define (preset-name? spec)
+(define (preset-name? string)
   "Check if a SPEC is a table preset name."
-  (string-match "^[a-zA-Z\\-]+$" spec))
+  (string-match "^[a-zA-Z\\-]+$" string))
 
 ;;; preset.scm ends here.
