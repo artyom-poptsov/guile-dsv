@@ -53,6 +53,8 @@ Options:
   --guess-delimiter, -d      Guess a file delimiter and print the result.
   --file-format, -F <fmt>    Set a file format.  Possible formats are:
                              \"unix\" (default), \"rfc4180\"
+  --with-header, -H          Use the first row of a table as a header when
+                             printing the table to the screen.
   --table-borders, -b <spec> Set table borders for printing.  The value can be
                              either a borders specification or a preset name.
 
