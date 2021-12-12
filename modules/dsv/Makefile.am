@@ -26,11 +26,27 @@ SOURCES = \
 	unix.scm		\
 	parser.scm		\
 	builder.scm		\
+	config.scm		\
 	table.scm		\
 	table-preset.scm	\
 	common.scm
 
+EXTRA_DIST = \
+	config.scm.in
+
 moddir=$(prefix)/share/guile/site/$(GUILE_EFFECTIVE_VERSION)/dsv
 godir=$(libdir)/guile/$(GUILE_EFFECTIVE_VERSION)/site-ccache/dsv
+
+substitute = \
+	sed -e "s,[@]DATA_DIR[@],$(pkgdatadir),g"
+
+config.scm: config.scm.in
+	@echo "  GEN      $@"
+	@$(substitute) "$^" > "$@.tmp" && 	\
+	chmod +x "$@.tmp" &&			\
+	mv "$@.tmp" "$@"
+
+CLEANFILES = \
+	config.scm
 
 # Makefile.am ends here

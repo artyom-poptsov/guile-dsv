@@ -1,4 +1,4 @@
-;;; config.scm.in -- Guile-DSV CLI configuration.
+;;; config.scm.in -- Guile-DSV configuration.
 
 ;; Copyright (C) 2021 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
@@ -18,12 +18,12 @@
 
 ;;; Commentary:
 
-;; Guile-DSV CLI configuration.
+;; Guile-DSV configuration.
 
 
 ;;; Code:
 
-(define-module (dsv cli config)
+(define-module (dsv config)
   #:export (%table-presets-path))
 
 

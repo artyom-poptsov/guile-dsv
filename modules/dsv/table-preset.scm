@@ -28,7 +28,7 @@
   #:use-module (ice-9 ftw)
   #:use-module (ice-9 regex)
   #:use-module (scheme documentation)
-  #:use-module (dsv cli config)
+  #:use-module (dsv config)
   #:re-export  (%table-presets-path)
   #:export (print-table-presets
             load-table-preset

@@ -20,25 +20,9 @@
 include $(top_srcdir)/build-aux/am/guilec
 
 SOURCES = \
-	config.scm	\
 	common.scm
-
-EXTRA_DIST = \
-	config.scm.in
 
 moddir=$(prefix)/share/guile/site/$(GUILE_EFFECTIVE_VERSION)/dsv/cli
 godir=$(libdir)/guile/$(GUILE_EFFECTIVE_VERSION)/site-ccache/dsv/cli
-
-substitute = \
-	sed -e "s,[@]DATA_DIR[@],$(pkgdatadir),g"
-
-config.scm: config.scm.in
-	@echo "  GEN      $@"
-	@$(substitute) "$^" > "$@.tmp" && 	\
-	chmod +x "$@.tmp" &&			\
-	mv "$@.tmp" "$@"
-
-CLEANFILES = \
-	config.scm
 
 # Makefile.am ends here
