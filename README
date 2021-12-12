@@ -155,33 +155,30 @@ Table presets:
     To show DSV files (Unix-style) in human-readable manner, just invoke the
     tool like this:
 #+begin_example shell
-$ dsv /etc/passwd | head -4
-root                      x       0           0           root                                     /root                            /bin/bash               
-daemon                    x       1           1           daemon                                   /usr/sbin                        /usr/sbin/nologin       
-bin                       x       2           2           bin                                      /bin                             /usr/sbin/nologin       
-sys                       x       3           3           sys                                      /dev                             /usr/sbin/nologin
+$ dsv /etc/passwd | head -3
+  root                      x       0           0           root                                     /root                            /bin/bash               
+  daemon                    x       1           1           daemon                                   /usr/sbin                        /usr/sbin/nologin       
+  bin                       x       2           2           bin                                      /bin                             /usr/sbin/nologin
 #+end_example
  
     Show a DSV file as a fancy table with custom borders:
 #+begin_example shell
-$ dsv -b "v=|,h=-" /etc/passwd | head -5
-root                     | x      | 0          | 0          | root                                    | /root                           | /bin/bash              | 
-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-daemon                   | x      | 1          | 1          | daemon                                  | /usr/sbin                       | /usr/sbin/nologin      | 
-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-bin                      | x      | 2          | 2          | bin                                     | /bin                            | /usr/sbin/nologin      |
+$ dsv -b "rs=-,cs=|,rj=+" /etc/passwd | head -5
+  root                     | x      | 0          | 0          | root                                    | /root                           | /bin/bash               
+ --------------------------+--------+------------+------------+-----------------------------------------+---------------------------------+------------------------ 
+  daemon                   | x      | 1          | 1          | daemon                                  | /usr/sbin                       | /usr/sbin/nologin       
+ --------------------------+--------+------------+------------+-----------------------------------------+---------------------------------+------------------------ 
+  bin                      | x      | 2          | 2          | bin                                     | /bin                            | /usr/sbin/nologin      
 #+end_example
 
     The same output but with box-drawing characters:
 #+begin_example shell
-$ head -3 /etc/passwd | dsv -D: -b "t=─,h=─,j=┼,v=│,hl=├,hr=┤,bl=└,br=┘,bj=┴,tl=┌,tr=┐,tj=┬"
-┌─────────────┬────────┬────────┬────────┬─────────────┬────────────────┬────────────────────────┐
-│ root        │ x      │ 0      │ 0      │ root        │ /root          │ /bin/bash              │
-├─────────────┼────────┼────────┼────────┼─────────────┼────────────────┼────────────────────────┤
-│ daemon      │ x      │ 1      │ 1      │ daemon      │ /usr/sbin      │ /usr/sbin/nologin      │
-├─────────────┼────────┼────────┼────────┼─────────────┼────────────────┼────────────────────────┤
-│ bin         │ x      │ 2      │ 2      │ bin         │ /bin           │ /usr/sbin/nologin      │
-└─────────────┴────────┴────────┴────────┴─────────────┴────────────────┴────────────────────────┘
+$ head -3 /etc/passwd | dsv -b "rs=─,cs=│,rj=┼"
+  root        │ x      │ 0      │ 0      │ root        │ /root          │ /bin/bash               
+ ─────────────┼────────┼────────┼────────┼─────────────┼────────────────┼──────────────────────── 
+  daemon      │ x      │ 1      │ 1      │ daemon      │ /usr/sbin      │ /usr/sbin/nologin       
+ ─────────────┼────────┼────────┼────────┼─────────────┼────────────────┼──────────────────────── 
+  bin         │ x      │ 2      │ 2      │ bin         │ /bin           │ /usr/sbin/nologin       
 #+end_example
 
     There are table presets that can be used to draw tables with specified
