@@ -106,7 +106,7 @@
       (error "Could not determine a file delimiter" input-port))
 
     (let ((table (remove-empty-rows (dsv->scm input-port delim #:format fmt)))
-          (bspec (if (preset-name? borders)
+          (bspec (if (table-preset-name? borders)
                      (load-table-preset borders)
                      (borders->alist borders))))
       (format-table table bspec #:with-header? with-header?))))

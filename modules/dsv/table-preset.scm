@@ -32,7 +32,7 @@
   #:re-export  (%table-presets-path)
   #:export (print-table-presets
             load-table-preset
-            preset-name?))
+            table-preset-name?))
 
 
 (define (print-table-presets port)
@@ -64,7 +64,7 @@ list."
         (close p)
         result))))
 
-(define (preset-name? string)
+(define (table-preset-name? string)
   "Check if a SPEC is a table preset name."
   (string-match "^[a-zA-Z\\-]+$" string))
 
