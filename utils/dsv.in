@@ -103,7 +103,7 @@
 
     (let ((table (remove-empty-rows (dsv->scm input-port delim #:format fmt)))
           (bspec (if (preset-name? borders)
-                     (load-table-borders borders)
+                     (load-table-preset borders)
                      (borders->alist borders))))
       (format-table table bspec #:with-header? with-header?))))
 

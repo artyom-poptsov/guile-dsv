@@ -31,7 +31,7 @@
   #:use-module (dsv cli config)
   #:re-export  (%table-presets-path)
   #:export (print-table-presets
-            load-table-borders
+            load-table-preset
             preset-name?))
 
 
@@ -46,7 +46,7 @@
                         (car (string-split d #\.))))
               dir)))
 
-(define (load-table-borders file)
+(define (load-table-preset file)
   "Read table borders specification form a FILE.  Return the specification as a
 +list."
   (let ((file-path (string-append %table-presets-path
