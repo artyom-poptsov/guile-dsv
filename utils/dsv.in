@@ -34,6 +34,7 @@
              (dsv common)
              (dsv table)
              (dsv table-preset)
+             (dsv version)
              (dsv cli common))
 
 
@@ -70,6 +71,7 @@ Options:
   --to-delimiter, -T <delim> Convert delimiters to the specified variant.
                              When this option is not used, default delimiters
                              for the chosen output format will be used.
+  --version                  Print information about Guile-DSV version.
   --debug                    Enable state machine debugging.
 
 Table parameters:
@@ -78,6 +80,17 @@ Table parameters:
     (display "\nTable presets:\n")
     (print-table-presets (current-output-port))
   (exit))
+
+(define (print-version)
+  (format #t "dsv (Guile-DSV) ~a~%" (dsv-version/string))
+  (display "\
+Copyright (C) 2015-2021 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Written by Artyom V. Poptsov.
+"))
 
 (define (main args)
   (let* ((option-spec '((help            (single-char #\h) (value #f))
@@ -89,6 +102,7 @@ Table parameters:
                         (table-borders   (single-char #\b) (value #t))
                         (guess-delimiter (single-char #\d) (value #f))
                         (to              (single-char #\t) (value #t))
+                        (version                           (value #f))
                         (debug                             (value #f))))
          (options (getopt-long args option-spec))
          ;; Options
@@ -103,6 +117,7 @@ Table parameters:
          (with-header?      (option-ref options 'with-header     #f))
          (table-borders     (option-ref options 'table-borders   ""))
          (to                (option-ref options 'to              #f))
+         (version?          (option-ref options 'version         #f))
          (debug?            (option-ref options 'debug           #f))
          (args              (option-ref options '()              #f)))
 
@@ -110,6 +125,10 @@ Table parameters:
 
     (when help-needed?
       (print-help-and-exit))
+
+    (when version?
+      (print-version)
+      (exit))
 
     (let ((input-port (if (null? args)
                           (current-input-port)
