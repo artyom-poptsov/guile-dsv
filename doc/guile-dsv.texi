@@ -338,6 +338,36 @@ Check if a @var{string} is a table preset name.
 @end deffn
 
 @c -----------------------------------------------------------------------------
+@section Version Information
+
+Module @code{(dsv version)} contains procedures that allow to acquire
+information about the Guile-DSV version in the @url{https://semver.org/,
+Semantic Versioning} format.
+
+Guile-DSV version consists of three parts:
+@example
+   MAJOR.MINOR.PATCH
+@end example
+
+The procedures below allow to get any of the version part or the version as a
+whole.
+
+@deffn {Scheme Procedure} dsv-version/string
+Get the raw Guile-DSV version as a string.
+@end deffn
+
+@deffn {Scheme Procedure} dsv-version
+Return the Guile-DSV version as a list of the following form:
+@code{'(MAJOR MINOR PATCH)}
+@end deffn
+
+@deffn  {Scheme Procedure} dsv-version/major
+@deffnx {Scheme Procedure} dsv-version/minor
+@deffnx {Scheme Procedure} dsv-version/patch
+Get the MAJOR, MINOR or PATCH parts of the Guile-DSV version.
+@end deffn
+
+@c -----------------------------------------------------------------------------
 @section Debugging
 
 @deffn {Scheme Procedure} set-debug! enabled?
