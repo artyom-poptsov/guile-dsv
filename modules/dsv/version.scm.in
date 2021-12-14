@@ -1,0 +1,74 @@
+;;; version.scm.in -- Guile-DSV version.
+
+;; Copyright (C) 2021 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;;
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; The program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with the program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+;;; Commentary:
+
+;; This module contains procedures that allow to acquire information about the
+;; Guile-DSV version in the Semantic Versioning format. [1]
+;;
+;; Guile-DSV version consists of three parts:
+;;   MAJOR.MINOR.PATCH
+;;
+;; The procedures below allow to get any of the version part or the version as
+;; a whole.
+;;
+;; References:
+;; 1: https://semver.org/
+
+
+;;; Code:
+
+(define-module (dsv version)
+  #:export (dsv-version
+            dsv-version/string
+            dsv-version/major
+            dsv-version/minor
+            dsv-version/patch))
+
+
+(define %dsv-version "@VERSION@")
+
+
+(define (dsv-version/string)
+  "Get the raw Guile-DSV version as a string."
+  %dsv-version)
+
+(define (dsv-version)
+  "Return the Guile-DSV version as a list of the following form:
+'(MAJOR MINOR PATCH)"
+  (map string->number (string-split %dsv-version #\.)))
+
+(define (dsv-version/major)
+  "Get the MAJOR part of the Guile-DSV version."
+  (list-ref (dsv-version) 0))
+
+(define (dsv-version/minor)
+  "Get the MINOR part of the Guile-DSV version."
+  (list-ref (dsv-version) 1))
+
+(define (dsv-version/patch)
+  "Get the PATCH part of the Guile-DSV version."
+  (list-ref (dsv-version) 2))
+
+;;;
+
+;; Local Variables:
+;; mode: Scheme
+;; End:
+
+;;; version.scm.in ends here

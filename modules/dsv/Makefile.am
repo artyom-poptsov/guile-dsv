@@ -22,6 +22,7 @@ include $(top_srcdir)/build-aux/am/guile.am
 SUBDIRS = . cli
 
 SOURCES = \
+	version.scm		\
 	config.scm		\
 	rfc4180.scm		\
 	unix.scm		\
@@ -32,13 +33,21 @@ SOURCES = \
 	common.scm
 
 EXTRA_DIST += \
-	config.scm.in
+	config.scm.in		\
+	version.scm.in
 
 moddir=$(prefix)/share/guile/site/$(GUILE_EFFECTIVE_VERSION)/dsv
 godir=$(libdir)/guile/$(GUILE_EFFECTIVE_VERSION)/site-ccache/dsv
 
 substitute = \
 	sed -e "s,[@]DATA_DIR[@],$(pkgdatadir),g"
+
+version_substitute = \
+	sed -e 's,[@]VERSION[@],$(PACKAGE_VERSION),g'
+
+version.scm: version.scm.in
+	@echo "  GEN      $@"
+	@$(version_substitute) "$^" > "$@"
 
 config.scm: config.scm.in
 	@echo "  GEN      $@"
@@ -47,6 +56,7 @@ config.scm: config.scm.in
 	mv "$@.tmp" "$@"
 
 CLEANFILES += \
-	config.scm
+	config.scm		\
+	version.scm
 
 # Makefile.am ends here
