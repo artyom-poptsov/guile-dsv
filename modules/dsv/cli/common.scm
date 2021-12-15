@@ -140,8 +140,6 @@
            (bspec (if (table-preset-name? borders)
                       (load-table-preset borders)
                       (borders->alist borders))))
-      (display table)
-      (newline)
       (format-table table bspec #:with-header? with-header?))))
 
 (define (print-summary input-port fmt delim)
