@@ -98,17 +98,50 @@
 
 
 
-(define* (print-file input-port fmt borders delim #:key (with-header? #f))
+(define (apply-proc table proc)
+  (define (process-row row row-num)
+    (let loop ((r       row)
+               (col-num 0)
+               (result  '()))
+      (if (null? r)
+          (reverse result)
+          (loop (cdr r)
+                (+ col-num 1)
+                (cons (proc (car r)
+                            row-num
+                            col-num)
+                      result)))))
+
+  (let row-loop ((tbl     table)
+                 (row-num 0)
+                 (result  '()))
+    (if (null? tbl)
+        (reverse result)
+        (row-loop (cdr tbl)
+                  (+ row-num 1)
+                  (cons (process-row (car tbl)
+                                     row-num)
+                        result)))))
+
+(define* (print-file input-port fmt borders delim
+                     #:key
+                     (with-header? #f)
+                     (proc         #f))
   "Pretty-print a FILE."
   (let ((delim (or delim (guess-file-delimiter input-port fmt))))
 
     (unless delim
       (error "Could not determine a file delimiter" input-port))
 
-    (let ((table (remove-empty-rows (dsv->scm input-port delim #:format fmt)))
-          (bspec (if (table-preset-name? borders)
-                     (load-table-preset borders)
-                     (borders->alist borders))))
+    (let* ((table (remove-empty-rows (dsv->scm input-port delim #:format fmt)))
+           (table (if proc
+                      (apply-proc table proc)
+                      table))
+           (bspec (if (table-preset-name? borders)
+                      (load-table-preset borders)
+                      (borders->alist borders))))
+      (display table)
+      (newline)
       (format-table table bspec #:with-header? with-header?))))
 
 (define (print-summary input-port fmt delim)

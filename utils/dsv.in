@@ -52,6 +52,12 @@ Options:
   --summary, -s              Print summary information for a file.
   --delimiter, -D <delim>    Set a delimiter.
   --guess-delimiter, -d      Guess a file delimiter and print the result.
+  --apply, -a <procedure>    Apply an arbitrary Scheme code on each value
+                             before printing.
+                             The procedure is called as follows:
+                               (proc cell-value row-number col-number)
+                             The procedure must return a string, that in turn
+                             will be printed in a cell.
   --file-format, -F <fmt>    Set a file format.  Possible formats are:
                              \"unix\" (default), \"rfc4180\"
   --with-header, -H          Use the first row of a table as a header when
@@ -95,6 +101,7 @@ Written by Artyom V. Poptsov.
 (define (main args)
   (let* ((option-spec '((help            (single-char #\h) (value #f))
                         (summary         (single-char #\s) (value #f))
+                        (apply           (single-char #\a) (value #t))
                         (delimiter       (single-char #\D) (value #t))
                         (to-delimiter    (single-char #\T) (value #t))
                         (file-format     (single-char #\F) (value #t))
@@ -110,6 +117,7 @@ Written by Artyom V. Poptsov.
          (summary-needed?   (option-ref options 'summary         #f))
          (guess-delimiter?  (option-ref options 'guess-delimiter #f))
          (file-format       (option-ref options 'file-format     "unix"))
+         (apply-proc        (option-ref options 'apply           #f))
          (delimiter         (and=> (option-ref options 'delimiter #f)
                                    (cut string-ref <> 0)))
          (to-delimiter      (and=> (option-ref options 'to-delimiter #f)
@@ -148,7 +156,9 @@ Written by Artyom V. Poptsov.
         (print-file input-port
                     (string->dsv-format file-format) table-borders
                     delimiter
-                    #:with-header? with-header?)))
+                    #:with-header? with-header?
+                    #:proc (and apply-proc
+                               (eval-string apply-proc)))))
 
       (close input-port))
     (exit)))
