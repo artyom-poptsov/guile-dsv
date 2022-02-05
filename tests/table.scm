@@ -69,6 +69,21 @@
                         (header-bottom-joint     . "+")
                         (header-column-separator . "|")))))))
 
+
+
+(test-equal "filter-row"
+  '(("a1" "b1" "c1")
+    ("a3" "b3" "c3"))
+  (let ((table (dsv-string->scm "a1,b1,c1\na2,b2,c2\na3,b3,c3\n" #\,)))
+    (filter-row table (lambda (value row) (not (= row 1))))))
+
+(test-equal "filter-column"
+  '(("a1" "c1")
+    ("a2" "c2")
+    ("a3" "c3"))
+  (let ((table (dsv-string->scm "a1,b1,c1\na2,b2,c2\na3,b3,c3\n" #\,)))
+    (filter-column table (lambda (value col) (not (= col 1))))))
+
   
 (define exit-status (test-runner-fail-count (test-runner-current)))
 
