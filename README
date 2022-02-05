@@ -277,3 +277,20 @@ daemon|x|1|1|daemon|/usr/sbin|/usr/sbin/nologin
 bin|x|2|2|bin|/bin|/usr/sbin/nologin
 sys|x|3|3|sys|/dev|/usr/sbin/nologin
 #+end_example
+
+*** Apply an arbitrary Scheme code to each cell of a table
+Wrap each table value in double quotes:
+#+begin_example shell
+dsv -m '(string-append "\"" $value "\"")' /etc/group
+#+end_example
+
+*** Table filtering
+Remove 2nd row from a table:
+#+begin_example shell
+$ dsv -f '(not (= $row 1))' /etc/passwd
+#+end_example
+
+Remove 2nd column from a table:
+#+begin_example shell
+$ dsv -f '(not (= $col 1))' /etc/passwd
+#+end_example
