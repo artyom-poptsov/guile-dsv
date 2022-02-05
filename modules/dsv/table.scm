@@ -1,6 +1,6 @@
 ;;; table.scm -- Procedures to print fancy tables in a console.
 
-;; Copyright (C) 2021 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2021-2022 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -31,7 +31,9 @@
             print-table-parameters
             shorthand->table-parameter
             get-width
-            format-table))
+            format-table
+            filter-row
+            filter-column))
 
 (define-with-docs %table-parameters
   "Associative list of all known table parameters."
@@ -100,6 +102,35 @@
             (loop (cdr rows)
                   (map max res w)))))
         res)))
+
+(define (filter-row table proc)
+  (let loop ((tbl     table)
+             (row-num 0)
+             (result  '()))
+    (if (null? tbl)
+        (reverse result)
+        (let ((row (car tbl)))
+          (if (proc row row-num)
+              (loop (cdr tbl)
+                    (+ row-num 1)
+                    (cons row result))
+              (loop (cdr tbl)
+                    (+ row-num 1)
+                    result))))))
+
+(define (filter-column table proc)
+  "Remove all the columns from a TABLE for which a procedure PROC returns #f."
+  (let ((first-row-length (length (car table))))
+    (let loop ((col    0)
+               (result (make-list (length table) '())))
+      (if (= col first-row-length)
+          (map reverse result)
+          (let ((value (map (lambda (r) (list-ref r col)) table)))
+            (if (proc value col)
+                (loop (+ col 1)
+                      (map cons value result))
+                (loop (+ col 1)
+                      result)))))))
 
 
 
