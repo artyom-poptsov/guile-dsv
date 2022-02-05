@@ -65,6 +65,14 @@ delimiter change and conversion from one standard to another.)
    - dsv
 
 ** Installation
+ #+BEGIN_EXAMPLE shell
+$ git clone https://github.com/artyom-poptsov/guile-dsv.git
+$ cd guile-dsv
+$ autoreconf -vif
+$ ./configure
+$ make -j$(nproc)
+$ sudo make install
+#+END_EXAMPLE
 
  For a basic explanation of the installation of the package, see the
  INSTALL file.
