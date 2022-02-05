@@ -60,12 +60,20 @@ Options:
                              - $col   -- current column number.
 
                              Code example:
-                             \"(if (> $value 0) $value 0)\"
+                             '(if (> $value 0) $value 0)'
 
                              Note that the code must return a string, that in turn
                              will be printed in a cell.
 
-  --filter-row <procedure>   Keep only rows for which PROCEDURE returns #t.
+  --filter-row <code>        Keep only rows for which CODE returns #t.
+                             There are two variables that can be used in the code:
+                             - $value -- current row content.
+                             - $row   -- current row number.
+
+                             For example with this code Guile-DSV keeps only rows
+                             that are 5 columns in length:
+                             '(= (length $value) 5)'
+
   --filter-column <procedure>
                              Keep only columns for which PROCEDURE returns #t.
   --file-format, -F <fmt>    Set a file format.  Possible formats are:
@@ -112,6 +120,7 @@ Written by Artyom V. Poptsov.
   (let* ((option-spec '((help            (single-char #\h) (value #f))
                         (summary         (single-char #\s) (value #f))
                         (map-cell        (single-char #\m) (value #t))
+                        (filter-row                        (value #t))
                         (delimiter       (single-char #\D) (value #t))
                         (to-delimiter    (single-char #\T) (value #t))
                         (file-format     (single-char #\F) (value #t))
@@ -128,6 +137,7 @@ Written by Artyom V. Poptsov.
          (guess-delimiter?  (option-ref options 'guess-delimiter #f))
          (file-format       (option-ref options 'file-format     "unix"))
          (map-cell-proc     (option-ref options 'map-cell         #f))
+         (filter-row-proc   (option-ref options 'filter-row       #f))
          (delimiter         (and=> (option-ref options 'delimiter #f)
                                    (cut string-ref <> 0)))
          (to-delimiter      (and=> (option-ref options 'to-delimiter #f)
@@ -167,6 +177,12 @@ Written by Artyom V. Poptsov.
                     (string->dsv-format file-format) table-borders
                     delimiter
                     #:with-header? with-header?
+                    #:filter-row-proc (and filter-row-proc
+                                           (eval-string
+                                            (string-append
+                                             "(lambda ($value $row) "
+                                             filter-row-proc
+                                             ")")))
                     #:proc (and map-cell-proc
                                 (eval-string
                                  (string-append "(lambda ($value $row $col) "

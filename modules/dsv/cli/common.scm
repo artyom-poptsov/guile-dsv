@@ -123,10 +123,26 @@
                                      row-num)
                         result)))))
 
+(define (filter-row table proc)
+  (let loop ((tbl     table)
+             (row-num 0)
+             (result  '()))
+    (if (null? tbl)
+        (reverse result)
+        (let ((row (car tbl)))
+          (if (proc row row-num)
+              (loop (cdr tbl)
+                    (+ row-num 1)
+                    (cons row result))
+              (loop (cdr tbl)
+                    (+ row-num 1)
+                    result))))))
+
 (define* (print-file input-port fmt borders delim
                      #:key
-                     (with-header? #f)
-                     (proc         #f))
+                     (with-header?    #f)
+                     (filter-row-proc #f)
+                     (proc            #f))
   "Pretty-print a FILE."
   (let ((delim (or delim (guess-file-delimiter input-port fmt))))
 
@@ -135,8 +151,13 @@
 
     (let* ((table (remove-empty-rows (dsv->scm input-port delim #:format fmt)))
            (table (if proc
-                      (apply-proc table proc)
-                      table))
+                      (apply-proc (if filter-row-proc
+                                      (filter-row table filter-row-proc)
+                                      table)
+                                  proc)
+                      (if filter-row-proc
+                          (filter-row table filter-row-proc)
+                          table)))
            (bspec (if (table-preset-name? borders)
                       (load-table-preset borders)
                       (borders->alist borders))))
