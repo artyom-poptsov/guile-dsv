@@ -13,7 +13,17 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
     This module contains procedures that return information about the current
     Guile-DSV version.
 ** =dsv= now handles =--version= option
-* Changes in version 0.5.0 (2021-12-12)
+** =dsv= now handles =--map-cell= option
+    This option allows to apply an arbitrary Scheme code to each table cell
+    before printing.
+** =dsv= now handles =--filter-row= option
+    This option allows to keep only that rows from a table for which the
+    provided Scheme code returned #t.
+** =dsv= now handles =--filter-column= option
+    This option allows to keep only that columns from a table for which the
+    provided Scheme code returned #t.
+
+** Changes in version 0.5.0 (2021-12-12)
 ** Bugfixes
 *** Fix a regression in =dsv --summary= introduced in 0.4.1
 ** API changes in the =dsv= tool
