@@ -138,10 +138,26 @@
                     (+ row-num 1)
                     result))))))
 
+(define (filter-column table proc)
+  "Remove all the columns from a TABLE for which a procedure PROC returns #f."
+  (let ((first-row-length (length (car table))))
+    (let loop ((col    0)
+               (result (make-list (length table) '())))
+      (if (= col first-row-length)
+          (map reverse result)
+          (let ((value (map (lambda (r) (list-ref r col)) table)))
+            (if (proc value col)
+                (loop (+ col 1)
+                      (map cons value result))
+                (loop (+ col 1)
+                      result)))))))
+
+
 (define* (print-file input-port fmt borders delim
                      #:key
                      (with-header?    #f)
                      (filter-row-proc #f)
+                     (filter-col-proc #f)
                      (proc            #f))
   "Pretty-print a FILE."
   (let ((delim (or delim (guess-file-delimiter input-port fmt))))
@@ -150,6 +166,9 @@
       (error "Could not determine a file delimiter" input-port))
 
     (let* ((table (remove-empty-rows (dsv->scm input-port delim #:format fmt)))
+           (table (if filter-col-proc
+                      (filter-column table filter-col-proc)
+                      table))
            (table (if proc
                       (apply-proc (if filter-row-proc
                                       (filter-row table filter-row-proc)

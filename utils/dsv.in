@@ -74,7 +74,7 @@ Options:
                              that are 5 columns in length:
                              '(= (length $value) 5)'
 
-  --filter-column <procedure>
+  --filter-column, -c <procedure>
                              Keep only columns for which PROCEDURE returns #t.
   --file-format, -F <fmt>    Set a file format.  Possible formats are:
                              \"unix\" (default), \"rfc4180\"
@@ -121,6 +121,7 @@ Written by Artyom V. Poptsov.
                         (summary         (single-char #\s) (value #f))
                         (map-cell        (single-char #\m) (value #t))
                         (filter-row      (single-char #\f) (value #t))
+                        (filter-column   (single-char #\c) (value #t))
                         (delimiter       (single-char #\D) (value #t))
                         (to-delimiter    (single-char #\T) (value #t))
                         (file-format     (single-char #\F) (value #t))
@@ -138,6 +139,7 @@ Written by Artyom V. Poptsov.
          (file-format       (option-ref options 'file-format     "unix"))
          (map-cell-proc     (option-ref options 'map-cell         #f))
          (filter-row-proc   (option-ref options 'filter-row       #f))
+         (filter-col-proc   (option-ref options 'filter-column    #f))
          (delimiter         (and=> (option-ref options 'delimiter #f)
                                    (cut string-ref <> 0)))
          (to-delimiter      (and=> (option-ref options 'to-delimiter #f)
@@ -177,6 +179,12 @@ Written by Artyom V. Poptsov.
                     (string->dsv-format file-format) table-borders
                     delimiter
                     #:with-header? with-header?
+                    #:filter-col-proc (and filter-col-proc
+                                           (eval-string
+                                            (string-append
+                                             "(lambda ($value $col) "
+                                             filter-col-proc
+                                             ")")))
                     #:filter-row-proc (and filter-row-proc
                                            (eval-string
                                             (string-append
