@@ -65,7 +65,7 @@ Options:
                              Note that the code must return a string, that in turn
                              will be printed in a cell.
 
-  --filter-row <code>        Keep only rows for which CODE returns #t.
+  --filter-row, -f <code>    Keep only rows for which CODE returns #t.
                              There are two variables that can be used in the code:
                              - $value -- current row content.
                              - $row   -- current row number.
@@ -120,7 +120,7 @@ Written by Artyom V. Poptsov.
   (let* ((option-spec '((help            (single-char #\h) (value #f))
                         (summary         (single-char #\s) (value #f))
                         (map-cell        (single-char #\m) (value #t))
-                        (filter-row                        (value #t))
+                        (filter-row      (single-char #\f) (value #t))
                         (delimiter       (single-char #\D) (value #t))
                         (to-delimiter    (single-char #\T) (value #t))
                         (file-format     (single-char #\F) (value #t))
