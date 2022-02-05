@@ -317,12 +317,17 @@ Print a formatted @var{table} to a @var{port}, using @var{borders}
 specification.
 @end deffn
 
-@deffn {Scheme Procedure} filter-row table proc
+@deffn {Scheme Procedure} table-map proc table
+Apply a procedure @var{PROC} to each cell of a @var{table}.  Return a new
+table.
+@end deffn
+
+@deffn {Scheme Procedure} table-filter-row proc table
 Remove all the rows from a @var{table} for which procedure @var{proc} returns
 @code{#f}.
 @end deffn
 
-@deffn {Scheme Procedure} filter-column table proc
+@deffn {Scheme Procedure} table-filter-column proc table
 Remove all the columns from a @var{table} for which procedure @var{proc}
 returns @code{#f}.
 @end deffn

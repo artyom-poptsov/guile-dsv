@@ -33,8 +33,8 @@
             get-width
             format-table
             table-map
-            filter-row
-            filter-column))
+            table-filter-row
+            table-filter-column))
 
 (define-with-docs %table-parameters
   "Associative list of all known table parameters."
@@ -130,7 +130,7 @@
                                      row-num)
                         result)))))
 
-(define (filter-row table proc)
+(define (table-filter-row proc table)
   (let loop ((tbl     table)
              (row-num 0)
              (result  '()))
@@ -145,7 +145,7 @@
                     (+ row-num 1)
                     result))))))
 
-(define (filter-column table proc)
+(define (table-filter-column proc table)
   "Remove all the columns from a TABLE for which a procedure PROC returns #f."
   (let ((first-row-length (length (car table))))
     (let loop ((col    0)

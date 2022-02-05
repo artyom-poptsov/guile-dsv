@@ -111,15 +111,15 @@
 
     (let* ((table (remove-empty-rows (dsv->scm input-port delim #:format fmt)))
            (table (if filter-col-proc
-                      (filter-column table filter-col-proc)
+                      (table-filter-column filter-col-proc table)
                       table))
            (table (if proc
                       (table-map proc
                                  (if filter-row-proc
-                                     (filter-row table filter-row-proc)
+                                     (table-filter-row filter-row-proc table)
                                      table))
                       (if filter-row-proc
-                          (filter-row table filter-row-proc)
+                          (table-filter-row filter-row-proc table)
                           table)))
            (bspec (if (table-preset-name? borders)
                       (load-table-preset borders)
