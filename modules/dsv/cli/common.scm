@@ -97,33 +97,6 @@
     (length (dsv->scm p delim #:format fmt))))
 
 
-
-(define (map-cell table proc)
-  (define (process-row row row-num)
-    (let loop ((r       row)
-               (col-num 0)
-               (result  '()))
-      (if (null? r)
-          (reverse result)
-          (loop (cdr r)
-                (+ col-num 1)
-                (cons (proc (car r)
-                            row-num
-                            col-num)
-                      result)))))
-
-  (let row-loop ((tbl     table)
-                 (row-num 0)
-                 (result  '()))
-    (if (null? tbl)
-        (reverse result)
-        (row-loop (cdr tbl)
-                  (+ row-num 1)
-                  (cons (process-row (car tbl)
-                                     row-num)
-                        result)))))
-
-
 (define* (print-file input-port fmt borders delim
                      #:key
                      (with-header?    #f)
