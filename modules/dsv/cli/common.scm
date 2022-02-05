@@ -98,7 +98,7 @@
 
 
 
-(define (apply-proc table proc)
+(define (map-cell table proc)
   (define (process-row row row-num)
     (let loop ((r       row)
                (col-num 0)
@@ -141,10 +141,10 @@
                       (filter-column table filter-col-proc)
                       table))
            (table (if proc
-                      (apply-proc (if filter-row-proc
-                                      (filter-row table filter-row-proc)
-                                      table)
-                                  proc)
+                      (map-cell (if filter-row-proc
+                                    (filter-row table filter-row-proc)
+                                    table)
+                                proc)
                       (if filter-row-proc
                           (filter-row table filter-row-proc)
                           table)))
