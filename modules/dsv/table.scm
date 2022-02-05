@@ -32,7 +32,7 @@
             shorthand->table-parameter
             get-width
             format-table
-            map-cell
+            table-map
             filter-row
             filter-column))
 
@@ -104,7 +104,8 @@
                   (map max res w)))))
         res)))
 
-(define (map-cell table proc)
+(define (table-map proc table)
+  "Apply a procedure PROC to each TABLE cell, return the new table."
   (define (process-row row row-num)
     (let loop ((r       row)
                (col-num 0)

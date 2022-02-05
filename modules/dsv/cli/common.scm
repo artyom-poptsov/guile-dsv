@@ -114,10 +114,10 @@
                       (filter-column table filter-col-proc)
                       table))
            (table (if proc
-                      (map-cell (if filter-row-proc
-                                    (filter-row table filter-row-proc)
-                                    table)
-                                proc)
+                      (table-map proc
+                                 (if filter-row-proc
+                                     (filter-row table filter-row-proc)
+                                     table))
                       (if filter-row-proc
                           (filter-row table filter-row-proc)
                           table)))
