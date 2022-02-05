@@ -76,6 +76,14 @@ Options:
 
   --filter-column, -c <procedure>
                              Keep only columns for which PROCEDURE returns #t.
+                             There are two variables that can be used in the code:
+                             - $value -- current column content as a list.
+                             - $row   -- current column number.
+
+                             For example with this code Guile-DSV keeps only the 2nd
+                             column from the input data:
+                              '(= $col 2)'
+
   --file-format, -F <fmt>    Set a file format.  Possible formats are:
                              \"unix\" (default), \"rfc4180\"
   --with-header, -H          Use the first row of a table as a header when
