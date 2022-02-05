@@ -7,12 +7,16 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   are permitted in any medium without royalty provided the copyright
   notice and this notice are preserved.
 
-* Unreleased
+* Changes in version 0.5.1 (2022-02-05)
 ** Add Markdown table preset
+    =dsv= now has Markdown table preset that allows to generate Markdown
+    tables from a DSV data.
 ** New module: =(dsv version)=
     This module contains procedures that return information about the current
     Guile-DSV version.
 ** =dsv= now handles =--version= option
+    When this option is passed to the =dsv= program it prints the version
+    information and a short copyright note to the stdout.
 ** =dsv= now handles =--map-cell= option
     This option allows to apply an arbitrary Scheme code to each table cell
     before printing.
@@ -23,7 +27,7 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
     This option allows to keep only that columns from a table for which the
     provided Scheme code returned #t.
 
-** Changes in version 0.5.0 (2021-12-12)
+* Changes in version 0.5.0 (2021-12-12)
 ** Bugfixes
 *** Fix a regression in =dsv --summary= introduced in 0.4.1
 ** API changes in the =dsv= tool
