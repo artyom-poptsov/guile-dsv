@@ -65,6 +65,12 @@ delimiter change and conversion from one standard to another.)
    - dsv
 
 ** Installation
+*** GNU Guix
+ #+BEGIN_EXAMPLE shell
+$ guix install guile-dsv
+ #+END_EXAMPLE
+
+*** Manual
  #+BEGIN_EXAMPLE shell
 $ git clone https://github.com/artyom-poptsov/guile-dsv.git
 $ cd guile-dsv
