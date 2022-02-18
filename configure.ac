@@ -55,6 +55,9 @@ if test "x$guilesitedir" = "x"; then
 fi
 AC_SUBST([guilesitedir])
 
+dnl Manual pages.
+AM_MISSING_PROG([HELP2MAN], [help2man])
+
 AC_CONFIG_FILES([Makefile build-aux/am/Makefile build-aux/Makefile tests/Makefile])
 AC_CONFIG_FILES([doc/Makefile build-aux/m4/Makefile modules/Makefile modules/dsv/Makefile])
 AC_CONFIG_FILES([modules/dsv/cli/Makefile])

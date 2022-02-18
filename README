@@ -20,6 +20,7 @@ delimiter change and conversion from one standard to another.)
     - Texinfo (contains =makeinfo= tool that is required for making the
       documentation in Texinfo format)
     - Texlive (also is needed for documentation.)
+    - [[https://www.gnu.org/software/help2man][help2man]]
 
 ** Distribution
    Files:
