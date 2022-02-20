@@ -31,12 +31,13 @@ AM_V_HELP2MAN = $(AM_V_HELP2MAN_$(V))
 AM_V_HELP2MAN_ = $(AM_V_HELP2MAN_$(AM_DEFAULT_VERBOSITY))
 AM_V_HELP2MAN_0 = @echo "  HELP2MAN" $@;
 ##
-gen_man =						\
-	LANGUAGE= $(HELP2MAN) $(HELP2MANFLAGS)
+gen_man =							\
+	LANGUAGE= $(top_builddir)/pre-inst-env $(HELP2MAN)	\
+	$(HELP2MANFLAGS)
 
 HELP2MANFLAGS = --source=GNU --info-page=$(PACKAGE_TARNAME)
 
 dsv.1: $(top_srcdir)/utils/dsv
-	-$(AM_V_HELP2MAN)$(gen_man) --output="$@" `basename "$<"`
+	-$(AM_V_HELP2MAN)$(gen_man) --output="$@" "$<"
 
 ## Makefile.am ends here
