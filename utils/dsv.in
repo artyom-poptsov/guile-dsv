@@ -108,6 +108,9 @@ Options:
 
   --table-presets-path <path>
                              Set the table preset path.
+                             This option can be also set by
+                              \"GUILE_DSV_TABLE_PRESETS_PATH\" environment
+                             variable.
                              Default value: " %table-presets-path "
   --to, -t <fmt>             Convert a file to a specified format, write
                              the result to stdout.
@@ -167,7 +170,11 @@ Written by Artyom V. Poptsov.
                                    (cut string-ref <> 0)))
          (with-header?      (option-ref options 'with-header     #f))
          (table-borders     (option-ref options 'table-borders   ""))
-         (table-presets-path (option-ref options 'table-presets-path %table-presets-path))
+         (table-presets-path (option-ref options
+                                         'table-presets-path
+                                         (if (getenv "GUILE_DSV_TABLE_PRESETS_PATH")
+                                             (getenv "GUILE_DSV_TABLE_PRESETS_PATH")
+                                             %table-presets-path)))
          (to                (option-ref options 'to              #f))
          (version?          (option-ref options 'version         #f))
          (debug?            (option-ref options 'debug           #f))
