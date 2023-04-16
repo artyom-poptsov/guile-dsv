@@ -41,7 +41,8 @@
   "Print all known table presets to a PORT."
   (let ((dir (scandir table-presets-path
                       (lambda (name)
-                        (not (string-prefix? "." name))))))
+                        (and (not (string-prefix? "." name))
+                             (string-suffix? ".scm" name))))))
     (unless dir
       (error "Could not read a directory" table-presets-path))
     (for-each (lambda (d)
