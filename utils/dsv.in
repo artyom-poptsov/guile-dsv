@@ -197,7 +197,7 @@ Written by Artyom V. Poptsov.
         (print-summary input-port (string->dsv-format file-format) delimiter))
        (guess-delimiter?
         (print-delimiter input-port (string->dsv-format file-format)))
-       (tonn
+       (to
         (convert input-port
                  delimiter
                  to-delimiter
