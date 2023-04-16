@@ -50,6 +50,9 @@
     (bbl . border-bottom-left)
     (bbr . border-bottom-right)
     (bbj . border-bottom-joint)
+    ;; Shadow.
+    (s   . shadow)
+    (so  . shadow-offset)
     ;; Inner table lines.
     (rs  . row-separator)
     (rj  . row-joint)
@@ -195,13 +198,36 @@
          (header-bottom-left  (assoc-ref borders 'header-bottom-left))
          (header-bottom-right (assoc-ref borders 'header-bottom-right))
          (header-bottom-joint (assoc-ref borders 'header-bottom-joint))
+         (shadow              (assoc-ref borders 'shadow))
+         (shadow-offset       (assoc-ref borders 'shadow-offset))
+         (shadow-offset       (and shadow-offset
+                                   (map string->number
+                                        (string-split shadow-offset #\,))))
+         (shadow-x-offset     (and shadow-offset
+                                   (car shadow-offset)))
+         (shadow-y-offset     (and shadow-offset
+                                   (cadr shadow-offset)))
          (width        (get-width table))
          (format-field (lambda (field width)
                          "Print a FIELD in a column with given WIDTH."
                          (format port
                                  (format #f " ~~~da " (+ width padding))
                                  field)))
-         (format-row   (lambda (row width border-left border-right separator)
+         (format-row   (lambda* (row width border-left border-right separator
+                                     #:key (row-number 0))
+                         (when (and shadow
+                                    shadow-offset
+                                    (< shadow-x-offset 0))
+                           (if (or (not row-number)
+                                   (> row-number shadow-y-offset))
+                               (display (string-join (make-list (abs shadow-x-offset)
+                                                                shadow)
+                                                     "")
+                                        port)
+                               (display (string-join (make-list (abs shadow-x-offset)
+                                                                " ")
+                                                     "")
+                                        port)))
                          (if border-left
                              (display border-left port)
                              (display " " port))
@@ -219,8 +245,36 @@
                                        (display separator port)
                                        (display " " port)))
                                (field-loop (cdr fields) (cdr field-widths)))))
+                         (when (and shadow
+                                    shadow-offset
+                                    (> shadow-x-offset 0))
+                           (if (> row-number shadow-y-offset)
+                               (display (string-join (make-list shadow-x-offset
+                                                                shadow)
+                                                     "")
+                                        port)
+                               (display (string-join (make-list shadow-x-offset
+                                                                " ")
+                                                     "")
+                                        port)))
                          (newline port)))
-         (display-line (lambda (widths middle left right joint)
+         (display-line (lambda* (widths middle left right joint
+                                        #:key
+                                        (row-number #f)
+                                        (port port))
+                         (when (and shadow
+                                    shadow-offset
+                                    (< shadow-x-offset 0))
+                           (if (or (not row-number)
+                                   (> row-number shadow-y-offset))
+                               (display (string-join (make-list (abs shadow-x-offset)
+                                                                shadow)
+                                                     "")
+                                        port)
+                               (display (string-join (make-list (abs shadow-x-offset)
+                                                                " ")
+                                                     "")
+                                        port)))
                          (if left
                              (display left port)
                              (display " " port))
@@ -239,6 +293,19 @@
                          (if right
                              (display right port)
                              (display " " port))
+                         (when (and shadow
+                                    shadow-offset
+                                    (> shadow-x-offset 0))
+                           (if (or (not row-number)
+                                   (> row-number shadow-y-offset))
+                               (display (string-join (make-list shadow-x-offset
+                                                                shadow)
+                                                     "")
+                                        port)
+                               (display (string-join (make-list shadow-x-offset
+                                                                " ")
+                                                     "")
+                                        port)))
                          (newline port)))
          (display-header-border-top
           (lambda (widths)
@@ -246,52 +313,81 @@
                           header-top
                           header-top-left
                           header-top-right
-                          header-top-joint)))
+                          header-top-joint
+                          #:row-number 0)))
          (display-header-border-bottom
           (lambda (widths)
             (display-line widths
                           header-bottom
                           header-bottom-left
                           header-bottom-right
-                          header-bottom-joint)))
+                          header-bottom-joint
+                          #:row-number 2)))
          (display-top-border (lambda (widths)
                                "Display a top horisontal table border."
                                (display-line widths
                                              border-top
                                              border-top-left
                                              border-top-right
-                                             border-top-joint)))
-         (display-bottom-border (lambda (widths)
+                                             border-top-joint
+                                             #:row-number 0)))
+         (display-bottom-border (lambda (widths row-number)
                                   "Display a top horisontal table border."
                                   (display-line widths
                                                 border-bottom
                                                 border-bottom-left
                                                 border-bottom-right
-                                                border-bottom-joint)))
-         (display-row-separator (lambda (widths)
+                                                border-bottom-joint
+                                                #:row-number row-number)))
+         (display-row-separator (lambda (widths row-number)
                                   "Display a top horisontal table border."
                                   (display-line widths
                                                 row-separator
                                                 border-left-joint
                                                 border-right-joint
-                                                row-joint)))
+                                                row-joint
+                                                #:row-number row-number)))
          (display-table (lambda (table)
                           (unless with-header?
                             (when border-top
                               (display-top-border width)))
-                          (let loop ((t table))
+                          (let loop ((t table)
+                                     (row-number (if (and with-header?
+                                                          border-top)
+                                                     2
+                                                     1)))
                             (unless (null? t)
                               (format-row (car t)
                                           width
                                           border-left
                                           border-right
-                                          column-separator)
+                                          column-separator
+                                          #:row-number row-number)
                               (when row-separator
                                 (if (null? (cdr t))
                                     (when border-bottom
-                                      (display-bottom-border width))
-                                    (display-row-separator width)))
-                              (loop (cdr t)))))))
+                                      (display-bottom-border width row-number))
+                                    (display-row-separator width (+ row-number 1))))
+                              (loop (cdr t) (+ row-number 2)))))))
+
+    (when (and shadow
+               shadow-offset
+               (< shadow-y-offset 0))
+      (let ((str (with-output-to-string
+                   (lambda ()
+                     (display-line width
+                                   shadow
+                                   shadow
+                                   shadow
+                                   shadow
+                                   #:port (current-output-port))))))
+        (for-each (lambda (i)
+                    (display (string-join (make-list shadow-x-offset " ")
+                                          "")
+                             port)
+                    (display (string-copy str shadow-x-offset) port))
+                  (iota (abs shadow-y-offset)))))
+
     (if with-header?
         (begin
           (when header-top
@@ -300,10 +396,36 @@
                       width
                       header-left
                       header-right
-                      header-column-separator)
+                      header-column-separator
+                      #:row-number 2)
           (when header-bottom
             (display-header-border-bottom width))
           (display-table (cdr table)))
-        (display-table table))))
+        (display-table table))
+
+    (when (and shadow shadow-offset)
+        (when (> shadow-y-offset 0)
+          (let ((str (with-output-to-string
+                       (lambda ()
+                         (display-line width
+                                       shadow
+                                       shadow
+                                       shadow
+                                       shadow
+                                       #:port (current-output-port))))))
+            (for-each (lambda (i)
+                        (if (>= shadow-x-offset 0)
+                            (begin
+                              (display (string-join (make-list shadow-x-offset " ")
+                                                    "")
+                                       port)
+                              (display (string-copy str (abs shadow-x-offset)) port))
+                            (begin
+                              (display (string-join (make-list (abs shadow-x-offset)
+                                                               shadow)
+                                                    "")
+                                       port)
+                              (display str port))))
+                      (iota shadow-y-offset)))))))
 
 ;;; table.scm ends here.
