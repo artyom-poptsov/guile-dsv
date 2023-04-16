@@ -1,6 +1,6 @@
 ;;; common.scm -- Common Guile-DSV CLI code.
 
-;; Copyright (C) 2021-2022 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2021-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
   #:use-module (srfi  srfi-26)
   #:use-module (dsv)
   #:use-module (dsv table)
+  #:use-module (dsv config)
   #:use-module (dsv table-preset)
   #:export (string->dsv-format
             borders->alist
@@ -102,7 +103,8 @@
                      (with-header?    #f)
                      (filter-row-proc #f)
                      (filter-col-proc #f)
-                     (proc            #f))
+                     (proc            #f)
+                     (table-presets-path %table-presets-path))
   "Pretty-print a FILE."
   (let ((delim (or delim (guess-file-delimiter input-port fmt))))
 
@@ -122,7 +124,8 @@
                           (table-filter-row filter-row-proc table)
                           table)))
            (bspec (if (table-preset-name? borders)
-                      (load-table-preset borders)
+                      (load-table-preset borders
+                                         #:table-presets-path table-presets-path)
                       (borders->alist borders))))
       (format-table table bspec #:with-header? with-header?))))
 
