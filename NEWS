@@ -32,7 +32,11 @@ follows:
 #+END_EXAMPLE
 ** =dsv= now accepts =--table-presets-path= option
 The option allows to set the path to a directory that contains table presets.
+** =dsv= now reads =GUILE_DSV_TABLE_PRESETS_PATH= environment variable
+This environment variable allows to specify the directory that contains table
+presets, akin to =--table-presets-path= option.
 ** Update the help output of =dsv= and its man page
+
 * Changes in version 0.5.1 (2022-02-05)
 ** Add Markdown table preset
     =dsv= now has Markdown table preset that allows to generate Markdown
