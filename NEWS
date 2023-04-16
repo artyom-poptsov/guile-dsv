@@ -7,6 +7,30 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   are permitted in any medium without royalty provided the copyright
   notice and this notice are preserved.
 
+* Unreleased
+** Bugfixes
+*** RFC 4180 now handles empty trailing fields correctly
+The library would skip a trailing empty field in a row thus a row shorter than
+the rest of the table rows would be made.  For example, the following data:
+
+#+BEGIN_EXAMPLE
+  a,b
+  c,
+#+END_EXAMPLE
+
+Would result in:
+#+BEGIN_EXAMPLE lisp
+'(("a" "b")
+  ("c"))
+#+END_EXAMPLE
+
+Now this behavior should be fixed so the result for the same data will look as
+follows:
+#+BEGIN_EXAMPLE lisp
+'(("a" "b")
+  ("c" ""))
+#+END_EXAMPLE
+
 * Changes in version 0.5.1 (2022-02-05)
 ** Add Markdown table preset
     =dsv= now has Markdown table preset that allows to generate Markdown

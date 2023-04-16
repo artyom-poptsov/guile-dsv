@@ -1,6 +1,6 @@
 ;;; rfc4180.scm -- DSV parser for RFC 4180 format.
 
-;; Copyright (C) 2015, 2016, 2020 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2015-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -263,9 +263,13 @@
         ((delimiter? parser char)
          (fsm-read table (append row (list "")) '()))
         ((linefeed? char)
-         (fsm-read (append table (list row))
-                   '()                  ; row
-                   '()))                ; buffer
+         (if (and (null? buffer) (not (null? row)))
+             (fsm-read (append table (list (append row (list ""))))
+                       '()
+                       '())
+             (fsm-read (append table (list row))
+                       '()                  ; row
+                       '())))               ; buffer
         (else
          (debug-fsm-transition %current-state 'read-field)
          (fsm-read-field table row (cons char buffer))))))

@@ -1,6 +1,6 @@
 ;;; rfc4180.scm -- Tests for RFC 4180 parser.
 
-;; Copyright (C) 2015, 2020 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2015-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -91,6 +91,12 @@
 (test-equal "dsv-string->scm: two fields, one quoted with comma and newline"
   '(("a,b\nc" "d"))
   (dsv-string->scm "\"a,b\nc\",d" #\, #:format 'rfc4180))
+
+(test-equal "dsv-string->scm: RFC 4180 with an empty field"
+  '(("a" "b") ("c" ""))
+  (begin
+    (format (current-error-port) "DEBUG~%")
+    (dsv-string->scm "a,b\nc,\n" #\, #:format 'rfc4180)))
 
 
 ;;; scm->dsv
