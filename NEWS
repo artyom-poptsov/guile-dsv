@@ -30,7 +30,9 @@ follows:
 '(("a" "b")
   ("c" ""))
 #+END_EXAMPLE
-
+** =dsv= now accepts =--table-presets-path= option
+The option allows to set the path to a directory that contains table presets.
+** Update the help output of =dsv= and its man page
 * Changes in version 0.5.1 (2022-02-05)
 ** Add Markdown table preset
     =dsv= now has Markdown table preset that allows to generate Markdown

@@ -34,13 +34,15 @@
              (dsv common)
              (dsv table)
              (dsv table-preset)
+             (dsv config)
              (dsv version)
              (dsv cli common))
 
 
 
-(define (print-help-and-exit)
-    (display "\
+(define (print-help-and-exit table-presets-path)
+    (display
+     (string-append "\
 Usage: dsv [options] <file>
 
 The default behavior of the program is to print a formatted table from a
@@ -104,6 +106,9 @@ Options:
                                - \"v=|,h=-,j=+\"
                                - org
 
+  --table-presets-path <path>
+                             Set the table preset path.
+                             Default value: " %table-presets-path "
   --to, -t <fmt>             Convert a file to a specified format, write
                              the result to stdout.
   --to-delimiter, -T <delim> Convert delimiters to the specified variant.
@@ -113,10 +118,11 @@ Options:
   --debug                    Enable state machine debugging.
 
 Table parameters:
-")
+"))
     (print-table-parameters (current-output-port))
     (display "\nTable presets:\n")
-    (print-table-presets (current-output-port))
+    (print-table-presets (current-output-port)
+                         #:table-presets-path table-presets-path)
   (exit))
 
 (define (print-version)
@@ -142,6 +148,7 @@ Written by Artyom V. Poptsov.
                         (with-header     (single-char #\H) (value #f))
                         (table-borders   (single-char #\b) (value #t))
                         (guess-delimiter (single-char #\d) (value #f))
+                        (table-presets-path                (value #t))
                         (to              (single-char #\t) (value #t))
                         (version                           (value #f))
                         (debug                             (value #f))))
@@ -160,6 +167,7 @@ Written by Artyom V. Poptsov.
                                    (cut string-ref <> 0)))
          (with-header?      (option-ref options 'with-header     #f))
          (table-borders     (option-ref options 'table-borders   ""))
+         (table-presets-path (option-ref options 'table-presets-path %table-presets-path))
          (to                (option-ref options 'to              #f))
          (version?          (option-ref options 'version         #f))
          (debug?            (option-ref options 'debug           #f))
@@ -168,7 +176,7 @@ Written by Artyom V. Poptsov.
     (set-debug! debug?)
 
     (when help-needed?
-      (print-help-and-exit))
+      (print-help-and-exit table-presets-path))
 
     (when version?
       (print-version)
@@ -182,7 +190,7 @@ Written by Artyom V. Poptsov.
         (print-summary input-port (string->dsv-format file-format) delimiter))
        (guess-delimiter?
         (print-delimiter input-port (string->dsv-format file-format)))
-       (to
+       (tonn
         (convert input-port
                  delimiter
                  to-delimiter
@@ -192,6 +200,7 @@ Written by Artyom V. Poptsov.
         (print-file input-port
                     (string->dsv-format file-format) table-borders
                     delimiter
+                    #:table-presets-path table-presets-path
                     #:with-header? with-header?
                     #:filter-col-proc (and filter-col-proc
                                            (eval-string
