@@ -76,7 +76,7 @@ $ guix install guile-dsv
 $ git clone https://github.com/artyom-poptsov/guile-dsv.git
 $ cd guile-dsv
 $ autoreconf -vif
-$ ./configure
+$ ./configure --prefix=/usr
 $ make -j$(nproc)
 $ sudo make install
 #+END_EXAMPLE
@@ -109,25 +109,64 @@ Options:
   --summary, -s              Print summary information for a file.
   --delimiter, -D <delim>    Set a delimiter.
   --guess-delimiter, -d      Guess a file delimiter and print the result.
+  --map-cell, -m <code>      Apply an arbitrary Scheme code on each cell value
+                             before printing.
+                             There are three variables that can be used in the code:
+                             - $value -- current cell value.
+                             - $row   -- current row number
+                             - $col   -- current column number.
+
+                             Code examples:
+                             '(if (> $value 0) $value 0)'
+                             '(string-append "\"" $value "\"")'
+
+                             Note that the code must return a string, that in turn
+                             will be printed in a cell.
+
+  --filter-row, -f <code>    Keep only rows for which CODE returns #t.
+                             There are two variables that can be used in the code:
+                             - $value -- current row content.
+                             - $row   -- current row number.
+
+                             For example with this code Guile-DSV keeps only rows
+                             that are 5 columns in length:
+                             '(= (length $value) 5)'
+
+  --filter-column, -c <procedure>
+                             Keep only columns for which PROCEDURE returns #t.
+                             There are two variables that can be used in the code:
+                             - $value -- current column content as a list.
+                             - $row   -- current column number.
+
+                             For example with this code Guile-DSV keeps only the 2nd
+                             column from the input data:
+                              '(= $col 2)'
+
   --file-format, -F <fmt>    Set a file format.  Possible formats are:
                              "unix" (default), "rfc4180"
   --with-header, -H          Use the first row of a table as a header when
-                             printing the table to the screen.                             
+                             printing the table to the screen.
   --table-borders, -b <spec> Set table borders for printing.  The value can be
                              either a borders specification or a preset name.
 
-                             Spec is expected to be a comma-separated list of
-                             key=value pairs.  The list of possible keys can be
-                             found below (see "Table parameters".)
+                             Spec can be a comma-separated list of key=value
+                             pairs that specify the table style.  The list of
+                             possible keys can be found below
+                             (see "Table parameters".)
+
+                             Also a table preset name can be used as the value.
+                             See "Table presets" below.
 
                              Example values:
                                - "v=|,h=-,j=+"
+                               - org
 
   --to, -t <fmt>             Convert a file to a specified format, write
                              the result to stdout.
   --to-delimiter, -T <delim> Convert delimiters to the specified variant.
                              When this option is not used, default delimiters
                              for the chosen output format will be used.
+  --version                  Print information about Guile-DSV version.
   --debug                    Enable state machine debugging.
 
 Table parameters:
@@ -163,6 +202,7 @@ Table presets:
   graphic-bold
   graphic-double
   graphic
+  markdown
   org
 #+end_example
 
