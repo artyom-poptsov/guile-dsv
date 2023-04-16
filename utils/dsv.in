@@ -59,8 +59,9 @@ Options:
                              - $row   -- current row number
                              - $col   -- current column number.
 
-                             Code example:
+                             Code examples:
                              '(if (> $value 0) $value 0)'
+                             '(string-append \"\\\"\" $value \"\\\"\")'
 
                              Note that the code must return a string, that in turn
                              will be printed in a cell.
@@ -91,12 +92,17 @@ Options:
   --table-borders, -b <spec> Set table borders for printing.  The value can be
                              either a borders specification or a preset name.
 
-                             Spec is expected to be a comma-separated list of
-                             key=value pairs.  The list of possible keys can be
-                             found below (see \"Table parameters\".)
+                             Spec can be a comma-separated list of key=value
+                             pairs that specify the table style.  The list of
+                             possible keys can be found below
+                             (see \"Table parameters\".)
+
+                             Also a table preset name can be used as the value.
+                             See \"Table presets\" below.
 
                              Example values:
                                - \"v=|,h=-,j=+\"
+                               - org
 
   --to, -t <fmt>             Convert a file to a specified format, write
                              the result to stdout.
