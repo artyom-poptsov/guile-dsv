@@ -28,6 +28,7 @@
   #:use-module (scheme documentation)
   #:use-module (ice-9 format)
   #:export (%table-parameters
+            string*
             print-table-parameters
             shorthand->table-parameter
             get-width
@@ -172,6 +173,11 @@
   "Print a FIELD to a PORT in a column with given WIDTH and PADDING."
   (format port (format #f " ~~~da " (+ width padding)) field))
 
+(define* (string* str k)
+  "Return a newly allocated string that is made from K instances of a string
+STR."
+  (string-join (make-list k str) ""))
+
 (define* (format-table table
                        borders
                        #:key
@@ -223,13 +229,9 @@
                                     (< shadow-x-offset 0))
                            (if (or (not row-number)
                                    (> row-number shadow-y-offset))
-                               (display (string-join (make-list (abs shadow-x-offset)
-                                                                shadow)
-                                                     "")
+                               (display (string* shadow (abs shadow-x-offset))
                                         port)
-                               (display (string-join (make-list (abs shadow-x-offset)
-                                                                " ")
-                                                     "")
+                               (display (string* " " (abs shadow-x-offset))
                                         port)))
                          (if border-left
                              (display border-left port)
@@ -254,13 +256,9 @@
                                     shadow-offset
                                     (> shadow-x-offset 0))
                            (if (> row-number shadow-y-offset)
-                               (display (string-join (make-list shadow-x-offset
-                                                                shadow)
-                                                     "")
+                               (display (string* shadow shadow-x-offset)
                                         port)
-                               (display (string-join (make-list shadow-x-offset
-                                                                " ")
-                                                     "")
+                               (display (string* " " shadow-x-offset)
                                         port)))
                          (newline port)))
          (display-line (lambda* (widths middle left right joint
@@ -272,13 +270,9 @@
                                     (< shadow-x-offset 0))
                            (if (or (not row-number)
                                    (> row-number shadow-y-offset))
-                               (display (string-join (make-list (abs shadow-x-offset)
-                                                                shadow)
-                                                     "")
+                               (display (string* shadow (abs shadow-x-offset))
                                         port)
-                               (display (string-join (make-list (abs shadow-x-offset)
-                                                                " ")
-                                                     "")
+                               (display (string* " " (abs shadow-x-offset))
                                         port)))
                          (if left
                              (display left port)
@@ -286,9 +280,7 @@
                          (let loop ((w widths))
                            (unless (null? w)
                              (let ((row-width (+ (car w) padding 2)))
-                               (display (string-join (make-list row-width
-                                                                middle)
-                                                     "")
+                               (display (string* middle row-width)
                                         port)
                                (unless (null? (cdr w))
                                  (if joint
@@ -303,13 +295,9 @@
                                     (> shadow-x-offset 0))
                            (if (or (not row-number)
                                    (> row-number shadow-y-offset))
-                               (display (string-join (make-list shadow-x-offset
-                                                                shadow)
-                                                     "")
+                               (display (string* shadow shadow-x-offset)
                                         port)
-                               (display (string-join (make-list shadow-x-offset
-                                                                " ")
-                                                     "")
+                               (display (string* " " shadow-x-offset)
                                         port)))
                          (newline port)))
          (display-header-border-top
@@ -387,8 +375,7 @@
                                    shadow
                                    #:port (current-output-port))))))
         (for-each (lambda (i)
-                    (display (string-join (make-list shadow-x-offset " ")
-                                          "")
+                    (display (string* " " shadow-x-offset)
                              port)
                     (display (string-copy str shadow-x-offset) port))
                   (iota (abs shadow-y-offset)))))
@@ -421,14 +408,11 @@
             (for-each (lambda (i)
                         (if (>= shadow-x-offset 0)
                             (begin
-                              (display (string-join (make-list shadow-x-offset " ")
-                                                    "")
+                              (display (string* " " shadow-x-offset)
                                        port)
                               (display (string-copy str (abs shadow-x-offset)) port))
                             (begin
-                              (display (string-join (make-list (abs shadow-x-offset)
-                                                               shadow)
-                                                    "")
+                              (display (string* shadow (abs shadow-x-offset))
                                        port)
                               (display str port))))
                       (iota shadow-y-offset)))))))
