@@ -84,7 +84,26 @@
   (let ((table (dsv-string->scm "a1,b1,c1\na2,b2,c2\na3,b3,c3\n" #\,)))
     (table-filter-column (lambda (value col) (not (= col 1))) table)))
 
-  
+(test-equal "table-format-field"
+  ;; .--------------------------------------------------------.
+  ;; | space      | purpose              | value              |
+  ;; |============+======================+====================|
+  ;; | 1          | field separator      | " "                |
+  ;; |------------+----------------------+--------------------|
+  ;; | 10         | field space          | "a          "      |
+  ;; |------------+----------------------+--------------------|
+  ;; | 5          | padding              | "     "            |
+  ;; |------------+----------------------+--------------------|
+  ;; | 1          | field separator      | " "                |
+  ;; '--------------------------------------------------------'
+  " a               "
+  (with-output-to-string
+    (lambda ()
+      (table-format-field "a"
+                          10
+                          #:padding 5))))
+
+
 (define exit-status (test-runner-fail-count (test-runner-current)))
 
 (test-end %test-name)
