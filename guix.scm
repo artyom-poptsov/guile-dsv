@@ -45,7 +45,8 @@
              (gnu packages guile)
              (gnu packages guile-xyz)
              (gnu packages pkg-config)
-             (gnu packages texinfo))
+             (gnu packages texinfo)
+             (gnu packages man))
 
 
 (define %source-dir (dirname (current-filename)))
@@ -59,7 +60,7 @@
                       #:select? (git-predicate %source-dir)))
     (build-system gnu-build-system)
     (native-inputs
-     (list autoconf automake pkg-config texinfo))
+     (list autoconf automake pkg-config texinfo help2man))
     (inputs (list guile-3.0))
     (propagated-inputs (list guile-lib))
     (arguments
