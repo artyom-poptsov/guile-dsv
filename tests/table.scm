@@ -103,6 +103,10 @@
                           10
                           #:padding 5))))
 
+(test-equal "string*"
+  "aaaaa"
+  (string* "a" 5))
+
 
 (define exit-status (test-runner-fail-count (test-runner-current)))
 
