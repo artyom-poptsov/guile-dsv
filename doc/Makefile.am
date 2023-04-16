@@ -32,6 +32,7 @@ AM_V_HELP2MAN_ = $(AM_V_HELP2MAN_$(AM_DEFAULT_VERBOSITY))
 AM_V_HELP2MAN_0 = @echo "  HELP2MAN" $@;
 ##
 gen_man =							\
+	GUILE_DSV_TABLE_PRESETS_PATH=$(top_builddir)/presets	\
 	LANGUAGE= $(top_builddir)/pre-inst-env $(HELP2MAN)	\
 	$(HELP2MANFLAGS)
 
