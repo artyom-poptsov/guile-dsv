@@ -1,6 +1,6 @@
 ;;; preset.scm -- Guile-DSV table presets.
 
-;; Copyright (C) 2021 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2021-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -35,9 +35,11 @@
             table-preset-name?))
 
 
-(define (print-table-presets port)
+(define* (print-table-presets port
+                              #:key
+                              (table-presets-path %table-presets-path))
   "Print all known table presets to a PORT."
-  (let ((dir (scandir %table-presets-path
+  (let ((dir (scandir table-presets-path
                       (lambda (name)
                         (not (string-prefix? "." name))))))
     (for-each (lambda (d)
@@ -46,10 +48,12 @@
                         (car (string-split d #\.))))
               dir)))
 
-(define (load-table-preset name)
+(define* (load-table-preset name
+                            #:key
+                            (table-presets-path %table-presets-path))
   "Read table borders specification form a FILE.  Return the specification as a
 list."
-  (let ((file-path (string-append %table-presets-path
+  (let ((file-path (string-append table-presets-path
                                   name
                                   ".scm")))
     (unless (file-exists? file-path)
