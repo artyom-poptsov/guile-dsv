@@ -1,6 +1,6 @@
 ## Makefile.am -- Config file for GNU Automake.
 ##
-## Copyright (C) 2021 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+## Copyright (C) 2021-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ##
 ## This file is part of Guile-DSV.
 ##
@@ -22,6 +22,7 @@ dist_presets_DATA = \
 	graphic.scm		\
 	graphic-bold.scm	\
 	graphic-double.scm	\
+	graphic-with-shadow.scm	\
 	markdown.scm		\
 	org.scm
 
