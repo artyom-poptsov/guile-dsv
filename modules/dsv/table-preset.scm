@@ -42,6 +42,8 @@
   (let ((dir (scandir table-presets-path
                       (lambda (name)
                         (not (string-prefix? "." name))))))
+    (unless dir
+      (error "Could not read a directory" table-presets-path))
     (for-each (lambda (d)
                 (format port
                         "  ~a~%"
