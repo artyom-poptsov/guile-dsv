@@ -1,6 +1,6 @@
 ;;; table.scm -- Procedures to print fancy tables in a console.
 
-;; Copyright (C) 2021-2022 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2021-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
             shorthand->table-parameter
             get-width
             format-table
+            table-format-field
             table-map
             table-filter-row
             table-filter-column))
@@ -164,6 +165,13 @@
 
 
 
+(define* (table-format-field field width
+                             #:key
+                             (padding 0)
+                             (port (current-output-port)))
+  "Print a FIELD to a PORT in a column with given WIDTH and PADDING."
+  (format port (format #f " ~~~da " (+ width padding)) field))
+
 (define* (format-table table
                        borders
                        #:key
@@ -208,11 +216,6 @@
          (shadow-y-offset     (and shadow-offset
                                    (cadr shadow-offset)))
          (width        (get-width table))
-         (format-field (lambda (field width)
-                         "Print a FIELD in a column with given WIDTH."
-                         (format port
-                                 (format #f " ~~~da " (+ width padding))
-                                 field)))
          (format-row   (lambda* (row width border-left border-right separator
                                      #:key (row-number 0))
                          (when (and shadow
@@ -236,7 +239,9 @@
                            (unless (null? fields)
                              (let ((f (car fields))
                                    (w (car field-widths)))
-                               (format-field f w)
+                               (table-format-field f w
+                                                   #:padding padding
+                                                   #:port port)
                                (if (null? (cdr fields))
                                    (if border-right
                                        (display border-right port)
