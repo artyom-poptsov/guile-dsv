@@ -158,7 +158,7 @@ Options:
                              See "Table presets" below.
 
                              Example values:
-                               - "v=|,h=-,j=+"
+                               - "cs=|,rs=-,j=+"
                                - org
 
   --to, -t <fmt>             Convert a file to a specified format, write
