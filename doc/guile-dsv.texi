@@ -331,6 +331,21 @@ Examples:
 Module @code{(dsv table)} provides procedures for working with parsed DSV
 tables.
 
+@deffn {Scheme Procedure} string* str k
+Multiply a string @var{str} by @var{k} in a Python way to construct a new
+string from Kth instances of @var{str}.  Return the new string.
+@end deffn
+
+@deffn {Scheme Procedure} stylize str style
+Use a @var{style} terminal escape codes to change the style of a string
+@var{str}.  Return the styled string with escape codes.
+@end deffn
+
+@deffn {Scheme Procedure} table-print-element element port
+Print an @var{element} of a table to a @var{port}.  If an @var{element} is
+@code{#f}, then print a single space.
+@end deffn
+
 @deffn {Scheme Procedure} print-table-parameters port
 Print all known table parameters to a @var{port}.
 @end deffn
