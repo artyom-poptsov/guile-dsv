@@ -133,7 +133,8 @@
                           (table-filter-row filter-row-proc table)
                           table)))
            (bspec (let ((borders (borders->alist borders)))
-                    (if (table-preset-name? (car borders))
+                    (if (and (string? (car borders))
+                             (table-preset-name? (car borders)))
                         (override
                          (load-table-preset (car borders)
                                             #:table-presets-path table-presets-path)
