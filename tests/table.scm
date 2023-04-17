@@ -125,6 +125,12 @@
     (lambda ()
       (table-print-element #f (current-output-port)))))
 
+(test-equal "get-width"
+  '(1 2 3)
+  (get-width '(("a" "b"  "c")
+               ("d" "ee" "f")
+               ("g" "i"  "jjj"))))
+
 
 (define exit-status (test-runner-fail-count (test-runner-current)))
 
