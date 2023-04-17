@@ -221,7 +221,7 @@ STR."
          (shadow-offset       (assoc-ref borders 'shadow-offset))
          (shadow-offset       (and shadow-offset
                                    (map string->number
-                                        (string-split shadow-offset #\,))))
+                                        (string-split shadow-offset #\:))))
          (shadow-x-offset     (and shadow-offset
                                    (car shadow-offset)))
          (shadow-y-offset     (and shadow-offset
