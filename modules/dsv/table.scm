@@ -41,45 +41,49 @@
 
 (define-with-docs %table-parameters
   "Associative list of all known table parameters."
-  '((bt  . border-top)
-    (btl . border-top-left)
-    (btr . border-top-right)
-    (btj . border-top-joint)
-    (bl  . border-left)
-    (blj . border-left-joint)
-    (br  . border-right)
-    (brj . border-right-joint)
-    (bb  . border-bottom)
-    (bbl . border-bottom-left)
-    (bbr . border-bottom-right)
-    (bbj . border-bottom-joint)
+  '((bt    border-top          "The top border.")
+    (btl   border-top-left     "The top left corner.")
+    (btr   border-top-right    "The top right corner.")
+    (btj   border-top-joint    "The top border joint.")
+    (bl    border-left         "The left table border.")
+    (blj   border-left-joint   "The left table border joint.")
+    (br    border-right        "The right table border.")
+    (brj   border-right-joint  "The right table border joint.")
+    (bb    border-bottom       "The bottom border.")
+    (bbl   border-bottom-left  "The left corner of the bottom border.")
+    (bbr   border-bottom-right "The right corner of the bottom border.")
+    (bbj   border-bottom-joint "The bottom border joint.")
     ;; Shadow.
-    (s   . shadow)
-    (so  . shadow-offset)
+    (s     shadow              "The table shadow.")
+    (so    shadow-offset       "The table shadow offset in format \"x:y\" (e.g. \"2:2\".)")
     ;; Inner table lines.
-    (rs  . row-separator)
-    (rj  . row-joint)
-    (cs  . column-separator)
+    (rs    row-separator       "The table row separator.")
+    (rj    row-joint           "The row joint.")
+    (cs    column-separator    "The table column separator")
     ;; Headers.
-    (ht  . header-top)
-    (htl . header-top-left)
-    (htr . header-top-right)
-    (htj . header-top-joint)
-    (hl  . header-left)
-    (hr  . header-right)
-    (hcs . header-column-separator)
-    (hb  . header-bottom)
-    (hbl . header-bottom-left)
-    (hbr . header-bottom-right)
-    (hbj . header-bottom-joint)))
+    (ht    header-top          "The header top border.")
+    (htl   header-top-left     "The header top left border.")
+    (htr   header-top-right    "The header top right border.")
+    (htj   header-top-joint    "The header top joint.")
+    (hl    header-left         "The header left border.")
+    (hr    header-right        "The header right border.")
+    (hcs   header-column-separator "The header column separator.")
+    (hb    header-bottom       "The header bottom border.")
+    (hbl   header-bottom-left  "The header bottom left corner.")
+    (hbr   header-bottom-right "The header bottom right border.")
+    (hbj   header-bottom-joint "The header bottom joint.")))
 
 (define (print-table-parameters port)
   "Print all known table parameters to a PORT."
   (for-each (lambda (param)
-              (format port
-                      "  ~4a ~a~%"
-                      (car param)
-                      (cdr param)))
+              (let ((param-shorthand   (car param))
+                    (param-long        (cadr param))
+                    (param-description (caddr param)))
+                (format port
+                        "  ~4a ~25a ~a~%"
+                        param-shorthand
+                        param-long
+                        param-description)))
             %table-parameters))
 
 (define (shorthand->table-parameter sh)
@@ -92,7 +96,7 @@
               "Known table parameters are:~%")
       (print-table-parameters (current-error-port))
       (exit 1))
-    param))
+    (car param)))
 
 
 
