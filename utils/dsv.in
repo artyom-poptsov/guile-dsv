@@ -102,6 +102,10 @@ Options:
                              Also a table preset name can be used as the value.
                              See \"Table presets\" below.
 
+                             Table preset parameters can be overridden by specifying
+                             extra parameters after the preset name.  E.g.:
+                               \"graphic,bs=3;31\"
+
                              Example values:
                                - \"v=|,h=-,j=+\"
                                - org
