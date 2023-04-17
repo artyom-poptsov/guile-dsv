@@ -29,6 +29,7 @@
   #:use-module (ice-9 format)
   #:export (%table-parameters
             string*
+            table-print-element
             print-table-parameters
             shorthand->table-parameter
             get-width
@@ -178,6 +179,10 @@
 STR."
   (string-join (make-list k str) ""))
 
+(define (table-print-element element port)
+  "Print a table ELEMENT to a PORT, or a single space if element is #f."
+  (display (if element element " ") port))
+
 (define* (format-table table
                        borders
                        #:key
@@ -233,9 +238,7 @@ STR."
                                         port)
                                (display (string* " " (abs shadow-x-offset))
                                         port)))
-                         (if border-left
-                             (display border-left port)
-                             (display " " port))
+                         (table-print-element border-left port)
                          (let field-loop ((fields       row)
                                           (field-widths width))
                            (unless (null? fields)
@@ -245,12 +248,8 @@ STR."
                                                    #:padding padding
                                                    #:port port)
                                (if (null? (cdr fields))
-                                   (if border-right
-                                       (display border-right port)
-                                       (display " " port))
-                                   (if separator
-                                       (display separator port)
-                                       (display " " port)))
+                                   (table-print-element border-right port)
+                                   (table-print-element separator port))
                                (field-loop (cdr fields) (cdr field-widths)))))
                          (when (and shadow
                                     shadow-offset
@@ -274,22 +273,16 @@ STR."
                                         port)
                                (display (string* " " (abs shadow-x-offset))
                                         port)))
-                         (if left
-                             (display left port)
-                             (display " " port))
+                         (table-print-element left port)
                          (let loop ((w widths))
                            (unless (null? w)
                              (let ((row-width (+ (car w) padding 2)))
                                (display (string* middle row-width)
                                         port)
                                (unless (null? (cdr w))
-                                 (if joint
-                                     (display joint port)
-                                     (display " " port))))
+                                 (table-print-element joint port)))
                              (loop (cdr w))))
-                         (if right
-                             (display right port)
-                             (display " " port))
+                         (table-print-element right port)
                          (when (and shadow
                                     shadow-offset
                                     (> shadow-x-offset 0))

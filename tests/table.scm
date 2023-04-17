@@ -107,6 +107,18 @@
   "aaaaa"
   (string* "a" 5))
 
+(test-equal "table-print-element: string"
+  "#"
+  (with-output-to-string
+    (lambda ()
+      (table-print-element "#" (current-output-port)))))
+
+(test-equal "table-print-element: #f"
+  " "
+  (with-output-to-string
+    (lambda ()
+      (table-print-element #f (current-output-port)))))
+
 
 (define exit-status (test-runner-fail-count (test-runner-current)))
 
