@@ -57,8 +57,10 @@
   (if (not (string-null? borders))
       (map (lambda (s)
              (let ((lst (string-split s #\=)))
-               (cons (shorthand->table-parameter (string->symbol (car lst)))
-                     (cadr lst))))
+               (if (= (length lst) 1)
+                   (car lst)
+                   (cons (shorthand->table-parameter (string->symbol (car lst)))
+                         (cadr lst)))))
            (car (dsv-string->scm borders #\,)))
       '()))
 
@@ -97,6 +99,13 @@
   (let ((p (open-input-file file)))
     (length (dsv->scm p delim #:format fmt))))
 
+(define (override preset borders)
+  (if (null? borders)
+      preset
+      (let ((bspec (car borders)))
+        (override (acons (car bspec) (cdr bspec) preset)
+                  (cdr borders)))))
+
 
 (define* (print-file input-port fmt borders delim
                      #:key
@@ -123,10 +132,13 @@
                       (if filter-row-proc
                           (table-filter-row filter-row-proc table)
                           table)))
-           (bspec (if (table-preset-name? borders)
-                      (load-table-preset borders
-                                         #:table-presets-path table-presets-path)
-                      (borders->alist borders))))
+           (bspec (let ((borders (borders->alist borders)))
+                    (if (table-preset-name? (car borders))
+                        (override
+                         (load-table-preset (car borders)
+                                            #:table-presets-path table-presets-path)
+                         (cdr borders))
+                        borders))))
       (format-table table bspec #:with-header? with-header?))))
 
 (define (print-summary input-port fmt delim)
