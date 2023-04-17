@@ -97,11 +97,9 @@
   ;; | 1          | field separator      | " "                |
   ;; '--------------------------------------------------------'
   " a               "
-  (with-output-to-string
-    (lambda ()
-      (table-format-field "a"
-                          10
-                          #:padding 5))))
+  (table-format-field "a"
+                      10
+                      #:padding 5))
 
 (test-equal "string*"
   "aaaaa"
