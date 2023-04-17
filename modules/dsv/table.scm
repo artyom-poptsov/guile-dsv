@@ -57,7 +57,7 @@
     (ts    text-style          "The text style (\"fg;bg\".)")
     ;; Shadow.
     (s     shadow              "The table shadow.")
-    (so    shadow-offset       "The table shadow offset in format \"x:y\" (e.g. \"2:2\".)")
+    (so    shadow-offset       "The table shadow offset in format \"x;y\" (e.g. \"2;2\".)")
     (ss    shadow-style        "The style of the shadow (\"fg;bg\".)")
     ;; Inner table lines.
     (rs    row-separator       "The table row separator.")
@@ -239,7 +239,7 @@ STR."
          (shadow-offset       (assoc-ref borders 'shadow-offset))
          (shadow-offset       (and shadow-offset
                                    (map string->number
-                                        (string-split shadow-offset #\:))))
+                                        (string-split shadow-offset #\;))))
          (shadow-x-offset     (and shadow-offset
                                    (car shadow-offset)))
          (shadow-y-offset     (and shadow-offset

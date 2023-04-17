@@ -33,7 +33,7 @@
  (border-right-joint      . "┤")
  ;; Shadow.
  (shadow                     . "░")
- (shadow-offset              . "2:1")   ; x:y
+ (shadow-offset              . "2;1")   ; x;y
  ;; Inner table lines style.
  (row-separator           . "─")
  (row-joint               . "┼")
