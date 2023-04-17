@@ -35,7 +35,6 @@ The option allows to set the path to a directory that contains table presets.
 ** =dsv= now reads =GUILE_DSV_TABLE_PRESETS_PATH= environment variable
 This environment variable allows to specify the directory that contains table
 presets, akin to =--table-presets-path= option.
-** Table presets now allow to specify a table shadow symbol and offsets
 ** Table presets now allow to specify styles
 The styles are in the format of GNU/Linux terminal colors, e.g. "107;100".
 See the manual page for "dsv" or =dsv --help= for details.
@@ -43,6 +42,12 @@ See the manual page for "dsv" or =dsv --help= for details.
 For example:
 #+begin_example shell
 $ dsv -b "graphic-with-shadow,bs=107;100,ts=107;100"
+#+end_example
+** Table presets now allow to specify a table shadow symbol and offsets
+For example, a simple table with a semi-graphic shadow "░" with an offset
+"2;1" can be created using the "graphic" preset with overrides:
+#+begin_example shell
+$ echo -e "a1,b1,c1\na2,b2,c2\n" | dsv -b "graphic,s=░,so=2;1,ss=1;37,ts=1;44,bs=1;44"
 #+end_example
 ** Update the help output of =dsv= and its man page
 
