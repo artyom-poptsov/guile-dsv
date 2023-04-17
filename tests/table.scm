@@ -105,6 +105,14 @@
   "aaaaa"
   (string* "a" 5))
 
+(test-equal "stylize: string"
+  "[31;1mtest[0m"
+  (stylize "test" "31;1"))
+
+(test-equal "stylize: #f"
+  "test"
+  (stylize "test" #f))
+
 (test-equal "table-print-element: string"
   "#"
   (with-output-to-string

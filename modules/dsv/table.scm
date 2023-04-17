@@ -29,6 +29,7 @@
   #:use-module (ice-9 format)
   #:export (%table-parameters
             string*
+            stylize
             table-print-element
             print-table-parameters
             shorthand->table-parameter
