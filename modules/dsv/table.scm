@@ -53,14 +53,18 @@
     (bbl   border-bottom-left  "The left corner of the bottom border.")
     (bbr   border-bottom-right "The right corner of the bottom border.")
     (bbj   border-bottom-joint "The bottom border joint.")
+    (bs    border-style        "The style of the borders (\"fg;bg\".)")
+    (ts    text-style          "The text style (\"fg;bg\".)")
     ;; Shadow.
     (s     shadow              "The table shadow.")
     (so    shadow-offset       "The table shadow offset in format \"x:y\" (e.g. \"2:2\".)")
+    (ss    shadow-style        "The style of the shadow (\"fg;bg\".)")
     ;; Inner table lines.
     (rs    row-separator       "The table row separator.")
     (rj    row-joint           "The row joint.")
     (cs    column-separator    "The table column separator")
     ;; Headers.
+    (hs    header-style        "The header style (\"fg;bg\".)")
     (ht    header-top          "The header top border.")
     (htl   header-top-left     "The header top left border.")
     (htr   header-top-right    "The header top right border.")
@@ -173,15 +177,22 @@
 
 (define* (table-format-field field width
                              #:key
-                             (padding 0)
-                             (port (current-output-port)))
-  "Print a FIELD to a PORT in a column with given WIDTH and PADDING."
-  (format port (format #f " ~~~da " (+ width padding)) field))
+                             (padding 0))
+  "Print a FIELD in a column with given WIDTH and PADDING.  Return a string."
+  (format #f (format #f " ~~~da " (+ width padding)) field))
 
 (define* (string* str k)
   "Return a newly allocated string that is made from K instances of a string
 STR."
   (string-join (make-list k str) ""))
+
+(define (stylize str style)
+  (if style
+      (format #f
+              "[~am~a[0m"
+              style
+              str)
+      str))
 
 (define (table-print-element element port)
   "Print a table ELEMENT to a PORT, or a single space if element is #f."
@@ -217,11 +228,14 @@ STR."
          (header-right        (assoc-ref borders 'header-right))
          (header-column-separator (assoc-ref borders
                                              'header-column-separator))
+         (border-style        (assoc-ref borders 'border-style))
+         (header-style        (assoc-ref borders 'header-style))
          (header-bottom       (assoc-ref borders 'header-bottom))
          (header-bottom-left  (assoc-ref borders 'header-bottom-left))
          (header-bottom-right (assoc-ref borders 'header-bottom-right))
          (header-bottom-joint (assoc-ref borders 'header-bottom-joint))
          (shadow              (assoc-ref borders 'shadow))
+         (shadow-style        (assoc-ref borders 'shadow-style))
          (shadow-offset       (assoc-ref borders 'shadow-offset))
          (shadow-offset       (and shadow-offset
                                    (map string->number
@@ -230,36 +244,55 @@ STR."
                                    (car shadow-offset)))
          (shadow-y-offset     (and shadow-offset
                                    (cadr shadow-offset)))
+         (text-style          (assoc-ref borders 'text-style))
          (width        (get-width table))
          (format-row   (lambda* (row width border-left border-right separator
-                                     #:key (row-number 0))
+                                     #:key
+                                     (row-number 0)
+                                     (type 'body))
                          (when (and shadow
                                     shadow-offset
                                     (< shadow-x-offset 0))
                            (if (or (not row-number)
                                    (> row-number shadow-y-offset))
-                               (display (string* shadow (abs shadow-x-offset))
+                               (display (stylize
+                                         (string* shadow (abs shadow-x-offset))
+                                         shadow-style)
                                         port)
                                (display (string* " " (abs shadow-x-offset))
                                         port)))
-                         (table-print-element border-left port)
+                         (table-print-element (stylize border-left
+                                                       border-style)
+                                              port)
                          (let field-loop ((fields       row)
                                           (field-widths width))
                            (unless (null? fields)
                              (let ((f (car fields))
                                    (w (car field-widths)))
-                               (table-format-field f w
-                                                   #:padding padding
-                                                   #:port port)
+                               (display (stylize
+                                         (table-format-field f w
+                                                             #:padding padding)
+                                         (if (equal? type 'body)
+                                             text-style
+                                             (if header-style
+                                                 header-style
+                                                 text-style)))
+                                        port)
                                (if (null? (cdr fields))
-                                   (table-print-element border-right port)
-                                   (table-print-element separator port))
+                                   (table-print-element (stylize border-right
+                                                                 border-style)
+                                                        port)
+                                   (table-print-element (stylize separator
+                                                                 border-style)
+                                                        port))
                                (field-loop (cdr fields) (cdr field-widths)))))
                          (when (and shadow
                                     shadow-offset
                                     (> shadow-x-offset 0))
                            (if (> row-number shadow-y-offset)
-                               (display (string* shadow shadow-x-offset)
+                               (display (stylize
+                                         (string* shadow shadow-x-offset)
+                                         shadow-style)
                                         port)
                                (display (string* " " shadow-x-offset)
                                         port)))
@@ -273,7 +306,8 @@ STR."
                                     (< shadow-x-offset 0))
                            (if (or (not row-number)
                                    (> row-number shadow-y-offset))
-                               (display (string* shadow (abs shadow-x-offset))
+                               (display (stylize (string* shadow (abs shadow-x-offset))
+                                                 shadow-style)
                                         port)
                                (display (string* " " (abs shadow-x-offset))
                                         port)))
@@ -292,7 +326,8 @@ STR."
                                     (> shadow-x-offset 0))
                            (if (or (not row-number)
                                    (> row-number shadow-y-offset))
-                               (display (string* shadow shadow-x-offset)
+                               (display (stylize (string* shadow shadow-x-offset)
+                                                 shadow-style)
                                         port)
                                (display (string* " " shadow-x-offset)
                                         port)))
@@ -300,42 +335,42 @@ STR."
          (display-header-border-top
           (lambda (widths)
             (display-line widths
-                          header-top
-                          header-top-left
-                          header-top-right
-                          header-top-joint
+                          (stylize header-top border-style)
+                          (stylize header-top-left border-style)
+                          (stylize header-top-right border-style)
+                          (stylize header-top-joint border-style)
                           #:row-number 0)))
          (display-header-border-bottom
           (lambda (widths)
             (display-line widths
-                          header-bottom
-                          header-bottom-left
-                          header-bottom-right
-                          header-bottom-joint
+                          (stylize header-bottom border-style)
+                          (stylize header-bottom-left border-style)
+                          (stylize header-bottom-right border-style)
+                          (stylize header-bottom-joint border-style)
                           #:row-number 2)))
          (display-top-border (lambda (widths)
                                "Display a top horisontal table border."
                                (display-line widths
-                                             border-top
-                                             border-top-left
-                                             border-top-right
-                                             border-top-joint
+                                             (stylize border-top border-style)
+                                             (stylize border-top-left border-style)
+                                             (stylize border-top-right border-style)
+                                             (stylize border-top-joint border-style)
                                              #:row-number 0)))
          (display-bottom-border (lambda (widths row-number)
                                   "Display a top horisontal table border."
                                   (display-line widths
-                                                border-bottom
-                                                border-bottom-left
-                                                border-bottom-right
-                                                border-bottom-joint
+                                                (stylize border-bottom border-style)
+                                                (stylize border-bottom-left border-style)
+                                                (stylize border-bottom-right border-style)
+                                                (stylize border-bottom-joint border-style)
                                                 #:row-number row-number)))
          (display-row-separator (lambda (widths row-number)
                                   "Display a top horisontal table border."
                                   (display-line widths
-                                                row-separator
-                                                border-left-joint
-                                                border-right-joint
-                                                row-joint
+                                                (stylize row-separator border-style)
+                                                (stylize border-left-joint border-style)
+                                                (stylize border-right-joint border-style)
+                                                (stylize row-joint border-style)
                                                 #:row-number row-number)))
          (display-table (lambda (table)
                           (unless with-header?
@@ -374,7 +409,8 @@ STR."
         (for-each (lambda (i)
                     (display (string* " " shadow-x-offset)
                              port)
-                    (display (string-copy str shadow-x-offset) port))
+                    (display (shadow-style (string-copy str shadow-x-offset))
+                             port))
                   (iota (abs shadow-y-offset)))))
 
     (if with-header?
@@ -386,6 +422,7 @@ STR."
                       header-left
                       header-right
                       header-column-separator
+                      #:type 'header
                       #:row-number 2)
           (when header-bottom
             (display-header-border-bottom width))
@@ -407,11 +444,14 @@ STR."
                             (begin
                               (display (string* " " shadow-x-offset)
                                        port)
-                              (display (string-copy str (abs shadow-x-offset)) port))
+                              (display (stylize (string-copy str (abs shadow-x-offset))
+                                                shadow-style)
+                                       port))
                             (begin
-                              (display (string* shadow (abs shadow-x-offset))
+                              (display (stylize (string* shadow (abs shadow-x-offset))
+                                                shadow-style)
                                        port)
-                              (display str port))))
+                              (display (stylize str shadow-style) port))))
                       (iota shadow-y-offset)))))))
 
 ;;; table.scm ends here.
