@@ -255,7 +255,7 @@ STR."
                                     shadow-offset
                                     (< shadow-x-offset 0))
                            (if (or (not row-number)
-                                   (> row-number shadow-y-offset))
+                                   (>= row-number shadow-y-offset))
                                (display (stylize
                                          (string* shadow (abs shadow-x-offset))
                                          shadow-style)
@@ -304,7 +304,7 @@ STR."
                                         (port port))
                          (when (and shadow
                                     shadow-offset
-                                    (< shadow-x-offset 0))
+                                    (<= shadow-x-offset 0))
                            (if (or (not row-number)
                                    (> row-number shadow-y-offset))
                                (display (stylize (string* shadow (abs shadow-x-offset))
@@ -324,7 +324,7 @@ STR."
                          (table-print-element right port)
                          (when (and shadow
                                     shadow-offset
-                                    (> shadow-x-offset 0))
+                                    (>= shadow-x-offset 0))
                            (if (or (not row-number)
                                    (> row-number shadow-y-offset))
                                (display (stylize (string* shadow shadow-x-offset)
@@ -380,7 +380,7 @@ STR."
                           (let loop ((t table)
                                      (row-number (if (and with-header?
                                                           border-top)
-                                                     2
+                                                     3
                                                      1)))
                             (unless (null? t)
                               (format-row (car t)
@@ -410,7 +410,7 @@ STR."
         (for-each (lambda (i)
                     (display (string* " " shadow-x-offset)
                              port)
-                    (display (shadow-style (string-copy str shadow-x-offset))
+                    (display (stylize (string-copy str shadow-x-offset) shadow-style)
                              port))
                   (iota (abs shadow-y-offset)))))
 
@@ -424,7 +424,7 @@ STR."
                       header-right
                       header-column-separator
                       #:type 'header
-                      #:row-number 2)
+                      #:row-number 1)
           (when header-bottom
             (display-header-border-bottom width))
           (display-table (cdr table)))
