@@ -7,7 +7,7 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   are permitted in any medium without royalty provided the copyright
   notice and this notice are preserved.
 
-* Unreleased
+* Changes in version 0.5.2 (2023-04-18)
 ** Bugfixes
 *** RFC 4180 now handles empty trailing fields correctly
 The library would skip a trailing empty field in a row thus a row shorter than
