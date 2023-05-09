@@ -27,6 +27,7 @@
 (define-module (dsv table)
   #:use-module (scheme documentation)
   #:use-module (ice-9 format)
+  #:use-module (srfi srfi-1)
   #:export (%table-parameters
             string*
             stylize
@@ -110,7 +111,13 @@
   (let loop ((rows table)
              (res  '()))
     (if (not (null? rows))
-        (let ((w (map string-length (car rows))))
+        (let ((w (map (lambda (e)
+                        (cond
+                         ((list? e)
+                          (string-length (car e)))
+                         (else
+                          (string-length e))))
+                      (car rows))))
           (cond
            ((null? res)
             (loop (cdr rows) w))
@@ -195,6 +202,73 @@ STR."
               str)
       str))
 
+(define (string-slice s width)
+  "Slice a string S into parts of WIDTH length.  Return the list of strings."
+  (let ((slen (string-length s)))
+    (let loop ((idx    0)
+               (result '()))
+      (if (>= (+ idx width) slen)
+          (reverse (cons (string-copy s idx slen) result))
+          (loop (+ idx width)
+                (cons (string-copy s idx (+ idx width)) result))))))
+
+(define (table-wrap-row row widths)
+  "Wrap a table ROW to fit each cell it into the specified WIDTHS.  Return a
+list where each row is represented as a sub-list of strings."
+  (let loop ((r row)
+             (w widths)
+             (result '()))
+    (if (null? r)
+        (reverse result)
+        (let* ((cell   (car r))
+               (cell-w (car w))
+               (new-cell (string-slice cell cell-w)))
+          (loop (cdr r)
+                (cdr w)
+                (cons new-cell result))))))
+
+(define (table-group wrapped-strings)
+  (let loop ((data wrapped-strings)
+             (result '()))
+    (let* ((row (map (lambda (col)
+                       (if (null? col)
+                           ""
+                           (car col)))
+                     data))
+           (new-data (map (lambda (col)
+                            (if (null? col)
+                                '()
+                                (cdr col)))
+                          data))
+           (has-next? (find (lambda (col)
+                              (not (null? col)))
+                            new-data)))
+      (if has-next?
+          (loop new-data (cons row result))
+          (reverse (cons row result))))))
+
+(define* (table-wrap table
+                     current-column-widths
+                     #:key
+                     (width 80)
+                     (padding 0))
+  (let* ((column-count (length (car table)))
+         (current-total-width (fold + 0 current-column-widths))
+         (percents (map (lambda (w)
+                          (* (/ w current-total-width) 100.0))
+                        current-column-widths))
+         (new-widths (map (lambda (p)
+                            (inexact->exact (ceiling (* (/ p 100.0) width))))
+                          percents)))
+    (let loop ((old-table table)
+               (new-table '()))
+      (if (null? old-table)
+          new-table
+          (let* ((old-row  (car old-table))
+                 (new-rows (table-wrap-row old-row new-widths)))
+            (loop (cdr old-table)
+                  (append (list new-rows) new-table)))))))
+
 (define (table-print-element element port)
   "Print a table ELEMENT to a PORT, or a single space if element is #f."
   (display (if element element " ") port))
@@ -202,10 +276,16 @@ STR."
 (define* (format-table table
                        borders
                        #:key
+                       (width #f)
                        (with-header? #f)
                        (port (current-output-port)))
   "Format file and print it to a PORT."
   (let* ((padding 5)
+
+         (table  (if width
+                     (table-wrap table (get-width table) #:width width)
+                     table))
+         (row-widths        (get-width table))
          (column-separator    (or (assoc-ref borders 'column-separator) ""))
          (row-separator       (assoc-ref borders 'row-separator))
          (row-joint           (assoc-ref borders 'row-joint))
@@ -246,7 +326,6 @@ STR."
          (shadow-y-offset     (and shadow-offset
                                    (cadr shadow-offset)))
          (text-style          (assoc-ref borders 'text-style))
-         (width        (get-width table))
          (format-row   (lambda* (row width border-left border-right separator
                                      #:key
                                      (row-number 0)
@@ -374,34 +453,68 @@ STR."
                                                 (stylize row-joint border-style)
                                                 #:row-number row-number)))
          (display-table (lambda (table)
+                          (define (write-separator t row-number)
+                            (when row-separator
+                              (if (null? (cdr t))
+                                  (when border-bottom
+                                    (display-bottom-border row-widths row-number))
+                                  (display-row-separator row-widths (+ row-number 1)))))
                           (unless with-header?
                             (when border-top
-                              (display-top-border width)))
+                              (display-top-border row-widths)))
                           (let loop ((t table)
                                      (row-number (if (and with-header?
                                                           border-top)
                                                      3
                                                      1)))
                             (unless (null? t)
-                              (format-row (car t)
-                                          width
-                                          border-left
-                                          border-right
-                                          column-separator
-                                          #:row-number row-number)
-                              (when row-separator
-                                (if (null? (cdr t))
-                                    (when border-bottom
-                                      (display-bottom-border width row-number))
-                                    (display-row-separator width (+ row-number 1))))
-                              (loop (cdr t) (+ row-number 2)))))))
+                              (let ((row (car t)))
+                                (if (list? (car row))
+                                    (let lp ((r row)
+                                             (rnum row-number))
+                                      (if (not (find (lambda (c)
+                                                       (not (null? c)))
+                                                     r))
+                                          (begin
+                                            (write-separator t rnum)
+                                            (loop (cdr t) (+ rnum 2)))
+                                          (let ((part (map (lambda (e)
+                                                             (cond
+                                                              ((null? e)
+                                                               "")
+                                                              (else
+                                                               (car e))))
+                                                             r)))
+                                            (format-row part
+                                                        row-widths
+                                                        border-left
+                                                        border-right
+                                                        column-separator
+                                                        #:row-number rnum)
+                                            (lp (map (lambda (e)
+                                                       (cond
+                                                        ((null? e)
+                                                         '())
+                                                        (else
+                                                         (cdr e))))
+                                                     r)
+                                                (+ rnum 1)))))
+                                    (begin
+                                      (format-row (car t)
+                                                  row-widths
+                                                  border-left
+                                                  border-right
+                                                  column-separator
+                                                  #:row-number row-number)
+                                      (write-separator t row-number)
+                                      (loop (cdr t) (+ row-number 2))))))))))
 
     (when (and shadow
                shadow-offset
                (< shadow-y-offset 0))
       (let ((str (with-output-to-string
                    (lambda ()
-                     (display-line width
+                     (display-line row-widths
                                    shadow
                                    shadow
                                    shadow
@@ -417,16 +530,16 @@ STR."
     (if with-header?
         (begin
           (when header-top
-            (display-header-border-top width))
+            (display-header-border-top row-widths))
           (format-row (car table)
-                      width
+                      row-widths
                       header-left
                       header-right
                       header-column-separator
                       #:type 'header
                       #:row-number 1)
           (when header-bottom
-            (display-header-border-bottom width))
+            (display-header-border-bottom row-widths))
           (display-table (cdr table)))
         (display-table table))
 
@@ -434,7 +547,7 @@ STR."
         (when (> shadow-y-offset 0)
           (let ((str (with-output-to-string
                        (lambda ()
-                         (display-line width
+                         (display-line row-widths
                                        shadow
                                        shadow
                                        shadow

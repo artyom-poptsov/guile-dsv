@@ -109,6 +109,7 @@
 
 (define* (print-file input-port fmt borders delim
                      #:key
+                     (width           #f)
                      (with-header?    #f)
                      (filter-row-proc #f)
                      (filter-col-proc #f)
@@ -141,7 +142,7 @@
                                             #:table-presets-path table-presets-path)
                          (cdr borders))
                         borders))))
-      (format-table table bspec #:with-header? with-header?))))
+      (format-table table bspec #:with-header? with-header? #:width width))))
 
 (define (print-summary input-port fmt delim)
   "Print summary information for an INPUT-PORT of format FMT."
