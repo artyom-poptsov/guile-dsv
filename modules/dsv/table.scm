@@ -528,16 +528,44 @@ list where each row is represented as a sub-list of strings."
                   (iota (abs shadow-y-offset)))))
 
     (if with-header?
-        (begin
+        (let ((header (car table)))
           (when header-top
             (display-header-border-top row-widths))
-          (format-row (car table)
-                      row-widths
-                      header-left
-                      header-right
-                      header-column-separator
-                      #:type 'header
-                      #:row-number 1)
+          (if (list? (car header))
+              (let lp ((r header)
+                       (rnum 1))
+                (when (find (lambda (c)
+                              (not (null? c)))
+                            r)
+                  (let ((part (map (lambda (e)
+                                     (cond
+                                      ((null? e)
+                                       "")
+                                      (else
+                                       (car e))))
+                                   r)))
+                    (format-row part
+                                row-widths
+                                header-left
+                                header-right
+                                header-column-separator
+                                #:type 'header
+                                #:row-number 1)
+                    (lp (map (lambda (e)
+                               (cond
+                                ((null? e)
+                                 '())
+                                (else
+                                 (cdr e))))
+                             r)
+                        (+ rnum 1)))))
+              (format-row header
+                          row-widths
+                          header-left
+                          header-right
+                          header-column-separator
+                          #:type 'header
+                          #:row-number 1))
           (when header-bottom
             (display-header-border-bottom row-widths))
           (display-table (cdr table)))
