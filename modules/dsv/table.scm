@@ -263,7 +263,7 @@ list where each row is represented as a sub-list of strings."
     (let loop ((old-table table)
                (new-table '()))
       (if (null? old-table)
-          new-table
+          (reverse new-table)
           (let* ((old-row  (car old-table))
                  (new-rows (table-wrap-row old-row new-widths)))
             (loop (cdr old-table)
