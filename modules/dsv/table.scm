@@ -32,6 +32,7 @@
             string*
             stylize
             string-slice
+            table-format-row
             table-wrap-row
             table-wrap
             table-print-element
@@ -278,6 +279,79 @@ list where each row is represented as a sub-list of strings."
   "Print a table ELEMENT to a PORT, or a single space if element is #f."
   (display (if element element " ") port))
 
+(define* (table-format-row row
+                           #:key
+                           (row-number 0)
+                           (borders '())
+                           (cell-widths '())
+                           (type 'body)
+                           (separator "")
+                           (padding 0)
+                           (port (current-output-port)))
+  (let* ((border-left  (assoc-ref borders 'border-left))
+         (border-right (assoc-ref borders 'border-right))
+         (shadow (assoc-ref borders 'shadow))
+         (shadow-style        (assoc-ref borders 'shadow-style))
+         (shadow-offset       (assoc-ref borders 'shadow-offset))
+         (shadow-offset       (and shadow-offset
+                                   (map string->number
+                                        (string-split shadow-offset #\;))))
+         (border-style        (assoc-ref borders 'border-style))
+         (text-style          (assoc-ref borders 'text-style))
+         (header-style        (assoc-ref borders 'header-style))
+         (shadow-x-offset     (and shadow-offset
+                                   (car shadow-offset)))
+         (shadow-y-offset     (and shadow-offset
+                                   (cadr shadow-offset))))
+    (when (and shadow
+               shadow-offset
+               (< shadow-x-offset 0))
+      (if (or (not row-number)
+              (>= row-number shadow-y-offset))
+          (display (stylize
+                    (string* shadow (abs shadow-x-offset))
+                    shadow-style)
+                   port)
+          (display (string* " " (abs shadow-x-offset))
+                   port)))
+    (table-print-element (stylize border-left
+                                  border-style)
+                         port)
+    (let field-loop ((fields       row)
+                     (field-widths cell-widths))
+      (unless (null? fields)
+        (let ((f (car fields))
+              (w (car field-widths)))
+          (display (stylize
+                    (table-format-field f w
+                                        #:padding padding)
+                    (if (equal? type 'body)
+                        text-style
+                        (if header-style
+                            header-style
+                            text-style)))
+                   port)
+          (if (null? (cdr fields))
+              (table-print-element (stylize border-right
+                                            border-style)
+                                   port)
+              (table-print-element (stylize separator
+                                            border-style)
+                                   port))
+          (field-loop (cdr fields) (cdr field-widths)))))
+    (when (and shadow
+               shadow-offset
+               (> shadow-x-offset 0))
+      (if (> row-number shadow-y-offset)
+          (display (stylize
+                    (string* shadow shadow-x-offset)
+                    shadow-style)
+                   port)
+          (display (string* " " shadow-x-offset)
+                   port)))
+    (newline port)))
+
+
 (define* (format-table table
                        borders
                        #:key
@@ -286,7 +360,6 @@ list where each row is represented as a sub-list of strings."
                        (port (current-output-port)))
   "Format file and print it to a PORT."
   (let* ((padding 5)
-
          (table  (if width
                      (table-wrap table (get-width table) #:width width)
                      table))
@@ -331,57 +404,6 @@ list where each row is represented as a sub-list of strings."
          (shadow-y-offset     (and shadow-offset
                                    (cadr shadow-offset)))
          (text-style          (assoc-ref borders 'text-style))
-         (format-row   (lambda* (row width border-left border-right separator
-                                     #:key
-                                     (row-number 0)
-                                     (type 'body))
-                         (when (and shadow
-                                    shadow-offset
-                                    (< shadow-x-offset 0))
-                           (if (or (not row-number)
-                                   (>= row-number shadow-y-offset))
-                               (display (stylize
-                                         (string* shadow (abs shadow-x-offset))
-                                         shadow-style)
-                                        port)
-                               (display (string* " " (abs shadow-x-offset))
-                                        port)))
-                         (table-print-element (stylize border-left
-                                                       border-style)
-                                              port)
-                         (let field-loop ((fields       row)
-                                          (field-widths width))
-                           (unless (null? fields)
-                             (let ((f (car fields))
-                                   (w (car field-widths)))
-                               (display (stylize
-                                         (table-format-field f w
-                                                             #:padding padding)
-                                         (if (equal? type 'body)
-                                             text-style
-                                             (if header-style
-                                                 header-style
-                                                 text-style)))
-                                        port)
-                               (if (null? (cdr fields))
-                                   (table-print-element (stylize border-right
-                                                                 border-style)
-                                                        port)
-                                   (table-print-element (stylize separator
-                                                                 border-style)
-                                                        port))
-                               (field-loop (cdr fields) (cdr field-widths)))))
-                         (when (and shadow
-                                    shadow-offset
-                                    (> shadow-x-offset 0))
-                           (if (> row-number shadow-y-offset)
-                               (display (stylize
-                                         (string* shadow shadow-x-offset)
-                                         shadow-style)
-                                        port)
-                               (display (string* " " shadow-x-offset)
-                                        port)))
-                         (newline port)))
          (display-line (lambda* (widths middle left right joint
                                         #:key
                                         (row-number #f)
@@ -490,12 +512,13 @@ list where each row is represented as a sub-list of strings."
                                                               (else
                                                                (car e))))
                                                              r)))
-                                            (format-row part
-                                                        row-widths
-                                                        border-left
-                                                        border-right
-                                                        column-separator
-                                                        #:row-number rnum)
+                                            (table-format-row part
+                                                              #:cell-widths row-widths
+                                                              #:borders borders
+                                                              #:separator column-separator
+                                                              #:row-number rnum
+                                                              #:padding padding
+                                                              #:port port)
                                             (lp (map (lambda (e)
                                                        (cond
                                                         ((null? e)
@@ -505,12 +528,13 @@ list where each row is represented as a sub-list of strings."
                                                      r)
                                                 (+ rnum 1)))))
                                     (begin
-                                      (format-row (car t)
-                                                  row-widths
-                                                  border-left
-                                                  border-right
-                                                  column-separator
-                                                  #:row-number row-number)
+                                      (table-format-row (car t)
+                                                        #:cell-widths row-widths
+                                                        #:borders borders
+                                                        #:separator column-separator
+                                                        #:row-number row-number
+                                                        #:padding padding
+                                                        #:port port)
                                       (write-separator t row-number)
                                       (loop (cdr t) (+ row-number 2))))))))))
 
@@ -549,13 +573,14 @@ list where each row is represented as a sub-list of strings."
                                       (else
                                        (car e))))
                                    r)))
-                    (format-row part
-                                row-widths
-                                header-left
-                                header-right
-                                header-column-separator
-                                #:type 'header
-                                #:row-number 1)
+                    (table-format-row part
+                                      #:cell-widths row-widths
+                                      #:borders borders
+                                      #:separator header-column-separator
+                                      #:row-number rnum
+                                      #:padding padding
+                                      #:type 'header
+                                      #:row-number 1)
                     (lp (map (lambda (e)
                                (cond
                                 ((null? e)
@@ -564,13 +589,13 @@ list where each row is represented as a sub-list of strings."
                                  (cdr e))))
                              r)
                         (+ rnum 1)))))
-              (format-row header
-                          row-widths
-                          header-left
-                          header-right
-                          header-column-separator
-                          #:type 'header
-                          #:row-number 1))
+              (table-format-row header
+                                #:cell-widths row-widths
+                                #:borders borders
+                                #:separator header-column-separator
+                                #:type 'header
+                                #:padding padding
+                                #:row-number 1))
           (when header-bottom
             (display-header-border-bottom row-widths))
           (display-table (cdr table)))
