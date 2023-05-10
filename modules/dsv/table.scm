@@ -299,6 +299,8 @@ list where each row is represented as a sub-list of strings."
          (border-style        (assoc-ref borders 'border-style))
          (text-style          (assoc-ref borders 'text-style))
          (header-style        (assoc-ref borders 'header-style))
+         (header-left         (assoc-ref borders 'header-left))
+         (header-right        (assoc-ref borders 'header-right))
          (shadow-x-offset     (and shadow-offset
                                    (car shadow-offset)))
          (shadow-y-offset     (and shadow-offset
@@ -314,7 +316,9 @@ list where each row is represented as a sub-list of strings."
                    port)
           (display (string* " " (abs shadow-x-offset))
                    port)))
-    (table-print-element (stylize border-left
+    (table-print-element (stylize (if (equal? type 'body)
+                                      border-left
+                                      header-left)
                                   border-style)
                          port)
     (let field-loop ((fields       row)
@@ -332,7 +336,9 @@ list where each row is represented as a sub-list of strings."
                             text-style)))
                    port)
           (if (null? (cdr fields))
-              (table-print-element (stylize border-right
+              (table-print-element (stylize (if (equal? type 'body)
+                                                border-right
+                                                header-right)
                                             border-style)
                                    port)
               (table-print-element (stylize separator
