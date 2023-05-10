@@ -132,6 +132,17 @@
                ("g" "i"  "jjj"))))
 
 
+
+(test-equal "string-slice"
+  '("aa" "aa" "a")
+  (string-slice "aaaaa" 2))
+
+(test-equal "table-wrap-row"
+  '(("aa" "aa" "a") ("bb" "bb"))
+  (let ((row '("aaaaa" "bbbb")))
+    (table-wrap-row row '(2 2))))
+
+
 (define exit-status (test-runner-fail-count (test-runner-current)))
 
 (test-end %test-name)

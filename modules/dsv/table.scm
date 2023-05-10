@@ -31,6 +31,8 @@
   #:export (%table-parameters
             string*
             stylize
+            string-slice
+            table-wrap-row
             table-print-element
             print-table-parameters
             shorthand->table-parameter
