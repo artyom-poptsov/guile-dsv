@@ -133,9 +133,17 @@
 
 
 
-(test-equal "string-slice"
+(test-equal "string-slice: string length = 5, width = 2"
   '("aa" "aa" "a")
   (string-slice "aaaaa" 2))
+
+(test-equal "string-slice: string length = 5, width = 10"
+  '("aaaaa")
+  (string-slice "aaaaa" 10))
+
+(test-equal "string-slice: string length = 5, width = 0"
+  '("aaaaa")
+  (string-slice "aaaaa" 0))
 
 (test-equal "table-wrap-row"
   '(("aa" "aa" "a") ("bb" "bb"))

@@ -206,13 +206,15 @@ STR."
 
 (define (string-slice s width)
   "Slice a string S into parts of WIDTH length.  Return the list of strings."
-  (let ((slen (string-length s)))
-    (let loop ((idx    0)
-               (result '()))
-      (if (>= (+ idx width) slen)
-          (reverse (cons (string-copy s idx slen) result))
-          (loop (+ idx width)
-                (cons (string-copy s idx (+ idx width)) result))))))
+  (if (zero? width)
+      (list s)
+      (let ((slen (string-length s)))
+        (let loop ((idx    0)
+                   (result '()))
+          (if (>= (+ idx width) slen)
+              (reverse (cons (string-copy s idx slen) result))
+              (loop (+ idx width)
+                    (cons (string-copy s idx (+ idx width)) result)))))))
 
 (define (table-wrap-row row widths)
   "Wrap a table ROW to fit each cell it into the specified WIDTHS.  Return a
