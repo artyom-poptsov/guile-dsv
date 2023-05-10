@@ -159,6 +159,14 @@
                 (get-width table)
                 #:width 10)))
 
+(test-equal "table-format-row: simple formatting"
+  "  a  b  c  \n"
+  (let ((data '(("a" "b" "c"))))
+    (with-output-to-string
+      (lambda ()
+        (table-format-row (car data)
+                          #:cell-widths (get-width data))))))
+
 
 (define exit-status (test-runner-fail-count (test-runner-current)))
 
