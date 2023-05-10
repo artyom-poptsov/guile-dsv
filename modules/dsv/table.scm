@@ -359,7 +359,7 @@ list where each row is represented as a sub-list of strings."
                        (with-header? #f)
                        (port (current-output-port)))
   "Format file and print it to a PORT."
-  (let* ((padding 5)
+  (let* ((padding 2)
          (table  (if width
                      (table-wrap table (get-width table) #:width width)
                      table))
