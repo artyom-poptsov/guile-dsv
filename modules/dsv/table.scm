@@ -33,6 +33,7 @@
             stylize
             string-slice
             table-wrap-row
+            table-wrap
             table-print-element
             print-table-parameters
             shorthand->table-parameter

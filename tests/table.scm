@@ -150,6 +150,15 @@
   (let ((row '("aaaaa" "bbbb")))
     (table-wrap-row row '(2 2))))
 
+(test-equal "table-wrap"
+  '((("aaaaaaa" "aaa") ("bbbb" "b"))
+    (("ccc") ("d")))
+  (let ((table '(("aaaaaaaaaa" "bbbbb")
+                 ("ccc"   "d"))))
+    (table-wrap table
+                (get-width table)
+                #:width 10)))
+
 
 (define exit-status (test-runner-fail-count (test-runner-current)))
 
