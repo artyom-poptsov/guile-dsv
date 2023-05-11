@@ -72,17 +72,18 @@
 
 (test-equal "format-table: with shadow"
   (string-join
-   (list "┌──────┬──────┬──────┐  "
-         "│ a1   │ b1   │ c1   │  "
-         "├──────┼──────┼──────┤░░"
-         "│ a2   │ b2   │ c2   │░░"
-         "├──────┼──────┼──────┤░░"
-         "│ a3   │ b3   │ c3   │░░"
-         "├──────┼──────┼──────┤░░"
-         "│ a4   │ b4   │ c4   │░░"
-         "└──────┴──────┴──────┘░░"
-         "  ░░░░░░░░░░░░░░░░░░░░░░"
-         "")
+   (list
+    ".--------------------.  "
+    "| a1   | b1   | c1   |  "
+    "|------+------+------|.."
+    "| a2   | b2   | c2   |.."
+    "|------+------+------|.."
+    "| a3   | b3   | c3   |.."
+    "|------+------+------|.."
+    "| a4   | b4   | c4   |.."
+    "'--------------------'.."
+    "  ......................"
+    "")
    "\n")
   (let* ((table '(("a1" "b1" "c1")
                   ("a2" "b2" "c2")
@@ -90,8 +91,11 @@
                   ("a4" "b4" "c4")))
          (presets-path (string-append (getenv "abs_top_srcdir")
                                       "/presets/"))
-         (preset (load-table-preset "graphic-with-shadow"
-                                    #:table-presets-path presets-path)))
+         (preset (load-table-preset "ascii"
+                                    #:table-presets-path presets-path))
+         (preset (table-preset-override preset
+                                        '((shadow . ".")
+                                          (shadow-offset . "2;1")))))
     (with-output-to-string
       (lambda ()
         (format-table table preset)))))
