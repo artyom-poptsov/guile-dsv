@@ -32,6 +32,7 @@
   #:re-export  (%table-presets-path)
   #:export (print-table-presets
             load-table-preset
+            table-preset-override
             table-preset-name?))
 
 
@@ -50,6 +51,15 @@
                         "  ~a~%"
                         (car (string-split d #\.))))
               dir)))
+
+(define (table-preset-override preset borders)
+  "Override a table PRESET with a BORDERS specification.  Return the updated
+table preset."
+  (if (null? borders)
+      preset
+      (let ((bspec (car borders)))
+        (table-preset-override (acons (car bspec) (cdr bspec) preset)
+                               (cdr borders)))))
 
 (define* (load-table-preset name
                             #:key

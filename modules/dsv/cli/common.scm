@@ -99,13 +99,6 @@
   (let ((p (open-input-file file)))
     (length (dsv->scm p delim #:format fmt))))
 
-(define (override preset borders)
-  (if (null? borders)
-      preset
-      (let ((bspec (car borders)))
-        (override (acons (car bspec) (cdr bspec) preset)
-                  (cdr borders)))))
-
 
 (define* (print-file input-port fmt borders delim
                      #:key
@@ -137,7 +130,7 @@
                     (if (and (not (null? borders))
                              (string? (car borders))
                              (table-preset-name? (car borders)))
-                        (override
+                        (table-preset-override
                          (load-table-preset (car borders)
                                             #:table-presets-path table-presets-path)
                          (cdr borders))
