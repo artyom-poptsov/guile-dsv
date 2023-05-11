@@ -18,7 +18,8 @@
 (use-modules (srfi srfi-64)
              (srfi srfi-26)
              (dsv)
-             (dsv table))
+             (dsv table)
+             (dsv table-preset))
 
 (define %test-name "table")
 
@@ -68,6 +69,32 @@
                         (header-bottom-right     . "|")
                         (header-bottom-joint     . "+")
                         (header-column-separator . "|")))))))
+
+(test-equal "format-table: with shadow"
+  (string-join
+   (list "┌──────┬──────┬──────┐  "
+         "│ a1   │ b1   │ c1   │  "
+         "├──────┼──────┼──────┤░░"
+         "│ a2   │ b2   │ c2   │░░"
+         "├──────┼──────┼──────┤░░"
+         "│ a3   │ b3   │ c3   │░░"
+         "├──────┼──────┼──────┤░░"
+         "│ a4   │ b4   │ c4   │░░"
+         "└──────┴──────┴──────┘░░"
+         "  ░░░░░░░░░░░░░░░░░░░░░░"
+         "")
+   "\n")
+  (let* ((table '(("a1" "b1" "c1")
+                  ("a2" "b2" "c2")
+                  ("a3" "b3" "c3")
+                  ("a4" "b4" "c4")))
+         (presets-path (string-append (getenv "abs_top_srcdir")
+                                      "/presets/"))
+         (preset (load-table-preset "graphic-with-shadow"
+                                    #:table-presets-path presets-path)))
+    (with-output-to-string
+      (lambda ()
+        (format-table table preset)))))
 
 
 
