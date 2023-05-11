@@ -1,6 +1,6 @@
 ## Makefile.am -- Config file for GNU Automake. 
 ##
-## Copyright (C) 2014 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+## Copyright (C) 2014-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ##
 ## This file is part of Guile-DSV.
 ## 
@@ -33,7 +33,8 @@ AM_TESTS_ENVIRONMENT = \
 	abs_top_builddir="$(abs_top_builddir)"; export abs_top_builddir; \
 	ORIGTERM=${TERM}; export ORIGTERM; \
 	TERM=xterm; export TERM; \
-	GUILE_AUTO_COMPILE=0; export GUILE_AUTO_COMPILE;
+	GUILE_AUTO_COMPILE=0; export GUILE_AUTO_COMPILE; \
+	GUILE_LOAD_COMPILED_PATH="$(abs_top_srcdir)/modules"; export GUILE_LOAD_COMPILED_PATH;
 
 # LOG_COMPILER was introduced in Automake 1.12; don't expect "make
 # check" or "make distcheck" to work with earlier versions.
