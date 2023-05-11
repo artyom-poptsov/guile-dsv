@@ -586,7 +586,7 @@ list where each row is represented as a sub-list of strings."
                                       #:row-number rnum
                                       #:padding padding
                                       #:type 'header
-                                      #:row-number 1)
+                                      #:row-number rnum)
                     (lp (map (lambda (e)
                                (cond
                                 ((null? e)
