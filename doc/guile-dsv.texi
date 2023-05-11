@@ -381,6 +381,30 @@ Remove all the columns from a @var{table} for which procedure @var{proc}
 returns @code{#f}.
 @end deffn
 
+@deffn {Scheme Procedure} table-wrap @
+               table @
+               current-column-widths @
+               [#:width=80] @
+               [#:padding=0]
+
+Wrap a @var{table} in such way that the table will fit into @var{width}
+columns.
+
+@var{current-column-widths} should be the value returned by @code{get-width}
+procedure.
+
+@end deffn
+
+@deffn {Scheme Procedure} table-wrap-row row widths
+Wrap a table @var{row} to fit each cell it into the specified @var{widths}.
+Return a list where each row is represented as a sub-list of strings.
+@end deffn
+
+@deffn {Scheme Procedure} string-slice s width
+Slice a string @var{s} into parts of @var{width} length.  Return the list of
+strings.
+@end deffn
+
 @c -----------------------------------------------------------------------------
 @cindex Table Presets
 @section Table Presets
@@ -395,6 +419,11 @@ Print all known table presets to a @var{port}.
 
 @deffn {Scheme Procedure} load-table-preset name
 Read table preset @var{name} from a file.  Return the preset as a list.
+@end deffn
+
+@deffn {Scheme Procedure} table-preset-override preset borders
+Override a table @var{preset} with a @var{borders} specification.  Return the
+updated table preset.
 @end deffn
 
 @deffn {Scheme Procedure} table-preset-name? string
