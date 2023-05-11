@@ -1,6 +1,6 @@
 ;;; table.scm -- Tests for parsed DSV tables.
 
-;; Copyright (C) 2021 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2021-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -104,6 +104,10 @@
 (test-equal "string*"
   "aaaaa"
   (string* "a" 5))
+
+(test-equal "string*: zero multiplier"
+  ""
+  (string* "a" 0))
 
 (test-equal "stylize: string"
   "[31;1mtest[0m"
