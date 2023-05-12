@@ -49,13 +49,22 @@
 
 
 (define (terminal-size)
-  (let* ((p      (open-input-pipe "stty -F /dev/tty size"))
-         (result (read-line p)))
-    (and (not (eof-object? result))
-         (let* ((data (map string->number (string-split result #\space)))
-                (rows (car data))
-                (cols (cadr data)))
-           (cons rows cols)))))
+  "Get the terminal size. Return the number rows (lines) and columns as a pair
+of numbers, or #f if an error occurred."
+  (catch #t
+    (lambda ()
+      (let* ((p      (open-input-pipe "stty -F /dev/tty size"))
+             (result (read-line p)))
+        (and (not (eof-object? result))
+             (let* ((data (map string->number (string-split result #\space)))
+                    (rows (car data))
+                    (cols (cadr data)))
+               (cons rows cols)))))
+    (lambda (key . args)
+      (format (current-error-port)
+              "ERROR: Could not get the terminal size: ~a: ~a"
+              key args)
+      #f)))
 
 
 
