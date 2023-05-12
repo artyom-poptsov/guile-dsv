@@ -265,6 +265,9 @@ list where each row is represented as a sub-list of strings."
          (border-right     (or (assoc-ref borders 'border-right) ""))
          (shadow           (or (assoc-ref borders 'shadow) ""))
          (shadow-offset    (assoc-ref borders 'shadow-offset))
+         (shadow-offset    (and shadow-offset
+                                (map string->number
+                                     (string-split shadow-offset #\;))))
          (shadow-x-offset     (and shadow-offset
                                    (abs (car shadow-offset))))
          (column-count     (length current-column-widths))
