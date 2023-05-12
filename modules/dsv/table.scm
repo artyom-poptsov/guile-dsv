@@ -257,11 +257,27 @@ list where each row is represented as a sub-list of strings."
                      current-column-widths
                      #:key
                      (width 80)
+                     (borders '())
                      (padding 0))
   (let* ((column-count (length (car table)))
+         (border-left      (or (assoc-ref borders 'border-left) ""))
+         (column-separator (or (assoc-ref borders 'column-separator) ""))
+         (border-right     (or (assoc-ref borders 'border-right) ""))
+         (shadow           (or (assoc-ref borders 'shadow) ""))
+         (shadow-offset    (assoc-ref borders 'shadow-offset))
+         (shadow-x-offset     (and shadow-offset
+                                   (abs (car shadow-offset))))
+         (column-count     (length current-column-widths))
+         (borders-width    (+ (string-length border-left)
+                              (string-length border-right)
+                              (* (string-length column-separator)
+                                 (- column-count 1))
+                              (or shadow-x-offset 0)))
          (width        (- width
-                          (* (length current-column-widths)
-                             (* padding 2))))
+                          (* column-count
+                             (* padding 2))
+                          column-count
+                          borders-width))
          (current-total-width (fold + 0 current-column-widths))
          (percents (map (lambda (w)
                           (* (/ w current-total-width) 100.0))
@@ -372,6 +388,7 @@ list where each row is represented as a sub-list of strings."
          (table  (if (and width (not (zero? width)))
                      (table-wrap table
                                  (get-width table)
+                                 #:borders borders
                                  #:width width
                                  #:padding padding)
                      table))
