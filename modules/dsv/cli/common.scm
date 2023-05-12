@@ -27,13 +27,16 @@
   #:use-module (ice-9 rdelim)
   #:use-module (ice-9 format)
   #:use-module (ice-9 textual-ports)
+  #:use-module (ice-9 popen)
   #:use-module (srfi  srfi-1)
   #:use-module (srfi  srfi-26)
+  #:use-module (system foreign)
   #:use-module (dsv)
   #:use-module (dsv table)
   #:use-module (dsv config)
   #:use-module (dsv table-preset)
-  #:export (string->dsv-format
+  #:export (terminal-size
+            string->dsv-format
             borders->alist
             guess-file-delimiter
             print-delimiter
@@ -42,6 +45,19 @@
             remove-empty-rows
             rc
             convert))
+
+
+
+(define (terminal-size)
+  (let* ((p      (open-input-pipe "stty -F /dev/tty size"))
+         (result (read-line p)))
+    (and (not (eof-object? result))
+         (let* ((data (map string->number (string-split result #\space)))
+                (rows (car data))
+                (cols (cadr data)))
+           (cons rows cols)))))
+
+
 
 (define (string->dsv-format str)
   "Convert a string STR to a DSV format type."

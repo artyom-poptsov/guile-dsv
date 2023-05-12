@@ -55,8 +55,11 @@ Options:
   --delimiter, -D <delim>    Set a delimiter.
   --guess-delimiter, -d      Guess a file delimiter and print the result.
   --width, -w <width>        Wrap long lines of text inside cells to fit the table
-                             into the specified width.  If with is specified as \"-\"
-                             then current terminal width is used.
+                             into the specified width.  If with is specified as
+                             \"auto\" (default value) then current terminal width
+                             is used.
+                             Zero width means no wrapping so the table might not
+                             fit into the screen.
   --map-cell, -m <code>      Apply an arbitrary Scheme code on each cell value
                              before printing.
                              There are three variables that can be used in the code:
@@ -167,7 +170,7 @@ Written by Artyom V. Poptsov.
          ;; Options
          (help-needed?      (option-ref options 'help            #f))
          (summary-needed?   (option-ref options 'summary         #f))
-         (width             (option-ref options 'width           (getenv "COLUMNS")))
+         (width             (option-ref options 'width           "auto"))
          (guess-delimiter?  (option-ref options 'guess-delimiter #f))
          (file-format       (option-ref options 'file-format     "unix"))
          (map-cell-proc     (option-ref options 'map-cell         #f))
@@ -216,8 +219,13 @@ Written by Artyom V. Poptsov.
         (print-file input-port
                     (string->dsv-format file-format) table-borders
                     delimiter
-                    #:width (and width
-                                 (string->number width))
+                    #:width (cond
+                             ((string=? width "auto")
+                              (let ((size (terminal-size)))
+                                (and size
+                                     (cdr size))))
+                             (else
+                              (string->number width)))
                     #:table-presets-path table-presets-path
                     #:with-header? with-header?
                     #:filter-col-proc (and filter-col-proc
