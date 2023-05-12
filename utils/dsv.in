@@ -167,7 +167,9 @@ Written by Artyom V. Poptsov.
          ;; Options
          (help-needed?      (option-ref options 'help            #f))
          (summary-needed?   (option-ref options 'summary         #f))
-         (width             (option-ref options 'width           (getenv "COLUMNS")))
+         (width             (option-ref options 'width  (let ((size (terminal-size)))
+                                                          (and size
+                                                               (cdr size)))))
          (guess-delimiter?  (option-ref options 'guess-delimiter #f))
          (file-format       (option-ref options 'file-format     "unix"))
          (map-cell-proc     (option-ref options 'map-cell         #f))
@@ -189,10 +191,14 @@ Written by Artyom V. Poptsov.
          (debug?            (option-ref options 'debug           #f))
          (args              (option-ref options '()              #f)))
 
+    (format (current-error-port) "env: ~a~%" (environ))
+
     (set-debug! debug?)
 
     (when help-needed?
       (print-help-and-exit table-presets-path))
+
+    (format (current-error-port) "width: ~a~%" width)
 
     (when version?
       (print-version)
