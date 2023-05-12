@@ -216,7 +216,7 @@
     (table-wrap-row row '(2 2))))
 
 (test-equal "table-wrap"
-  '((("aaaaaaa" "aaa") ("bbbb" "b"))
+  '((("aaaaaa" "aaaa") ("bbb" "bb"))
     (("ccc") ("d")))
   (let ((table '(("aaaaaaaaaa" "bbbbb")
                  ("ccc"   "d"))))
