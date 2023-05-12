@@ -259,6 +259,9 @@ list where each row is represented as a sub-list of strings."
                      (width 80)
                      (padding 0))
   (let* ((column-count (length (car table)))
+         (width        (- width
+                          (* (length current-column-widths)
+                             (* padding 2))))
          (current-total-width (fold + 0 current-column-widths))
          (percents (map (lambda (w)
                           (* (/ w current-total-width) 100.0))
@@ -367,7 +370,10 @@ list where each row is represented as a sub-list of strings."
   "Format file and print it to a PORT."
   (let* ((padding 2)
          (table  (if (and width (not (zero? width)))
-                     (table-wrap table (get-width table) #:width width)
+                     (table-wrap table
+                                 (get-width table)
+                                 #:width width
+                                 #:padding padding)
                      table))
          (row-widths        (get-width table))
          (column-separator    (or (assoc-ref borders 'column-separator) ""))
