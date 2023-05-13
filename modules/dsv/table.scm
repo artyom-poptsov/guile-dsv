@@ -253,6 +253,18 @@ list where each row is represented as a sub-list of strings."
           (loop new-data (cons row result))
           (reverse (cons row result))))))
 
+(define (smooth lst)
+  (let ((len (length lst)))
+    (let loop ((idx    0)
+               (result '()))
+      (if (= idx (- len 1))
+          (reverse (cons (list-ref lst idx)
+                         result))
+          (let ((current (list-ref lst idx))
+                (next    (list-ref lst (+ idx 1))))
+            (loop (+ idx 1)
+                  (cons (/ (+ current next) 2) result)))))))
+
 (define* (table-wrap table
                      current-column-widths
                      #:key
@@ -282,9 +294,20 @@ list where each row is represented as a sub-list of strings."
                           column-count
                           borders-width))
          (current-total-width (fold + 0 current-column-widths))
+         (d (format (current-error-port) "w1: ~s~%" current-total-width))
+         (d (format (current-error-port) "c1: ~s~%" current-column-widths))
+         (current-column-widths (smooth current-column-widths))
+         ;; (d (format (current-error-port) "c2: ~s~%" current-column-widths))
+         ;; (current-column-widths (smooth current-column-widths))
+         ;; (d (format (current-error-port) "c3: ~s~%" current-column-widths))
+         (current-total-width (fold + 0 current-column-widths))
+         (d (format (current-error-port) "w2: ~s~%" current-total-width))
          (percents (map (lambda (w)
                           (* (/ w current-total-width) 100.0))
-                        current-column-widths))
+                        (smooth current-column-widths)))
+         (d (format (current-error-port) "p1: ~s~%" percents))
+         ;; (percents (smooth percents))
+         ;; (d (format (current-error-port) "p2: ~s~%" percents))
          (new-widths (map (lambda (p)
                             (inexact->exact (ceiling (* (/ p 100.0) width))))
                           percents)))
