@@ -253,6 +253,37 @@ list where each row is represented as a sub-list of strings."
           (loop new-data (cons row result))
           (reverse (cons row result))))))
 
+(define (smooth lst)
+  (define (avg a b)
+    (/ (+ a b) 2.0))
+  (let* ((len         (length lst))
+         (indexed-lst (map cons (iota len) lst))
+         (sorted-lst  (sort indexed-lst (lambda (e n) (< (cdr e) (cdr n))))))
+    (let loop ((idx    0)
+               (result '()))
+      (if (= idx (- len 1))
+          (map cdr
+               (sort (cons (cons idx
+                                 (avg (cdr (list-ref sorted-lst idx))
+                                       (cdr (list-ref sorted-lst (- idx 1)))))
+                           result)
+                     (lambda (e n)
+                       (< (car e) (car n)))))
+          (let ((current (list-ref sorted-lst idx))
+                (next    (list-ref sorted-lst (+ idx 1))))
+            (loop (+ idx 1)
+                  (cons (cons (car current)
+                              (avg (cdr current) (cdr next)))
+                        result)))))))
+
+(define (table-calculate-cell-widths content-width percents)
+  "Calculate table cell CONTENT-WIDTHS according to percents."
+  (map (lambda (p)
+         (let ((value (inexact->exact (floor (* (/ p 100.0)
+                                                content-width)))))
+           value))
+       percents))
+
 (define* (table-wrap table
                      current-column-widths
                      #:key
@@ -276,18 +307,15 @@ list where each row is represented as a sub-list of strings."
                               (* (string-length column-separator)
                                  (- column-count 1))
                               (or shadow-x-offset 0)))
-         (width        (- width
-                          (* column-count
-                             (* padding 2))
-                          column-count
-                          borders-width))
+         (extra-width (+ (* column-count 2) borders-width))
+         (content-width  (- width extra-width))
+         (current-column-widths (smooth current-column-widths))
          (current-total-width (fold + 0 current-column-widths))
          (percents (map (lambda (w)
                           (* (/ w current-total-width) 100.0))
                         current-column-widths))
-         (new-widths (map (lambda (p)
-                            (inexact->exact (ceiling (* (/ p 100.0) width))))
-                          percents)))
+         (new-widths (table-calculate-cell-widths content-width percents))
+         (new-total-width (fold + 0 new-widths)))
     (let loop ((old-table table)
                (new-table '()))
       (if (null? old-table)
@@ -299,7 +327,7 @@ list where each row is represented as a sub-list of strings."
 
 (define (table-print-element element port)
   "Print a table ELEMENT to a PORT, or a single space if element is #f."
-  (display (if element element " ") port))
+  (display (if element element "") port))
 
 (define* (table-format-row row
                            #:key
@@ -387,7 +415,7 @@ list where each row is represented as a sub-list of strings."
                        (with-header? #f)
                        (port (current-output-port)))
   "Format file and print it to a PORT."
-  (let* ((padding 2)
+  (let* ((padding 0)
          (table  (if (and width (not (zero? width)))
                      (table-wrap table
                                  (get-width table)
