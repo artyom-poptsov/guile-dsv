@@ -43,11 +43,13 @@
 (define (print-help-and-exit table-presets-path)
     (display
      (string-append "\
-Usage: dsv [options] <file>
+Usage: dsv [options] [file]
 
 The default behavior of the program is to print a formatted table from a
 <file> to stdout.  The options listed below can be used to change or modify
 this behavior.
+
+When no <file> is provided, dsv reads data from stdin.
 
 Options:
   --help, -h                 Print this message and exit.
