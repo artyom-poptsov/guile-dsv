@@ -232,6 +232,10 @@
         (table-format-row (car data)
                           #:cell-widths (get-width data))))))
 
+(test-equal "table-calculate-cell-widths"
+  '(25 75)
+  (table-calculate-cell-widths 100 '(25.0 75.0)))
+
 
 (define exit-status (test-runner-fail-count (test-runner-current)))
 

@@ -36,6 +36,7 @@
             table-wrap-row
             table-wrap
             table-print-element
+            table-calculate-cell-widths
             print-table-parameters
             shorthand->table-parameter
             get-width
