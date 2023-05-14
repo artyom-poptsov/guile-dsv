@@ -22,49 +22,6 @@ delimiter change and conversion from one standard to another.)
     - Texlive (also is needed for documentation.)
     - [[https://www.gnu.org/software/help2man][help2man]]
 
-** Distribution
-   Files:
-   - AUTHORS contains list of people who contributed to the library
-     development.
-   - COPYING contains the terms of GNU General Public License.
-   - INSTALL contains general instructions for building/installing of
-     Guile-DSV
-   - NEWS describes user-visible changes.
-   - TODO contains plans for the further development and list of known bugs.
-
-   Directories:
-   - doc      -- Documentation in Texinfo format.
-   - modules  -- Guile modules.
-   - presets  -- Table presets.
-   - utils    -- Utility programs based on Guile-DSV.
-   - tests    -- Unit tests.
-
-   Files are usually installed according to the prefix specified to
-   =configure= script, =/usr/local= by default. Building and installing gives
-   you:
-
-   Guile modules, in =${GUILE_SITE}=:
-   - dsv.scm
-   - dsv/config.scm
-   - dsv/rfc4180.scm
-   - dsv/unix.scm
-   - dsv/parser.scm
-   - dsv/builder.scm
-   - dsv/common.scm
-   - dsv/table.scm
-   - dsv/table-preset.scm
-   - dsv/cli/common.scm
-
-   All the modules will be compiled and produced .go files will be installed
-   to =site-ccache= directory which is something like this:
-   =${libdir}/guile/2.0/site-ccache/=.
-
-   Documentation in Info format, in =${prefix}/share/info/=:
-   - guile-dsv.info
-
-   Utility program in =${PREFIX}/bin=:
-   - dsv
-
 ** Installation
 *** GNU Guix
  #+BEGIN_EXAMPLE shell
@@ -109,6 +66,14 @@ Options:
   --summary, -s              Print summary information for a file.
   --delimiter, -D <delim>    Set a delimiter.
   --guess-delimiter, -d      Guess a file delimiter and print the result.
+  --width, -w <width>        Wrap long lines of text inside cells to fit the table
+                             into the specified width.  If with is specified as
+                             "auto" (default value) then current terminal width
+                             is used.
+                             When the required width is too small for the table
+                             wrapping, an error will be issued.
+                             Zero width means no wrapping so the table might not
+                             fit into the screen.
   --map-cell, -m <code>      Apply an arbitrary Scheme code on each cell value
                              before printing.
                              There are three variables that can be used in the code:
@@ -157,10 +122,20 @@ Options:
                              Also a table preset name can be used as the value.
                              See "Table presets" below.
 
+                             Table preset parameters can be overridden by specifying
+                             extra parameters after the preset name.  E.g.:
+                               "graphic,bs=3;31"
+
                              Example values:
-                               - "cs=|,rs=-,j=+"
+                               - "v=|,h=-,j=+"
                                - org
 
+  --table-presets-path <path>
+                             Set the table preset path.
+                             This option can be also set by
+                              "GUILE_DSV_TABLE_PRESETS_PATH" environment
+                             variable.
+                             Default value: /gnu/store/448pzfcwaaa8smrrdbn1shmk45s7agwx-guile-dsv-git/share/guile-dsv/presets/
   --to, -t <fmt>             Convert a file to a specified format, write
                              the result to stdout.
   --to-delimiter, -T <delim> Convert delimiters to the specified variant.
@@ -170,38 +145,45 @@ Options:
   --debug                    Enable state machine debugging.
 
 Table parameters:
-  bt   border-top
-  btl  border-top-left
-  btr  border-top-right
-  btj  border-top-joint
-  bl   border-left
-  blj  border-left-joint
-  br   border-right
-  brj  border-right-joint
-  bb   border-bottom
-  bbl  border-bottom-left
-  bbr  border-bottom-right
-  bbj  border-bottom-joint
-  rs   row-separator
-  rj   row-joint
-  cs   column-separator
-  ht   header-top
-  htl  header-top-left
-  htr  header-top-right
-  htj  header-top-joint
-  hl   header-left
-  hr   header-right
-  hcs  header-column-separator
-  hb   header-bottom
-  hbl  header-bottom-left
-  hbr  header-bottom-right
-  hbj  header-bottom-joint
+  bt   border-top                The top border.
+  btl  border-top-left           The top left corner.
+  btr  border-top-right          The top right corner.
+  btj  border-top-joint          The top border joint.
+  bl   border-left               The left table border.
+  blj  border-left-joint         The left table border joint.
+  br   border-right              The right table border.
+  brj  border-right-joint        The right table border joint.
+  bb   border-bottom             The bottom border.
+  bbl  border-bottom-left        The left corner of the bottom border.
+  bbr  border-bottom-right       The right corner of the bottom border.
+  bbj  border-bottom-joint       The bottom border joint.
+  bs   border-style              The style of the borders ("fg;bg".)
+  ts   text-style                The text style ("fg;bg".)
+  s    shadow                    The table shadow.
+  so   shadow-offset             The table shadow offset in format "x;y" (e.g. "2;2".)
+  ss   shadow-style              The style of the shadow ("fg;bg".)
+  rs   row-separator             The table row separator.
+  rj   row-joint                 The row joint.
+  cs   column-separator          The table column separator
+  hs   header-style              The header style ("fg;bg".)
+  ht   header-top                The header top border.
+  htl  header-top-left           The header top left border.
+  htr  header-top-right          The header top right border.
+  htj  header-top-joint          The header top joint.
+  hl   header-left               The header left border.
+  hr   header-right              The header right border.
+  hcs  header-column-separator   The header column separator.
+  hb   header-bottom             The header bottom border.
+  hbl  header-bottom-left        The header bottom left corner.
+  hbr  header-bottom-right       The header bottom right border.
+  hbj  header-bottom-joint       The header bottom joint.
 
 Table presets:
   ascii
   graphic-bold
   graphic-double
   graphic
+  graphic-with-shadow
   markdown
   org
 #+end_example
@@ -210,93 +192,111 @@ Table presets:
     To show DSV files (Unix-style) in human-readable manner, just invoke the
     tool like this:
 #+begin_example shell
-$ dsv /etc/passwd | head -3
-  root                      x       0           0           root                                     /root                            /bin/bash               
-  daemon                    x       1           1           daemon                                   /usr/sbin                        /usr/sbin/nologin       
-  bin                       x       2           2           bin                                      /bin                             /usr/sbin/nologin
+$ head -4 /etc/passwd | dsv
+ root    x  0  0  root    /root      /bin/bash         
+ daemon  x  1  1  daemon  /usr/sbin  /usr/sbin/nologin 
+ bin     x  2  2  bin     /bin       /usr/sbin/nologin 
+ sys     x  3  3  sys     /dev       /usr/sbin/nologin
 #+end_example
  
     Show a DSV file as a fancy table with custom borders:
 #+begin_example shell
-$ dsv -b "rs=-,cs=|,rj=+" /etc/passwd | head -5
-  root                     | x      | 0          | 0          | root                                    | /root                           | /bin/bash               
- --------------------------+--------+------------+------------+-----------------------------------------+---------------------------------+------------------------ 
-  daemon                   | x      | 1          | 1          | daemon                                  | /usr/sbin                       | /usr/sbin/nologin       
- --------------------------+--------+------------+------------+-----------------------------------------+---------------------------------+------------------------ 
-  bin                      | x      | 2          | 2          | bin                                     | /bin                            | /usr/sbin/nologin      
+$ head -4 /etc/passwd | dsv -b "rs=-,cs=|,rj=+"
+ root   | x | 0 | 0 | root   | /root     | /bin/bash         
+--------+---+---+---+--------+-----------+-------------------
+ daemon | x | 1 | 1 | daemon | /usr/sbin | /usr/sbin/nologin 
+--------+---+---+---+--------+-----------+-------------------
+ bin    | x | 2 | 2 | bin    | /bin      | /usr/sbin/nologin 
+--------+---+---+---+--------+-----------+-------------------
+ sys    | x | 3 | 3 | sys    | /dev      | /usr/sbin/nologin
 #+end_example
 
     The same output but with box-drawing characters:
 #+begin_example shell
-$ head -3 /etc/passwd | dsv -b "rs=─,cs=│,rj=┼"
-  root        │ x      │ 0      │ 0      │ root        │ /root          │ /bin/bash               
- ─────────────┼────────┼────────┼────────┼─────────────┼────────────────┼──────────────────────── 
-  daemon      │ x      │ 1      │ 1      │ daemon      │ /usr/sbin      │ /usr/sbin/nologin       
- ─────────────┼────────┼────────┼────────┼─────────────┼────────────────┼──────────────────────── 
-  bin         │ x      │ 2      │ 2      │ bin         │ /bin           │ /usr/sbin/nologin       
+$ head -4 /etc/passwd | dsv -b "rs=─,cs=│,rj=┼"
+ root   │ x │ 0 │ 0 │ root   │ /root     │ /bin/bash         
+────────┼───┼───┼───┼────────┼───────────┼───────────────────
+ daemon │ x │ 1 │ 1 │ daemon │ /usr/sbin │ /usr/sbin/nologin 
+────────┼───┼───┼───┼────────┼───────────┼───────────────────
+ bin    │ x │ 2 │ 2 │ bin    │ /bin      │ /usr/sbin/nologin 
+────────┼───┼───┼───┼────────┼───────────┼───────────────────
+ sys    │ x │ 3 │ 3 │ sys    │ /dev      │ /usr/sbin/nologin
 #+end_example
 
+*** Table presets
     There are table presets that can be used to draw tables with specified
     border styles.  Some examples:
+
+**** ascii
 #+begin_example shell
 $ echo -e "a,b,c\na1,b1,c1\na2,b2,c2\n" | dsv -b "ascii"
-.-----------------------------.
-| a       | b       | c       |
-|---------+---------+---------|
-| a1      | b1      | c1      |
-|---------+---------+---------|
-| a2      | b2      | c2      |
-'-----------------------------'
+.--------------.
+| a  | b  | c  |
+|----+----+----|
+| a1 | b1 | c1 |
+|----+----+----|
+| a2 | b2 | c2 |
+'--------------'
+
 $ echo -e "a,b,c\na1,b1,c1\na2,b2,c2\n" | dsv -b "ascii" --with-header
-.-----------------------------.
-| a       | b       | c       |
-|=========+=========+=========|
-| a1      | b1      | c1      |
-|---------+---------+---------|
-| a2      | b2      | c2      |
-'-----------------------------'
-$ echo -e "a,b,c\na1,b1,c1\na2,b2,c2\n" | dsv -b "graphic"
-┌─────────┬─────────┬─────────┐
-│ a       │ b       │ c       │
-├─────────┼─────────┼─────────┤
-│ a1      │ b1      │ c1      │
-├─────────┼─────────┼─────────┤
-│ a2      │ b2      │ c2      │
-└─────────┴─────────┴─────────┘
-$ echo -e "a,b,c\na1,b1,c1\na2,b2,c2\n" | dsv -b "graphic-bold"
-┏━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┓
-┃ a       ┃ b       ┃ c       ┃
-┣━━━━━━━━━╋━━━━━━━━━╋━━━━━━━━━┫
-┃ a1      ┃ b1      ┃ c1      ┃
-┣━━━━━━━━━╋━━━━━━━━━╋━━━━━━━━━┫
-┃ a2      ┃ b2      ┃ c2      ┃
-┗━━━━━━━━━┻━━━━━━━━━┻━━━━━━━━━┛
-$ echo -e "a,b,c\na1,b1,c1\na2,b2,c2\n" | dsv -b "graphic-double"
-╔═════════╦═════════╦═════════╗
-║ a       ║ b       ║ c       ║
-╠═════════╬═════════╬═════════╣
-║ a1      ║ b1      ║ c1      ║
-╠═════════╬═════════╬═════════╣
-║ a2      ║ b2      ║ c2      ║
-╚═════════╩═════════╩═════════╝
-$ echo -e "a,b,c\na1,b1,c1\na2,b2,c2\n" | dsv -b "org"
-| a       | b       | c       |
-| a1      | b1      | c1      |
-| a2      | b2      | c2      |
-$ echo -e "a,b,c\na1,b1,c1\na2,b2,c2\n" | dsv -b "org" --with-header
-| a       | b       | c       |
-|---------+---------+---------|
-| a1      | b1      | c1      |
-| a2      | b2      | c2      |
+.--------------.
+| a  | b  | c  |
+|====+====+====|
+| a1 | b1 | c1 |
+|----+----+----|
+| a2 | b2 | c2 |
+'--------------'
 #+end_example
 
-*** Try to guess delimiter in a file
+**** graphic
+#+begin_example shell
+$ echo -e "a,b,c\na1,b1,c1\na2,b2,c2\n" | dsv -b "graphic"
+┌────┬────┬────┐
+│ a  │ b  │ c  │
+├────┼────┼────┤
+│ a1 │ b1 │ c1 │
+├────┼────┼────┤
+│ a2 │ b2 │ c2 │
+└────┴────┴────┘
+$ echo -e "a,b,c\na1,b1,c1\na2,b2,c2\n" | dsv -b "graphic-bold"
+┏━━━━┳━━━━┳━━━━┓
+┃ a  ┃ b  ┃ c  ┃
+┣━━━━╋━━━━╋━━━━┫
+┃ a1 ┃ b1 ┃ c1 ┃
+┣━━━━╋━━━━╋━━━━┫
+┃ a2 ┃ b2 ┃ c2 ┃
+┗━━━━┻━━━━┻━━━━┛
+$ echo -e "a,b,c\na1,b1,c1\na2,b2,c2\n" | dsv -b "graphic-double"
+╔════╦════╦════╗
+║ a  ║ b  ║ c  ║
+╠════╬════╬════╣
+║ a1 ║ b1 ║ c1 ║
+╠════╬════╬════╣
+║ a2 ║ b2 ║ c2 ║
+╚════╩════╩════╝
+#+end_example
+
+**** org
+This is the preset that allows to generate [[https://orgmode.org/][org-mode]] tables from CSV/DSV data.
+#+begin_example shell
+$ echo -e "a,b,c\na1,b1,c1\na2,b2,c2\n" | dsv -b "org"
+| a  | b  | c  |
+| a1 | b1 | c1 |
+| a2 | b2 | c2 |
+$ echo -e "a,b,c\na1,b1,c1\na2,b2,c2\n" | dsv -b "org" --with-header
+| a  | b  | c  |
+|----+----+----|
+| a1 | b1 | c1 |
+| a2 | b2 | c2 |
+#+end_example
+
+*** Guessing the delimiter for a file
 #+begin_example shell
 $ dsv -d /etc/passwd
 :
 #+end_example
 
-*** Show summary
+*** Getting the summary for a CSV/DSV file
 #+begin_example shell
 $ dsv -s /etc/passwd
 File:      /etc/passwd
@@ -314,7 +314,7 @@ column       width
 7            17
 #+end_example
 
-*** Convert files between formats
+*** Converting files between formats
     From Unix DSV to RFC4180:
 #+begin_example shell
 $ dsv -t rfc4180 /etc/passwd | head -4
