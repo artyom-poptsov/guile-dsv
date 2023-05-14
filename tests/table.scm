@@ -73,16 +73,16 @@
 (test-equal "format-table: with shadow"
   (string-join
    (list
-    ".--------------------.  "
-    "| a1   | b1   | c1   |  "
-    "|------+------+------|.."
-    "| a2   | b2   | c2   |.."
-    "|------+------+------|.."
-    "| a3   | b3   | c3   |.."
-    "|------+------+------|.."
-    "| a4   | b4   | c4   |.."
-    "'--------------------'.."
-    "  ......................"
+    ".--------------.  "
+    "| a1 | b1 | c1 |  "
+    "|----+----+----|.."
+    "| a2 | b2 | c2 |.."
+    "|----+----+----|.."
+    "| a3 | b3 | c3 |.."
+    "|----+----+----|.."
+    "| a4 | b4 | c4 |.."
+    "'--------------'.."
+    "  ................"
     "")
    "\n")
   (let* ((table '(("a1" "b1" "c1")
@@ -103,16 +103,16 @@
 (test-equal "format-table: with shadow and header"
   (string-join
    (list
-    ".--------------------.  "
-    "| a1   | b1   | c1   |  "
-    "|======+======+======|.."
-    "| a2   | b2   | c2   |.."
-    "|------+------+------|.."
-    "| a3   | b3   | c3   |.."
-    "|------+------+------|.."
-    "| a4   | b4   | c4   |.."
-    "'--------------------'.."
-    "  ......................"
+    ".--------------.  "
+    "| a1 | b1 | c1 |  "
+    "|====+====+====|.."
+    "| a2 | b2 | c2 |.."
+    "|----+----+----|.."
+    "| a3 | b3 | c3 |.."
+    "|----+----+----|.."
+    "| a4 | b4 | c4 |.."
+    "'--------------'.."
+    "  ................"
     "")
    "\n")
   (let* ((table '(("a1" "b1" "c1")
@@ -185,7 +185,7 @@
       (table-print-element "#" (current-output-port)))))
 
 (test-equal "table-print-element: #f"
-  " "
+  ""
   (with-output-to-string
     (lambda ()
       (table-print-element #f (current-output-port)))))
@@ -216,16 +216,16 @@
     (table-wrap-row row '(2 2))))
 
 (test-equal "table-wrap"
-  '((("aaaaaa" "aaaa") ("bbb" "bb"))
+  '((("aaaaa" "aaaaa") ("bbbbb"))
     (("ccc") ("d")))
   (let ((table '(("aaaaaaaaaa" "bbbbb")
                  ("ccc"   "d"))))
     (table-wrap table
                 (get-width table)
-                #:width 10)))
+                #:width 15)))
 
 (test-equal "table-format-row: simple formatting"
-  "  a  b  c  \n"
+  " a  b  c \n"
   (let ((data '(("a" "b" "c"))))
     (with-output-to-string
       (lambda ()
