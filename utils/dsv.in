@@ -58,6 +58,8 @@ Options:
                              into the specified width.  If with is specified as
                              \"auto\" (default value) then current terminal width
                              is used.
+                             When the required width is too small for the table
+                             wrapping, an error will be issued.
                              Zero width means no wrapping so the table might not
                              fit into the screen.
   --map-cell, -m <code>      Apply an arbitrary Scheme code on each cell value
