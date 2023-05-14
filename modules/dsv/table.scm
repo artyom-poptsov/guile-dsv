@@ -36,6 +36,7 @@
             table-format-row
             table-wrap-row
             table-wrap
+            table-error
             table-print-element
             table-calculate-cell-widths
             print-table-parameters
@@ -46,6 +47,13 @@
             table-map
             table-filter-row
             table-filter-column))
+
+
+
+(define (table-error . args)
+  (apply throw 'table-error args))
+
+
 
 (define-with-docs %table-parameters
   "Associative list of all known table parameters."
@@ -283,7 +291,9 @@ list where each row is represented as a sub-list of strings."
   (map (lambda (p)
          (let ((value (inexact->exact (floor (* (/ p 100.0)
                                                 content-width)))))
-           value))
+           (if (zero? value)
+               1
+               value)))
        percents))
 
 (define (sum lst)
@@ -322,6 +332,12 @@ list where each row is represented as a sub-list of strings."
                         current-column-widths))
          (new-widths (table-calculate-cell-widths content-width percents))
          (new-total-width (sum new-widths)))
+    (when (> (+ new-total-width extra-width) width)
+      (table-error
+       (format #f
+               "Insufficient width to properly format the table (required width: ~a; actual minimum width: ~a)"
+               width
+               (+ new-total-width extra-width))))
     (let loop ((old-table table)
                (new-table '()))
       (if (null? old-table)
