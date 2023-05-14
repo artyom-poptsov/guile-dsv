@@ -332,12 +332,12 @@ list where each row is represented as a sub-list of strings."
                         current-column-widths))
          (new-widths (table-calculate-cell-widths content-width percents))
          (new-total-width (sum new-widths)))
-    (when (> (+ new-total-width extra-width) width)
+    (when (> (+ column-count extra-width) width)
       (table-error
        (format #f
                "Insufficient width to properly format the table (required width: ~a; actual minimum width: ~a)"
                width
-               (+ new-total-width extra-width))))
+               (+ column-count extra-width))))
     (let loop ((old-table table)
                (new-table '()))
       (if (null? old-table)
