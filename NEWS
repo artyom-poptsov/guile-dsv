@@ -7,6 +7,18 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   are permitted in any medium without royalty provided the copyright
   notice and this notice are preserved.
 
+* Changes in version 0.6.0 (2023-05-14)
+** =dsv= now accepts =--width= (=-w=) option
+This option allows to set the table width for formatting.  When the width of a
+table cell is lesser than its content, the content is wrapped.  Cell widths
+difference will be smoothed to make the table more balanced.
+
+When the value for the option is set to "auto" (default behavior) Guile-DSV
+tries to fit the table into the screen width (to get the width of the terminal
+the =stty= tool is used.)  When the option is set to zero, no table resizing
+is performed thus no cell content wrapping will be done.
+** Update the help output of =dsv= and its man page
+
 * Changes in version 0.5.2 (2023-04-18)
 ** Bugfixes
 *** RFC 4180 now handles empty trailing fields correctly
