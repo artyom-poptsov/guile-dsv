@@ -236,6 +236,10 @@
   '(25 75)
   (table-calculate-cell-widths 100 '(25.0 75.0)))
 
+(test-equal "sum"
+  10
+  (sum '(2 8)))
+
 
 (define exit-status (test-runner-fail-count (test-runner-current)))
 

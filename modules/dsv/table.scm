@@ -31,6 +31,7 @@
   #:export (%table-parameters
             string*
             stylize
+            sum
             string-slice
             table-format-row
             table-wrap-row
@@ -285,6 +286,10 @@ list where each row is represented as a sub-list of strings."
            value))
        percents))
 
+(define (sum lst)
+  "Calculate the sum of numbers from LST, return the sum."
+  (apply + lst))
+
 (define* (table-wrap table
                      current-column-widths
                      #:key
@@ -311,12 +316,12 @@ list where each row is represented as a sub-list of strings."
          (extra-width (+ (* column-count 2) borders-width))
          (content-width  (- width extra-width))
          (current-column-widths (smooth current-column-widths))
-         (current-total-width (fold + 0 current-column-widths))
+         (current-total-width (sum current-column-widths))
          (percents (map (lambda (w)
                           (* (/ w current-total-width) 100.0))
                         current-column-widths))
          (new-widths (table-calculate-cell-widths content-width percents))
-         (new-total-width (fold + 0 new-widths)))
+         (new-total-width (sum new-widths)))
     (let loop ((old-table table)
                (new-table '()))
       (if (null? old-table)
