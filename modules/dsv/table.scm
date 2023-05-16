@@ -46,7 +46,8 @@
             table-format-field
             table-map
             table-filter-row
-            table-filter-column))
+            table-filter-column
+            table-generate))
 
 
 
@@ -707,5 +708,17 @@ list where each row is represented as a sub-list of strings."
                                        port)
                               (display (stylize str shadow-style) port))))
                       (iota shadow-y-offset)))))))
+
+
+
+(define* (table-generate rows
+                         cols
+                         #:key
+                         (init-procedure (const " ")))
+  (map (lambda (row-number)
+         (map (lambda (col-number)
+                (init-procedure row-number col-number))
+              (iota cols)))
+       (iota rows)))
 
 ;;; table.scm ends here.
