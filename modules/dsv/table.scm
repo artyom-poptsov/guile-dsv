@@ -717,7 +717,12 @@ list where each row is represented as a sub-list of strings."
                          (init-procedure (const " ")))
   (map (lambda (row-number)
          (map (lambda (col-number)
-                (init-procedure row-number col-number))
+                (let ((result (init-procedure row-number col-number)))
+                  (cond
+                   ((string? result)
+                    result)
+                   (else
+                    (object->string result)))))
               (iota cols)))
        (iota rows)))
 
