@@ -64,6 +64,7 @@ Options:
                              wrapping, an error will be issued.
                              Zero width means no wrapping so the table might not
                              fit into the screen.
+  --generate                 Generate a new table.
   --map-cell, -m <code>      Apply an arbitrary Scheme code on each cell value
                              before printing.
                              There are three variables that can be used in the code:
@@ -157,6 +158,7 @@ Written by Artyom V. Poptsov.
   (let* ((option-spec '((help            (single-char #\h) (value #f))
                         (summary         (single-char #\s) (value #f))
                         (width           (single-char #\w) (value #t))
+                        (generate        (single-char #\g) (value #t))
                         (map-cell        (single-char #\m) (value #t))
                         (filter-row      (single-char #\f) (value #t))
                         (filter-column   (single-char #\c) (value #t))
@@ -185,6 +187,7 @@ Written by Artyom V. Poptsov.
          (to-delimiter      (and=> (option-ref options 'to-delimiter #f)
                                    (cut string-ref <> 0)))
          (with-header?      (option-ref options 'with-header     #f))
+         (generate          (option-ref options 'generate        #f))
          (table-borders     (option-ref options 'table-borders   ""))
          (table-presets-path (option-ref options
                                          'table-presets-path
@@ -204,6 +207,23 @@ Written by Artyom V. Poptsov.
     (when version?
       (print-version)
       (exit))
+
+    (when generate
+      (let* ((dimension (string-split generate #\,))
+             (rows      (string->number (car dimension)))
+             (cols      (string->number (cadr dimension)))
+             (init-proc (and (not (null? args))
+                             (cond
+                              ((equal? (string-ref (car args) 0) #\()
+                               (eval-string (car args)))
+                              (else
+                               #f))))
+             (result (table-generate rows
+                                     cols
+                                     #:init-procedure (or init-proc
+                                                          (const " ")))))
+        (scm->dsv result))
+      (exit 0))
 
     (let ((input-port (if (null? args)
                           (current-input-port)
