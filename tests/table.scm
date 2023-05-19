@@ -241,8 +241,8 @@
   (sum '(2 8)))
 
 (test-equal "table-generate: 2x4 empty"
-  '((" " " " " " " ")
-    (" " " " " " " "))
+  '(("" "" "" "")
+    ("" "" "" ""))
   (table-generate 2 4))
 
 (test-equal "table-generate: 4x4 filled"

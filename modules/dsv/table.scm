@@ -714,7 +714,7 @@ list where each row is represented as a sub-list of strings."
 (define* (table-generate rows
                          cols
                          #:key
-                         (init-procedure (const " ")))
+                         (init-procedure (const "")))
   (map (lambda (row-number)
          (map (lambda (col-number)
                 (let ((result (init-procedure row-number col-number)))
