@@ -240,6 +240,18 @@
   10
   (sum '(2 8)))
 
+(test-equal "table-generate: 2x4 empty"
+  '((" " " " " " " ")
+    (" " " " " " " "))
+  (table-generate 2 4))
+
+(test-equal "table-generate: 4x4 filled"
+  '(("1" "2" "3"  "4")
+    ("2" "4" "6"  "8")
+    ("3" "6" "9"  "12")
+    ("4" "8" "12" "16"))
+  (table-generate 4 4 #:init-procedure (lambda (r c) (* (+ r 1) (+ c 1)))))
+
 
 (define exit-status (test-runner-fail-count (test-runner-current)))
 
