@@ -28,6 +28,8 @@
 ;;; Code:
 
 (use-modules (ice-9 getopt-long)
+             (ice-9 popen)
+             (ice-9 textual-ports)
              (scheme documentation)
              (srfi  srfi-26)
              (dsv)
@@ -209,19 +211,36 @@ Written by Artyom V. Poptsov.
       (exit))
 
     (when generate
-      (let* ((dimension (string-split generate #\,))
-             (rows      (string->number (car dimension)))
-             (cols      (string->number (cadr dimension)))
+      (let* ((parameters (map (lambda (s)
+                                (let ((lst (string-split s #\=)))
+                                  (if (= (length lst) 1)
+                                      (car lst)
+                                      (cons (string->symbol (car lst))
+                                            (cadr lst)))))
+                              (car (dsv-string->scm generate #\,))))
+             (rows       (string->number (assoc-ref parameters 'h)))
+             (cols       (string->number (assoc-ref parameters 'w)))
+             (prog-args  (assoc-ref parameters 'args))
              (init-proc (and (not (null? args))
                              (cond
                               ((equal? (string-ref (car args) 0) #\()
                                (eval-string (car args)))
                               (else
-                               #f))))
+                               (lambda (row col)
+                                 (let* ((p (if (and prog-args (string=? prog-args "none"))
+                                               (open-pipe* OPEN_READ
+                                                           (car args))
+                                               (open-pipe* OPEN_READ
+                                                           (car args)
+                                                           (number->string row)
+                                                           (number->string col))))
+                                        (result  (get-string-all p)))
+                                   (close p)
+                                   result))))))
              (result (table-generate rows
                                      cols
                                      #:init-procedure (or init-proc
-                                                          (const " ")))))
+                                                          (const "")))))
         (scm->dsv result))
       (exit 0))
 
