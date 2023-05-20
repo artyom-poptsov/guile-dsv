@@ -66,7 +66,12 @@ Options:
                              wrapping, an error will be issued.
                              Zero width means no wrapping so the table might not
                              fit into the screen.
-  --generate                 Generate a new table.
+  --generate, -g <spec>      Generate a new table according to the specification.
+                             Options:
+                             - \"w=<number>\" -- width of the table.
+                             - \"h=<number>\" -- height of the table.
+                             - \"args=none\" -- do not pass the row/col number to the
+                               program that fills the table cells.
   --map-cell, -m <code>      Apply an arbitrary Scheme code on each cell value
                              before printing.
                              There are three variables that can be used in the code:
