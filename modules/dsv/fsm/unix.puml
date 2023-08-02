@@ -1,0 +1,53 @@
+@startuml
+title Unix-style DSV parser.
+
+legend
+event-source: event-source
+endlegend
+
+[*] --> read_first_field
+
+read_first_field: Read the first field in a row.
+read_first_field --> add_final_row:                    char:eof-object? -> add-non-empty-field
+read_first_field --> skip_comment:                     comment-prefix?
+read_first_field --> add_row:                          end-of-row? -> add-field
+read_first_field --> read_field:                       delimiter? -> add-field
+read_first_field --> read_escaped_char_in_first_field: char:reverse-solidus?
+read_first_field ->  read_first_field:                 guard:#t -> push-event-to-buffer
+
+add_row: Add a row to the data.
+add_row:
+add_row: event-source: none
+add_row: entry-action: add-row
+add_row -> read_first_field
+
+add_final_row: Add a final row to the data.
+add_final_row:
+add_final_row: event-source: none
+add_final_row: exit-action:  prepare-result
+add_final_row -> [*]: stanza-empty?
+add_final_row -> [*]: guard:#t -> add-row
+
+
+read_field: Read the rest of fields in a row.
+read_field --> add_final_row:              char:eof-object? -> add-field
+read_field --> skip_comment:               comment-prefix?
+read_field --> add_row:                    end-of-row? -> add-field
+read_field --> read_field:                 delimiter? -> add-field
+read_field --> read_escaped_char_in_field: char:reverse-solidus?
+read_field ->  read_field:                 guard:#t -> push-event-to-buffer
+
+skip_comment --> [*]:              char:eof-object? -> prepare-result
+skip_comment --> read_first_field: end-of-row?
+skip_comment -> skip_comment
+
+read_escaped_char_in_first_field --> [*]:              char:eof-object? -> throw-syntax-error
+read_escaped_char_in_first_field --> read_first_field: non-printable-character? -> push-non-printable-character
+read_escaped_char_in_first_field --> read_first_field: char:newline?
+read_escaped_char_in_first_field --> read_first_field: guard:#t -> push-event-to-buffer
+
+read_escaped_char_in_field --> [*]:        char:eof-object? -> throw-syntax-error
+read_escaped_char_in_field --> read_field: non-printable-character? -> push-non-printable-character
+read_escaped_char_in_field --> read_field: guard:#t -> push-event-to-buffer
+
+@enduml
