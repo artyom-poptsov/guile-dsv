@@ -1,6 +1,6 @@
 ;;; common.scm -- Common code for DSV parsers
 
-;; Copyright (C) 2015-2021 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2015-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -29,6 +29,8 @@
   #:use-module (scheme documentation)
   #:export (set-debug! debug debug-fsm debug-fsm-transition debug-fsm-error
             dsv-error
+
+            make-delimiter-guesser
 
             value-or-default
             substitute unescape-chars
@@ -119,5 +121,34 @@ it as a debug message.."
 
 (define (buffer->string buffer)
   (list->string (reverse buffer)))
+
+
+
+(define (make-delimiter-guesser parser-proc fmt)
+  (lambda* (str #:key known-delimiters)
+    "Guess a DSV string delimiter."
+    (and (> (length known-delimiters) 1)
+         (let* ((get-length (lambda (d)
+                              (catch #t
+                                (lambda ()
+                                  (length (car (parser-proc str
+                                                            #:delimiter d))))
+                                (const 0))))
+                (delimiter-list (map (lambda (d) (cons d (get-length d)))
+                                     known-delimiters))
+                (guessed-delimiter-list
+                 (fold (lambda (a prev)
+                         (if (not (null? prev))
+                             (let ((a-count (cdr a))
+                                   (b-count (cdar prev)))
+                               (cond ((> a-count b-count) (list a))
+                                     ((= a-count b-count) (append (list a)
+                                                                  prev))
+                                     (else prev)))
+                             (list a)))
+                       '()
+                       delimiter-list)))
+           (and (= (length guessed-delimiter-list) 1)
+                (caar guessed-delimiter-list))))))
 
 ;;; common.scm ends here
