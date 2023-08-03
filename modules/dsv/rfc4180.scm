@@ -275,6 +275,33 @@
          (fsm-read-field table row (cons char buffer))))))
     (fsm-read '() '() '()))
 
+(define (make-delimiter-guesser parser-proc)
+  (lambda (parser)
+    "Guess a DSV string delimiter."
+    (and (> (length (parser-known-delimiters parser)) 1)
+         (let* ((get-length (lambda (d)
+                              (let ((parser (set-delimiter parser d)))
+                                (seek (parser-port parser) 0 SEEK_SET)
+                                (catch #t
+                                  (lambda () (length (car (parser-proc parser))))
+                                  (const 0)))))
+                (delimiter-list (map (lambda (d) (cons d (get-length d)))
+                                     (parser-known-delimiters parser)))
+                (guessed-delimiter-list
+                 (fold (lambda (a prev)
+                         (if (not (null? prev))
+                             (let ((a-count (cdr a))
+                                   (b-count (cdar prev)))
+                               (cond ((> a-count b-count) (list a))
+                                     ((= a-count b-count) (append (list a)
+                                                                  prev))
+                                     (else prev)))
+                             (list a)))
+                       '()
+                       delimiter-list)))
+           (and (= (length guessed-delimiter-list) 1)
+                (caar guessed-delimiter-list))))))
+
 (define guess-delimiter (make-delimiter-guesser dsv->scm))
 
 ;;; rfc4180.scm ends here

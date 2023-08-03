@@ -31,11 +31,12 @@
   #:use-module (scheme documentation)
   #:export (<dsv-parser>
             %make-parser
-            make-delimiter-guesser
             dsv-parser?
             parser-port
             parser-type
             parser-delimiter
+            set-delimiter
+            parser-known-delimiters
             parser-comment-prefix
             parser-read-line
             parser-read-char
@@ -97,32 +98,5 @@
   "Check if a string STR is commented."
   (and (not (eq? (parser-comment-prefix parser) 'none))
        (string-prefix? (parser-comment-prefix parser) (string-trim str))))
-
-(define (make-delimiter-guesser parser-proc)
-  (lambda (parser)
-    "Guess a DSV string delimiter."
-    (and (> (length (parser-known-delimiters parser)) 1)
-         (let* ((get-length (lambda (d)
-                              (let ((parser (set-delimiter parser d)))
-                                (seek (parser-port parser) 0 SEEK_SET)
-                                (catch #t
-                                  (lambda () (length (car (parser-proc parser))))
-                                  (const 0)))))
-                (delimiter-list (map (lambda (d) (cons d (get-length d)))
-                                     (parser-known-delimiters parser)))
-                (guessed-delimiter-list
-                 (fold (lambda (a prev)
-                         (if (not (null? prev))
-                             (let ((a-count (cdr a))
-                                   (b-count (cdar prev)))
-                               (cond ((> a-count b-count) (list a))
-                                     ((= a-count b-count) (append (list a)
-                                                                  prev))
-                                     (else prev)))
-                             (list a)))
-                       '()
-                       delimiter-list)))
-           (and (= (length guessed-delimiter-list) 1)
-                (caar guessed-delimiter-list))))))
 
 ;;; parser.scm ends here
