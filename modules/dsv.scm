@@ -65,6 +65,7 @@
   ;; DSV
   #:use-module ((dsv rfc4180) #:renamer (symbol-prefix-proc 'rfc4180:))
   #:use-module ((dsv unix)    #:renamer (symbol-prefix-proc 'unix:))
+  #:use-module (dsv parser)
 
   #:use-module (dsv common)
 
@@ -82,7 +83,8 @@
                    (delimiter 'default)
                    #:key
                    (format         'unix)
-                   (comment-prefix 'default))
+                   (comment-prefix 'default)
+                   (debug-mode?    #t))
   "Read DSV data from a PORT.  If the PORT is not set, read from the default
 input port.  If a DELIMITER is not set, use the default delimiter for a
 FORMAT.  Skip lines commented with a COMMENT-PREFIX.  Return a list of
@@ -90,9 +92,10 @@ values, or throw 'dsv-parser-error' on an error."
 
   (case format
     ((unix)
-     (let ((parser (unix:make-parser port delimiter 'default
-                                     comment-prefix)))
-       (unix:dsv->scm parser)))
+     (unix:dsv->scm port
+                    #:delimiter      delimiter
+                    #:comment-prefix comment-prefix
+                    #:debug-mode?    debug-mode?))
     ((rfc4180)
      (let ((parser (rfc4180:make-parser port delimiter 'default
                                         comment-prefix)))
@@ -104,15 +107,21 @@ values, or throw 'dsv-parser-error' on an error."
                           #:optional (delimiter 'default)
                           #:key
                           (format 'unix)
-                          (comment-prefix 'default))
+                          (comment-prefix 'default)
+                          (debug-mode?    #t))
   "Convert a DSV string STR to a list of values using a DELIMITER.  If the
 DELIMITER is not set, use the default delimiter for a FORMAT.  Skip lines
 commented with a COMMENT-PREFIX.  Return a list of values, or throw
 'dsv-parser-error' on an error."
   (case format
     ((unix)
-     (let ((parser (unix:make-string-parser str delimiter 'default comment-prefix)))
-       (unix:dsv->scm parser)))
+     (with-input-from-string str
+       (lambda ()
+         (dsv->scm (current-input-port)
+                   delimiter
+                   #:format         format
+                   #:comment-prefix comment-prefix
+                   #:debug-mode?    debug-mode?))))
     ((rfc4180)
      (let ((parser (rfc4180:make-string-parser str delimiter 'default comment-prefix)))
        (rfc4180:dsv->scm parser)))
@@ -172,9 +181,10 @@ Note that when KNOWN-DELIMITERS list contains less than two elements, the
 procedure returns '#f'."
   (case format
     ((unix)
-     (let ((parser (unix:make-string-parser str 'default known-delimiters
-                                            'default)))
-       (unix:guess-delimiter parser)))
+     (let ((known-delimiters (if (equal? known-delimiters 'default)
+                                 %known-delimiters
+                                 known-delimiters)))
+       (unix:guess-delimiter str #:known-delimiters known-delimiters)))
     ((rfc4180)
      (let ((parser (rfc4180:make-string-parser str 'default known-delimiters
                                                'default)))

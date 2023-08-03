@@ -1,6 +1,6 @@
 ## Makefile.am -- Config file for GNU Automake.
 ##
-## Copyright (C) 2015 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+## Copyright (C) 2015-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ##
 ## This file is part of Guile-DSV.
 ##
@@ -19,7 +19,7 @@
 
 include $(top_srcdir)/build-aux/am/guile.am
 
-SUBDIRS = . cli
+SUBDIRS = fsm . cli
 
 SOURCES = \
 	version.scm		\
