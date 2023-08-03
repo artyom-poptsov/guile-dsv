@@ -1,6 +1,6 @@
 ;;; rfc4180.scm -- DSV parser for Unix format.
 
-;; Copyright (C) 2015-2021 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2015-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -32,9 +32,12 @@
   #:use-module ((string transform)
                 #:select (escape-special-chars))
   #:use-module (scheme documentation)
+  #:use-module (oop goops)
   #:use-module (dsv common)
   #:use-module (dsv parser)
   #:use-module (dsv builder)
+  #:use-module (dsv fsm unix)
+  #:use-module (dsv fsm context)
   #:export (make-parser
             make-string-parser
             make-builder
@@ -52,7 +55,7 @@
 
 (define-with-docs %default-comment-prefix
   "Default comment prefix for DSV"
-  "#")
+  #\#)
 
 (define-with-docs %default-line-break
   "Default line break for DSV"
@@ -80,103 +83,36 @@
 
 
 
-(define (dsv->scm parser)
-  (define (fsm-error state message table row buffer char)
-    (dsv-error state
-               message
-               `((state  . ,state)
-                 (table  . ,table)
-                 (row    . ,row)
-                 (buffer . ,buffer)
-                 (char   . ,char))))
+(define* (dsv->scm port
+                   #:key
+                   (debug-mode? #f)
+                   (delimiter %default-delimiter)
+                   (comment-prefix %default-comment-prefix))
+  (let* ((fsm (make <unix-fsm>
+                #:debug-mode? debug-mode?))
+         (context (fsm-run! fsm
+                            (make-char-context
+                             #:port port
+                             #:debug-mode? debug-mode?
+                             #:custom-data `((delimiter . ,(if (equal? delimiter 'default)
+                                                               %default-delimiter
+                                                               delimiter))
+                                             (comment-prefix . ,(if (equal? comment-prefix 'default)
+                                                                    %default-comment-prefix
+                                                                    comment-prefix)))))))
+    (context-result context)))
 
-  (define (fsm-append-row table row buffer)
-    (define %current-state 'append-row)
-    (debug-fsm-transition %current-state 'read)
-    (fsm-read (append table (list (append row (list (buffer->string buffer)))))
-              '()
-              '()))
-
-  (define (fsm-append-field table row buffer)
-    (define %current-state 'append-field)
-    (debug-fsm-transition %current-state 'read)
-    (fsm-read table (append row (list (buffer->string buffer))) '()))
-
-  (define (fsm-append-last-field table row buffer)
-    (define %current-state 'append-last-field)
-    (debug-fsm-transition %current-state 'return-result)
-    (if (null? buffer)
-        (fsm-return-result table row '())
-        (fsm-return-result table
-                           (append row (list (buffer->string buffer)))
-                           '())))
-
-  (define (fsm-return-result table row buffer)
-    (define %current-state 'return-result)
-    (debug-fsm-transition %current-state 'end 'final)
-    ;; (format #t "table: ~a; row: ~a; buffer: ~a~%" table row buffer)
-    (if (null? row)
-        table
-        (append table (list row))))
-
-  (define (fsm-read-escaped-char table row buffer)
-    (define %current-state 'read-escaped-char)
-    (let ((char (parser-read-char parser)))
-      (debug-fsm-transition %current-state 'read)
-      (cond
-       ((eof-object? char)
-        (fsm-error %current-state
-                   "EOF escaped with a backslash"
-                   table row buffer char))
-       ((char=? char #\n)
-        (fsm-read table row (cons #\newline buffer)))
-       ((char=? char #\t)
-        (fsm-read table row (cons #\tab buffer)))
-       ((char=? char #\v)
-        (fsm-read table row (cons #\vtab buffer)))
-       ((char=? char #\r)
-        (fsm-read table row (cons #\return buffer)))
-       ((char=? char #\f)
-        (fsm-read table row (cons #\page buffer)))
-       ((or (linefeed? char) (carriage-return? char))
-            (fsm-read table row buffer))
-       (else
-        (fsm-read table row (cons char buffer))))))
-
-  (define (fsm-skip-comment table row buffer)
-    (define %current-state 'skip-comment)
-    (let ((char (parser-read-char parser)))
-      (cond
-       ((or (carriage-return? char) (linefeed? char))
-        (debug-fsm-transition %current-state 'read)
-        (fsm-read table row buffer))
-       (else
-        (fsm-skip-comment table row buffer)))))
-
-  (define (fsm-read table row buffer)
-    (define %current-state 'read)
-    (let ((char (parser-read-char parser)))
-      (cond
-       ((eof-object? char)
-        (debug-fsm-transition %current-state 'append-last-field)
-        (fsm-append-last-field table row buffer))
-       ((parser-comment-prefix? parser (string char))
-        ;; TODO: Improve comment prefix detection
-        (debug-fsm-transition %current-state 'skip-comment)
-        (fsm-skip-comment table row buffer))
-       ((or (carriage-return? char)  (linefeed? char))
-        (debug-fsm-transition %current-state 'append-row)
-        (fsm-append-row table row buffer))
-       ((delimiter? parser char)
-        (debug-fsm-transition %current-state 'append-field)
-        (fsm-append-field table row buffer))
-       ((backslash? char)
-        (debug-fsm-transition %current-state 'read-escaped-char)
-        (fsm-read-escaped-char table row buffer))
-       (else
-        (fsm-read table row (cons char buffer))))))
-
-  (fsm-read '() '() '()))
+(define* (dsv-string->scm str
+                          #:key
+                          (debug-mode? #f)
+                          (delimiter %default-delimiter)
+                          (comment-prefix %default-comment-prefix))
+  (call-with-input-string str
+    (lambda (port)
+      (dsv->scm port
+                #:debug-mode?    debug-mode?
+                #:delimiter      delimiter
+                #:comment-prefix comment-prefix))))
 
 
 (define (make-builder input-data port delimiter line-break)
@@ -213,6 +149,6 @@
      (scm->dsv (make-builder scm port delimiter line-break)))))
 
 
-(define guess-delimiter (make-delimiter-guesser dsv->scm))
+(define guess-delimiter (make-delimiter-guesser dsv-string->scm 'unix))
 
 ;;; unix.scm ends here
