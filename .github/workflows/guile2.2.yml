@@ -18,6 +18,15 @@ jobs:
           sudo apt install guile-2.2-dev texinfo help2man
           sudo apt install automake autoconf
         
+      - name: Install Guile-SMC
+        run: |
+          git clone https://github.com/artyom-poptsov/guile-smc
+          cd guile-smc
+          git checkout v0.6.1
+          autoreconf -vif
+          ./configure --with-guilesitedir=/usr/share/guile/site/2.2 --prefix=/usr
+          sudo make -j2 install
+
       - name: Checkout repository 
         uses: actions/checkout@v2
 
