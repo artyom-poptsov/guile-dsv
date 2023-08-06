@@ -34,7 +34,6 @@
   #:use-module (scheme documentation)
   #:use-module (oop goops)
   #:use-module (dsv common)
-  #:use-module (dsv parser)
   #:use-module (dsv builder)
   #:use-module (dsv fsm rfc4180)
   #:use-module (dsv fsm context)
