@@ -94,11 +94,11 @@
 
 (test-equal "dsv-string->scm: RFC 4180 with an empty field"
   '(("a" "b") ("" "d"))
-  (dsv-string->scm "a,b\n,d\n" #\, #:format 'rfc4180))
+  (dsv-string->scm "a,b\r\n,d\r\n" #\, #:format 'rfc4180))
 
 (test-equal "dsv-string->scm: RFC 4180 with a trailing empty field"
   '(("a" "b") ("c" ""))
-  (dsv-string->scm "a,b\nc,\n" #\, #:format 'rfc4180))
+  (dsv-string->scm "a,b\r\nc,\r\n" #\, #:format 'rfc4180))
 
 
 ;;; scm->dsv
