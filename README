@@ -16,6 +16,7 @@ delimiter change and conversion from one standard to another.)
 ** Requirements
    - [[https://www.gnu.org/software/guile/][GNU Guile]] 2.0.12+
    - [[http://www.nongnu.org/guile-lib/][Guile Library]] 0.1.9+
+   - [[https://github.com/artyom-poptsov/guile-smc][Guile-SMC]] 0.6.1+
 
 *** Build dependencies
     - Texinfo (contains =makeinfo= tool that is required for making the
