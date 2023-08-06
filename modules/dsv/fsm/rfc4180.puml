@@ -1,61 +1,52 @@
 @startuml
-/'
-rfc4180.puml -- Finite state machine diagram for the RFC4180 parser.
 
-Copyright (C) 2020 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+[*] --> read_first_field_first_char
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+read_first_field_first_char: Read the first character in the first field.
+read_first_field_first_char -> [*]:               char:eof-object?
+read_first_field_first_char -> read_quoted_field: char:double-quote?
+read_first_field_first_char -> [*]:               char:cr? -> throw-syntax-error
+read_first_field_first_char -> read_field:        guard:#t -> push-event-to-buffer
 
-The program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+read_field_first_char: Read the first character in a field.
+read_field_first_char -> add_final_row:     char:eof-object?
+read_field_first_char -> read_lf:           char:lf?
+read_field_first_char -> read_quoted_field: char:double-quote?
+read_field_first_char -> read_field:        guard:#t -> push-event-to-buffer
 
-You should have received a copy of the GNU General Public License
-along with the program.  If not, see <http://www.gnu.org/licenses/>.
-'/
+read_field: Read the first field in a row.
+read_field ->  add_final_row:     char:eof-object? -> add-non-empty-field
+read_field --> add_row:           end-of-row? -> add-field
+read_field --> read_quoted_field: char:double-quote?
+read_field --> read_field:        delimiter? -> add-field
+read_field --> read_lf:           char:cr?
+read_field ->  read_field:        guard:#t -> push-event-to-buffer
 
-skinparam state {
-  BackgroundColor<<Error>> Orange
-}
+read_quoted_field: Read a quoted field.
+read_quoted_field -> read_quote:         char:double-quote?
+read_quoted_field --> [*]:               char:eof-object? -> throw-syntax-error
+read_quoted_field -> read_quoted_field:  guard:#t -> push-event-to-buffer
 
-state "read-quoted-field" as read_quoted_field
-state "read-quote" as read_quote
-state "read-quote-crlf" as read_quote_crlf
-state "read-field" as read_field
-state "read-field-crlf" as read_field_crlf
-state "ERROR" as ERROR <<Error>>
+read_quote: Read the next symbol after a quote in a quoted field.
+read_quote --> read_quoted_field: char:double-quote? -> push-event-to-buffer
+read_quote --> read_field:        delimiter? -> add-field
+read_quote --> [*]:               guard:#t -> throw-syntax-error
 
-[*] --> read
-read --> [*]: eof-object?
-read --> read: (or delimiter? linefeed? carriage-return?)
-read --> read_quoted_field: double-quote?
-read --> read_field
+read_lf: Read the line feed symbol.
+read_lf --> add_row: char:lf?
+read_lf -> [*]:      guard:#t -> throw-syntax-error
 
-read_field -> read_field
-read_field --> read: (or eof-object? delimiter? linefeed?)
-read_field -> read_field_crlf: carriage-return?
-read_field --> ERROR: double-quote?
+add_row: Add a row to the data.
+add_row:
+add_row: event-source: none
+add_row: entry-action: add-row
+add_row -> read_field_first_char
 
-read_field_crlf --> read: linefeed?
-read_field_crlf --> ERROR
+add_final_row: Add a final row to the data.
+add_final_row:
+add_final_row: event-source: none
+add_final_row: exit-action:  prepare-result
+add_final_row -> [*]: stanza-empty?
+add_final_row -> [*]: guard:#t -> add-row
 
-read_quoted_field -> read_quoted_field
-read_quoted_field --> read: linefeed?
-read_quoted_field --> read_quote: double-quote?
-read_quoted_field --> ERROR: eof-object?
-
-read_quote --> read_quoted_field
-read_quote --> read: delimiter?
-read_quote -> read_quote_crlf: carriage-return?
-read_quote --> ERROR
-read_quote ---> [*]: eof-object?
-
-read_quote_crlf --> read: linefeed?
-read_quote_crlf --> ERROR
-
-ERROR --> [*]
 @enduml
