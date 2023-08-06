@@ -4,36 +4,41 @@
 
 read_first_field_first_char: Read the first character in the first field.
 read_first_field_first_char -> [*]:               char:eof-object?
+read_first_field_first_char --> read_field_first_char: delimiter? -> add-field
 read_first_field_first_char -> read_quoted_field: char:double-quote?
 read_first_field_first_char -> [*]:               char:cr? -> throw-syntax-error
 read_first_field_first_char -> read_field:        guard:#t -> push-event-to-buffer
 
 read_field_first_char: Read the first character in a field.
 read_field_first_char -> add_final_row:     char:eof-object?
-read_field_first_char -> read_lf:           char:lf?
+read_field_first_char -> read_field_first_char: delimiter? -> add-field
+read_field_first_char -> read_lf:           char:cr?
 read_field_first_char -> read_quoted_field: char:double-quote?
 read_field_first_char -> read_field:        guard:#t -> push-event-to-buffer
 
 read_field: Read the first field in a row.
 read_field ->  add_final_row:     char:eof-object? -> add-non-empty-field
-read_field --> add_row:           end-of-row? -> add-field
+read_field --> read_lf:           char:cr?
 read_field --> read_quoted_field: char:double-quote?
 read_field --> read_field:        delimiter? -> add-field
 read_field --> read_lf:           char:cr?
 read_field ->  read_field:        guard:#t -> push-event-to-buffer
 
 read_quoted_field: Read a quoted field.
-read_quoted_field -> read_quote:         char:double-quote?
-read_quoted_field --> [*]:               char:eof-object? -> throw-syntax-error
-read_quoted_field -> read_quoted_field:  guard:#t -> push-event-to-buffer
+read_quoted_field --> [*]:                char:eof-object? -> throw-syntax-error
+read_quoted_field ->  read_quote:         char:double-quote?
+read_quoted_field ->  read_quoted_field:  guard:#t -> push-event-to-buffer
 
 read_quote: Read the next symbol after a quote in a quoted field.
+read_quote --> add_final_row:     char:eof-object? -> add-field
+read_quote --> read_lf:           char:cr?
 read_quote --> read_quoted_field: char:double-quote? -> push-event-to-buffer
 read_quote --> read_field:        delimiter? -> add-field
 read_quote --> [*]:               guard:#t -> throw-syntax-error
 
 read_lf: Read the line feed symbol.
-read_lf --> add_row: char:lf?
+read_lf --> [*]:     char:eof-object? -> throw-syntax-error
+read_lf --> add_row: char:lf? -> add-field
 read_lf -> [*]:      guard:#t -> throw-syntax-error
 
 add_row: Add a row to the data.
