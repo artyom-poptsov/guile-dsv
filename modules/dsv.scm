@@ -97,9 +97,9 @@ values, or throw 'dsv-parser-error' on an error."
                     #:comment-prefix comment-prefix
                     #:debug-mode?    debug-mode?))
     ((rfc4180)
-     (let ((parser (rfc4180:make-parser port delimiter 'default
-                                        comment-prefix)))
-       (rfc4180:dsv->scm parser)))
+     (rfc4180:dsv->scm port
+                       #:delimiter      delimiter
+                       #:debug-mode?    debug-mode?))
     (else
      (dsv-error "Unknown format" format))))
 
@@ -117,14 +117,16 @@ commented with a COMMENT-PREFIX.  Return a list of values, or throw
     ((unix)
      (with-input-from-string str
        (lambda ()
-         (dsv->scm (current-input-port)
-                   delimiter
-                   #:format         format
-                   #:comment-prefix comment-prefix
-                   #:debug-mode?    debug-mode?))))
+         (unix:dsv->scm (current-input-port)
+                        #:delimiter      delimiter
+                        #:comment-prefix comment-prefix
+                        #:debug-mode?    debug-mode?))))
     ((rfc4180)
-     (let ((parser (rfc4180:make-string-parser str delimiter 'default comment-prefix)))
-       (rfc4180:dsv->scm parser)))
+     (with-input-from-string str
+       (lambda ()
+         (rfc4180:dsv->scm (current-input-port)
+                           #:delimiter      delimiter
+                           #:debug-mode?    debug-mode?))))
     (else
      (dsv-error "Unknown format" format))))
 
