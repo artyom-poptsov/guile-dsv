@@ -1,6 +1,10 @@
 @startuml
 title RFC4180-style DSV parser.
 
+legend
+event-source: event-source
+endlegend
+
 [*] --> read_first_field_first_char
 
 read_first_field_first_char: Read the first character in the first field.
