@@ -1,7 +1,7 @@
 include $(top_srcdir)/build-aux/am/guile.am
 
 SOURCES = \
-	unix-context.scm \
+	dsv-context.scm \
 	unix.scm \
 	rfc4180.scm
 
@@ -26,7 +26,7 @@ GUILE_SMC_UNIX_ARGS = \
 	-L $(abs_top_srcdir)/modules:$(abs_top_builddir)/modules \
 	--fsm-name unix-fsm \
 	--fsm-module "(dsv fsm unix)" \
-	-U "((dsv fsm context) (dsv fsm unix-context))" \
+	-U "((dsv fsm context) (dsv fsm dsv-context))" \
 	--debug \
 	--validate
 
@@ -38,7 +38,7 @@ GUILE_SMC_RFC4180_ARGS = \
 	-L $(abs_top_srcdir)/modules:$(abs_top_builddir)/modules \
 	--fsm-name rfc4180-fsm \
 	--fsm-module "(dsv fsm rfc4180)" \
-	-U "((dsv fsm context) (dsv fsm unix-context))" \
+	-U "((dsv fsm context) (dsv fsm dsv-context))" \
 	--debug \
 	--validate
 
@@ -53,11 +53,11 @@ context.scm:
 	@echo "  SMC      $@"
 	@$(GUILE_SMC_ENV) smc context $(GUILE_SMC_CONTEXT_ARGS) > $@
 
-unix.scm: unix-context.scm unix.puml
+unix.scm: dsv-context.scm unix.puml
 	@echo "  SMC      $@"
 	@$(GUILE_SMC_ENV) smc compile $(GUILE_SMC_UNIX_ARGS) unix.puml > $@
 
-rfc4180.scm: unix-context.scm rfc4180.puml
+rfc4180.scm: dsv-context.scm rfc4180.puml
 	@echo "  SMC      $@"
 	@$(GUILE_SMC_ENV) smc compile $(GUILE_SMC_RFC4180_ARGS) rfc4180.puml > $@
 

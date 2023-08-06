@@ -1,4 +1,4 @@
-(define-module (dsv fsm unix-context)
+(define-module (dsv fsm dsv-context)
   #:use-module (dsv fsm context)
   #:export (none
             event-source
