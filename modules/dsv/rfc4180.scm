@@ -101,23 +101,6 @@
      (scm->dsv (make-builder scm port delimiter line-break)))))
 
 
-;;; Reading
-
-(define (make-parser port delimiter known-delimiters comment-prefix)
-  (%make-parser port
-                'rfc4180
-                (value-or-default delimiter        %default-delimiter)
-                (value-or-default known-delimiters %known-delimiters)
-                comment-prefix))
-
-(define (make-string-parser str delimiter known-delimiters comment-prefix)
-  (call-with-input-string str (cut make-parser <> delimiter known-delimiters
-                                   comment-prefix)))
-
-;; (define (test)
-;;   (display (frame-procedure-name (stack-ref (make-stack #t) 1))))
-
-
 ;;;; The parser itself.
 
 ;; XXX: The procedure does not handle comments.  Although the RFC 4180 says
