@@ -26,7 +26,6 @@ SOURCES = \
 	config.scm		\
 	rfc4180.scm		\
 	unix.scm		\
-	parser.scm		\
 	builder.scm		\
 	table.scm		\
 	table-preset.scm	\
