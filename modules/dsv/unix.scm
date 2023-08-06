@@ -34,7 +34,6 @@
   #:use-module (scheme documentation)
   #:use-module (oop goops)
   #:use-module (dsv common)
-  #:use-module (dsv parser)
   #:use-module (dsv builder)
   #:use-module (dsv fsm unix)
   #:use-module (dsv fsm context)
@@ -68,18 +67,6 @@
     (#\return  . "\\r")
     (#\tab     . "\\t")
     (#\vtab    . "\\v")))
-
-
-(define (make-parser port delimiter known-delimiters comment-prefix)
-  (%make-parser port
-                'unix
-                (value-or-default delimiter        %default-delimiter)
-                (value-or-default known-delimiters %known-delimiters)
-                (value-or-default comment-prefix   %default-comment-prefix)))
-
-(define (make-string-parser str delimiter known-delimiters comment-prefix)
-  (call-with-input-string str (cut make-parser <> delimiter known-delimiters
-                                   comment-prefix)))
 
 
 
