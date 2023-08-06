@@ -1,4 +1,5 @@
 @startuml
+title RFC4180-style DSV parser.
 
 [*] --> read_first_field_first_char
 
