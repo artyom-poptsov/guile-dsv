@@ -115,18 +115,14 @@ commented with a COMMENT-PREFIX.  Return a list of values, or throw
 'dsv-parser-error' on an error."
   (case format
     ((unix)
-     (with-input-from-string str
-       (lambda ()
-         (unix:dsv->scm (current-input-port)
-                        #:delimiter      delimiter
-                        #:comment-prefix comment-prefix
-                        #:debug-mode?    debug-mode?))))
-    ((rfc4180)
-     (with-input-from-string str
-       (lambda ()
-         (rfc4180:dsv->scm (current-input-port)
+     (unix:dsv-string->scm str
                            #:delimiter      delimiter
-                           #:debug-mode?    debug-mode?))))
+                           #:comment-prefix comment-prefix
+                           #:debug-mode?    debug-mode?))
+    ((rfc4180)
+     (rfc4180:dsv-string->scm str
+                              #:delimiter      delimiter
+                              #:debug-mode?    debug-mode?))
     (else
      (dsv-error "Unknown format" format))))
 
