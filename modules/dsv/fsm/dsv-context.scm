@@ -1,3 +1,31 @@
+;;; dsv-context.scm -- DSV context for FSMs.
+
+;; Copyright (C) 2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;;
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; The program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with the program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+;;; Commentary:
+
+;; This module contains a context for finite-state machines (FSMs) used in
+;; Unix/RFC4180 DSV parsers.
+;;
+;; The context provides required procedures for the FSMs to work.
+
+
+;;; Code:
+
 (define-module (dsv fsm dsv-context)
   #:use-module (dsv fsm context)
   #:export (none
@@ -90,4 +118,4 @@
              (context-result context))
   (reverse-result context))
 
-;;; unix.scm ends here.
+;;; dsv-context.scm ends here.
