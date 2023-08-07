@@ -68,6 +68,7 @@
   #:use-module (dsv parser)
 
   #:use-module (dsv common)
+  #:use-module (dsv fsm context)
 
   #:export (dsv-string->scm
             scm->dsv-string
@@ -84,11 +85,15 @@
                    #:key
                    (format         'unix)
                    (comment-prefix 'default)
-                   (debug-mode?    #f))
+                   (debug-mode?    #f)
+                   (log-driver     "syslog")
+                   (log-opt        '()))
   "Read DSV data from a PORT.  If the PORT is not set, read from the default
 input port.  If a DELIMITER is not set, use the default delimiter for a
 FORMAT.  Skip lines commented with a COMMENT-PREFIX.  Return a list of
 values, or throw 'dsv-parser-error' on an error."
+
+  (smc-log-init! log-driver log-opt)
 
   (case format
     ((unix)
@@ -108,11 +113,16 @@ values, or throw 'dsv-parser-error' on an error."
                           #:key
                           (format 'unix)
                           (comment-prefix 'default)
-                          (debug-mode?    #f))
+                          (debug-mode?    #f)
+                          (log-driver     "syslog")
+                          (log-opt        '()))
   "Convert a DSV string STR to a list of values using a DELIMITER.  If the
 DELIMITER is not set, use the default delimiter for a FORMAT.  Skip lines
 commented with a COMMENT-PREFIX.  Return a list of values, or throw
 'dsv-parser-error' on an error."
+
+  (smc-log-init! log-driver log-opt)
+
   (case format
     ((unix)
      (unix:dsv-string->scm str
