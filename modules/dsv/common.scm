@@ -38,9 +38,7 @@
             linefeed?
             carriage-return?
             backslash?
-            double-quote?
-            ;; Converters
-            buffer->string))
+            double-quote?))
 
 
 (define-with-docs *debug?*
@@ -116,11 +114,6 @@ it as a debug message.."
 
 (define (backslash? char)
   (char=? #\\ char))
-
-
-
-(define (buffer->string buffer)
-  (list->string (reverse buffer)))
 
 
 

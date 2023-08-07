@@ -52,12 +52,6 @@
        (not (backslash? #\/))))
 
 
-
-(test-equal "buffer->string"
-  "hello"
-  (buffer->string '(#\o #\l #\l #\e #\h)))
-
-
 (define exit-status (test-runner-fail-count (test-runner-current)))
 
 (test-end "common")
