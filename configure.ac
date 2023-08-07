@@ -67,6 +67,7 @@ GUILE_PROGS
 GUILE_SITE_DIR
 
 GUILE_MODULE_REQUIRED([string transform])
+GUILE_MODULE_REQUIRED([smc fsm])
 
 pkgdatadir="$datadir/$PACKAGE"
 if test "x$guilesitedir" = "x"; then
