@@ -196,9 +196,10 @@ procedure returns '#f'."
                                  known-delimiters)))
        (unix:guess-delimiter str #:known-delimiters known-delimiters)))
     ((rfc4180)
-     (let ((parser (rfc4180:make-string-parser str 'default known-delimiters
-                                               'default)))
-       (rfc4180:guess-delimiter parser)))
+     (let ((known-delimiters (if (equal? known-delimiters 'default)
+                                 %known-delimiters
+                                 known-delimiters)))
+       (rfc4180:guess-delimiter str #:known-delimiters known-delimiters)))
     (else
      (dsv-error "Unknown format." format))))
 
