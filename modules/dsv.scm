@@ -84,7 +84,7 @@
                    #:key
                    (format         'unix)
                    (comment-prefix 'default)
-                   (debug-mode?    #t))
+                   (debug-mode?    #f))
   "Read DSV data from a PORT.  If the PORT is not set, read from the default
 input port.  If a DELIMITER is not set, use the default delimiter for a
 FORMAT.  Skip lines commented with a COMMENT-PREFIX.  Return a list of
@@ -108,7 +108,7 @@ values, or throw 'dsv-parser-error' on an error."
                           #:key
                           (format 'unix)
                           (comment-prefix 'default)
-                          (debug-mode?    #t))
+                          (debug-mode?    #f))
   "Convert a DSV string STR to a list of values using a DELIMITER.  If the
 DELIMITER is not set, use the default delimiter for a FORMAT.  Skip lines
 commented with a COMMENT-PREFIX.  Return a list of values, or throw
