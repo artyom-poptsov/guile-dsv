@@ -93,9 +93,6 @@
   (list->string (context-buffer/reversed context)))
 
 (define* (add-field context #:optional char)
-  (log-debug "add-field: buffer: ~S; stanza: ~a"
-             (context-buffer context)
-             (context-stanza context))
   (clear-buffer
    (push-event-to-stanza context (context-buffer->string context))))
 
@@ -105,17 +102,10 @@
       (add-field context)))
 
 (define* (add-row context #:optional char)
-  (log-debug "add-row: buffer: ~S; stanza: ~a"
-             (context-buffer context)
-             (context-stanza context))
   (clear-stanza
    (push-event-to-result context (context-stanza/reversed context))))
 
 (define* (prepare-result context #:optional char)
-  (log-debug "prepare-result: buffer: ~S; stanza: ~a; result: ~S"
-             (context-buffer context)
-             (context-stanza context)
-             (context-result context))
   (reverse-result context))
 
 ;;; dsv-context.scm ends here.
