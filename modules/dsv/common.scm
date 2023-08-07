@@ -27,7 +27,7 @@
   #:use-module ((srfi srfi-1) #:select (fold))
   #:use-module ((ice-9 regex) #:select (regexp-substitute/global))
   #:use-module (scheme documentation)
-  #:export (set-debug! debug debug-fsm debug-fsm-transition debug-fsm-error
+  #:export (set-debug! debug
             dsv-error
 
             make-delimiter-guesser
@@ -49,27 +49,6 @@
   (and *debug?*
        (let ((fmt (string-append "DEBUG: " fmt)))
          (apply format #t fmt args))))
-
-(define (debug-fsm state fmt . args)
-  "Format and print a debug message from a finite-state machine (FSM)."
-  (apply debug (format #f "[~a]: ~a" state fmt) args))
-
-(define debug-fsm-transition
-  (case-lambda
-    "Debug a finite-state machine (FSM) transition."
-    ((to)
-     (debug "--->[~a]~%" to))
-    ((from to)
-     (debug "[~a]--->[~a]~%" from to))
-    ((from to type)
-     (case type
-       ((final)
-        (debug "[~a]---> ~a~%" from to))
-       (else
-        (debug "[~a]--->[~a]~%" from to))))))
-
-(define (debug-fsm-error state)
-  (debug-fsm-transition state 'ERROR 'final))
 
 
 (define dsv-error
