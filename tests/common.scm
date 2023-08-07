@@ -32,26 +32,6 @@
   (value-or-default 'default 'other-value))
 
 
-
-(test-assert "linefeed?"
-  (and (linefeed? #\newline)
-       (not (linefeed? #\return))
-       (not (linefeed? "not a char"))))
-
-(test-assert "carriage-return?"
-  (and (carriage-return? #\return)
-       (not (carriage-return? #\newline))
-       (not (carriage-return? "not a CR"))))
-
-(test-assert "double-quote?"
-  (and (double-quote? #\")
-       (not (double-quote? #\'))))
-
-(test-assert "backslash?"
-  (and (backslash? #\\ )
-       (not (backslash? #\/))))
-
-
 (define exit-status (test-runner-fail-count (test-runner-current)))
 
 (test-end "common")

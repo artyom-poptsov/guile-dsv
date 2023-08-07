@@ -33,12 +33,7 @@
             make-delimiter-guesser
 
             value-or-default
-            substitute unescape-chars
-            ;; Predicates
-            linefeed?
-            carriage-return?
-            backslash?
-            double-quote?))
+            substitute unescape-chars))
 
 
 (define-with-docs *debug?*
@@ -100,20 +95,6 @@ it as a debug message.."
 
 (define (unescape-chars str char escape-char)
   (substitute str (string escape-char char) (string char)))
-
-
-
-(define (linefeed? char)
-  (and (char? char) (char=? char #\newline)))
-
-(define (carriage-return? char)
-  (and (char? char) (char=? char #\return)))
-
-(define (double-quote? char)
-  (and (char? char) (char=? char #\")))
-
-(define (backslash? char)
-  (char=? #\\ char))
 
 
 
