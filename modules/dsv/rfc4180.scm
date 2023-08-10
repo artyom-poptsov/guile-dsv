@@ -37,9 +37,7 @@
   #:use-module (dsv builder)
   #:use-module (dsv fsm rfc4180)
   #:use-module (dsv fsm context)
-  #:export (make-parser
-            make-string-parser
-            make-builder
+  #:export (make-builder
             scm->dsv
             scm->dsv-string
             dsv->scm
