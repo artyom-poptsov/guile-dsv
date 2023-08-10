@@ -44,23 +44,23 @@ endlegend
 
 read_first_field_first_char: Read the first character in the first field.
 read_first_field_first_char -> [*]:               char:eof-object?
+read_first_field_first_char --> read_quoted_field: char:double-quote?
 read_first_field_first_char --> read_field_first_char: delimiter? -> add-field
-read_first_field_first_char -> read_quoted_field: char:double-quote?
 read_first_field_first_char -> [*]:               char:cr? -> throw-syntax-error
 read_first_field_first_char -> read_field:        guard:#t -> push-event-to-buffer
 
 read_field_first_char: Read the first character in a field.
 read_field_first_char -> add_final_row:     char:eof-object?
+read_field_first_char -> read_quoted_field: char:double-quote?
 read_field_first_char -> read_field_first_char: delimiter? -> add-field
 read_field_first_char -> read_lf:           char:cr?
-read_field_first_char -> read_quoted_field: char:double-quote?
 read_field_first_char -> read_field:        guard:#t -> push-event-to-buffer
 
 read_field: Read the first field in a row.
 read_field ->  add_final_row:     char:eof-object? -> add-non-empty-field
+read_field --> read_field_first_char: delimiter? -> add-field
 read_field --> read_lf:           char:cr?
 read_field --> add_row:           char:lf? -> add-field
-read_field --> read_field_first_char: delimiter? -> add-field
 read_field --> [*]:               char:double-quote? -> throw-syntax-error
 read_field ->  read_field:        guard:#t -> push-event-to-buffer
 
