@@ -68,15 +68,8 @@
       (char:lf? context char)))
 
 (define (delimiter? context char)
-  (let* ((custom-data (context-custom-data context))
-         (delimiter   (hash-ref custom-data 'delimiter)))
-    (cond
-     ((char? delimiter)
-      (char=? delimiter char))
-     ((string? delimiter)
-      (char=? (string-ref delimiter 0) char))
-     (else
-      #f))))
+  (let ((delimiter (hash-ref (context-custom-data context) 'delimiter)))
+    (char=? delimiter char)))
 
 (define (comment-prefix? context char)
   (let* ((custom-data (context-custom-data context))
