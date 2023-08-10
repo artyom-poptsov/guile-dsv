@@ -75,4 +75,21 @@ add_final_row: exit-action:  prepare-result
 add_final_row -> [*]: stanza-empty?
 add_final_row -> [*]: guard:#t -> add-row
 
+' RFC 4180 explicitly states that each line must be ended with CRLF. [1]
+' On the other hand, some CSV data does not follow this rule and uses
+' only LF symbol as the line ending.
+'
+' Here we follow "Robustness principle" [2] and RFC4180 requirements
+' when reading CSV data.
+'
+' See also RFC4180, "Encoding considerations".
+'
+' References:
+' 1. <https://datatracker.ietf.org/doc/html/rfc4180#section-2>
+' 2. "be conservative in what you do, be liberal in what you accept
+'    from others"
+'    <https://en.wikipedia.org/wiki/Robustness_principle>
+read_field --> add_row: char:lf? -> add-field
+read_quote --> add_row: char:lf? -> add-field
+
 @enduml
