@@ -27,6 +27,7 @@
   #:use-module ((srfi srfi-1) #:select (fold))
   #:use-module ((ice-9 regex) #:select (regexp-substitute/global))
   #:use-module (scheme documentation)
+  #:use-module (dsv fsm context)
   #:export (set-debug! debug
             dsv-error
 
@@ -57,7 +58,7 @@
 The procedure optionally takes STATE of FSM as the first argument and prints
 it as a debug message.."
     ((state message . args)
-     (debug-fsm-error state)
+     (log-debug "[~a] ~a: ~a" state message args)
      (throw 'dsv-parser-error message args))
     ((message . args)
      (throw 'dsv-parser-error message args))))
