@@ -93,6 +93,24 @@
     (cut dsv->scm <> #:format 'rfc4180)))
 
 
+;; We allow LF line ending.
+(test-equal "dsv->scm: LF line ending, unquoted"
+  '(("aaa") ("bbb"))
+  (call-with-input-string
+      (string-join '("aaa"
+                     "bbb")
+                   "\n")
+    (cut dsv->scm <> #:format 'rfc4180)))
+
+(test-equal "dsv->scm: LF line ending, quoted"
+  '(("aaa") ("bbb"))
+  (call-with-input-string
+      (string-join '("\"aaa\""
+                     "\"bbb\"")
+                   "\n")
+    (cut dsv->scm <> #:format 'rfc4180)))
+
+
 ;;; Error testing
 
 (test-error "dsv->scm, error handling: unquoted quote 1"
