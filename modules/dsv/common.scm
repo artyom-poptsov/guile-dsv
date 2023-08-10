@@ -29,7 +29,6 @@
   #:use-module (scheme documentation)
   #:use-module (dsv fsm context)
   #:export (set-debug! debug
-            dsv-error
 
             make-delimiter-guesser
 
@@ -50,18 +49,6 @@
   (and *debug?*
        (let ((fmt (string-append "DEBUG: " fmt)))
          (apply format #t fmt args))))
-
-
-(define dsv-error
-  (case-lambda
-    "Throw 'dsv-parser exception with the given MESSAGE and arguments ARGS.
-The procedure optionally takes STATE of FSM as the first argument and prints
-it as a debug message.."
-    ((state message . args)
-     (log-debug "[~a] ~a: ~a" state message args)
-     (throw 'dsv-parser-error message args))
-    ((message . args)
-     (throw 'dsv-parser-error message args))))
 
 
 (define (value-or-default value default-value)
