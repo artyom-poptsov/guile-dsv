@@ -33,12 +33,17 @@
             make-delimiter-guesser
 
             value-or-default
-            substitute))
+            substitute
+            %known-delimiters))
 
 
 (define-with-docs *debug?*
   "Does debug mode enabled?"
   #f)
+
+(define-with-docs %known-delimiters
+  "List of known delimiters"
+  '(#\, #\: #\; #\| #\tab #\space))
 
 
 (define (set-debug! enabled?)
