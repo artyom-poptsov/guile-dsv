@@ -33,7 +33,7 @@
             make-delimiter-guesser
 
             value-or-default
-            substitute unescape-chars))
+            substitute))
 
 
 (define-with-docs *debug?*
@@ -71,9 +71,6 @@ it as a debug message.."
 
 (define (substitute str regex subst-str)
   (regexp-substitute/global #f regex str 'pre subst-str 'post))
-
-(define (unescape-chars str char escape-char)
-  (substitute str (string escape-char char) (string char)))
 
 
 
