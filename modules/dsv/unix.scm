@@ -27,6 +27,7 @@
 (define-module (dsv unix)
   #:use-module (ice-9 rdelim)
   #:use-module (ice-9 regex)
+  #:use-module (ice-9 hash-table)
   #:use-module (srfi  srfi-1)
   #:use-module (srfi  srfi-26)
   #:use-module ((string transform)
@@ -80,12 +81,13 @@
                             (make-char-context
                              #:port port
                              #:debug-mode? debug-mode?
-                             #:custom-data `((delimiter . ,(if (equal? delimiter 'default)
-                                                               %default-delimiter
-                                                               delimiter))
-                                             (comment-prefix . ,(if (equal? comment-prefix 'default)
-                                                                    %default-comment-prefix
-                                                                    comment-prefix)))))))
+                             #:custom-data (alist->hash-table
+                                            `((delimiter . ,(if (equal? delimiter 'default)
+                                                                %default-delimiter
+                                                                delimiter))
+                                              (comment-prefix . ,(if (equal? comment-prefix 'default)
+                                                                     %default-comment-prefix
+                                                                     comment-prefix))))))))
     (context-result context)))
 
 (define* (dsv-string->scm str

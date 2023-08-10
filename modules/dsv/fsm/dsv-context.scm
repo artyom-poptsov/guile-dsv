@@ -69,7 +69,7 @@
 
 (define (delimiter? context char)
   (let* ((custom-data (context-custom-data context))
-         (delimiter   (assoc-ref custom-data 'delimiter)))
+         (delimiter   (hash-ref custom-data 'delimiter)))
     (cond
      ((char? delimiter)
       (char=? delimiter char))
@@ -80,7 +80,7 @@
 
 (define (comment-prefix? context char)
   (let* ((custom-data (context-custom-data context))
-         (prefix      (assoc-ref custom-data 'comment-prefix)))
+         (prefix      (hash-ref custom-data 'comment-prefix)))
     (cond
      ((char? prefix)
       (char=? prefix char))
