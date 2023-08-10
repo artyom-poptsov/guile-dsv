@@ -43,7 +43,7 @@
 (define event-source next-char)
 
 (define (none context)
-  context)
+  #f)
 
 
 
