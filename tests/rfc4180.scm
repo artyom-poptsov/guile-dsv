@@ -17,9 +17,14 @@
 
 (use-modules (srfi srfi-64)
              (srfi srfi-26)
+             (scheme documentation)
              (dsv))
 
 (test-begin "rfc4180")
+
+(define-with-docs %crlf
+  "Carriage Return + Line Feed"
+  "\r\n")
 
 
 ;;; dsv->scm
@@ -39,20 +44,28 @@
 (test-equal "dsv->scm: input 3"
   '(("aaa" "b\"bb" "ccc"))
   (call-with-input-string
-      "\"aaa\",\"b\"\"bb\",\"ccc\""
+      (string-join '("\"aaa\",\"b\"\"bb\",\"ccc\"")
+                   %crlf)
     (cut dsv->scm <> #:format 'rfc4180)))
 
 ;; Check handling of quoted final fields in CRLF context
 (test-equal "dsv->scm: CRLF 1"
   '(("aaa"))
-  (call-with-input-string "\"aaa\"\r\n"
+  (call-with-input-string
+      (string-join '("\"aaa\""
+                     "")
+                   %crlf)
     (cut dsv->scm <> #:format 'rfc4180)))
 
 (test-equal "dsv->scm: CRLF 2"
   '(("aaa" "bbb")
     ("c\"cc" "ddd")
     ("" "e\""))
-  (call-with-input-string "aaa,\"bbb\"\r\n\"c\"\"cc\",ddd\r\n,\"e\"\"\""
+  (call-with-input-string
+      (string-join '("aaa,\"bbb\""
+                     "\"c\"\"cc\",ddd"
+                     ",\"e\"\"\"")
+                   %crlf)
     (cut dsv->scm <> #:format 'rfc4180)))
 
 ;; Check handling of empty quoted strings.
@@ -60,6 +73,23 @@
   '((""))
   (call-with-input-string
       "\"\""
+    (cut dsv->scm <> #:format 'rfc4180)))
+
+(test-equal "dsv->scm: A quoted field that contains CRLF"
+  '(("a" "b\r\nc" "d"))
+  (call-with-input-string
+      (string-join '("a,\"b\r\nc\",d")
+                   %crlf)
+    (cut dsv->scm <> #:format 'rfc4180)))
+
+(test-error "dsv->scm: EOF in a quoted field"
+  (call-with-input-string
+      "\"test"
+    (cut dsv->scm <> #:format 'rfc4180)))
+
+(test-error "dsv->scm: quote in an unquoted field"
+  (call-with-input-string
+      "a\",b"
     (cut dsv->scm <> #:format 'rfc4180)))
 
 
