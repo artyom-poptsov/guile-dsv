@@ -74,6 +74,7 @@
                    (delimiter %default-delimiter)
                    (comment-prefix %default-comment-prefix))
   (let* ((fsm (make <unix-fsm>
+                #:pre-action pre-action
                 #:debug-mode? debug-mode?))
          (context (fsm-run! fsm
                             (make-char-context

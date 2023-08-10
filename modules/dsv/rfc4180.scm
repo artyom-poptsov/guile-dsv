@@ -108,6 +108,7 @@
                    (debug-mode? #f)
                    (delimiter %default-delimiter))
   (let* ((fsm (make <rfc4180-fsm>
+                #:pre-action pre-action
                 #:debug-mode? debug-mode?))
          (context (fsm-run! fsm
                             (make-char-context
