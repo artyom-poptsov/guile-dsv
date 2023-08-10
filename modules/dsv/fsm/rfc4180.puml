@@ -40,9 +40,7 @@ read_field_first_char -> read_field:        guard:#t -> push-event-to-buffer
 read_field: Read the first field in a row.
 read_field ->  add_final_row:     char:eof-object? -> add-non-empty-field
 read_field --> read_lf:           char:cr?
-read_field --> read_quoted_field: char:double-quote?
 read_field --> read_field:        delimiter? -> add-field
-read_field --> read_lf:           char:cr?
 read_field ->  read_field:        guard:#t -> push-event-to-buffer
 
 read_quoted_field: Read a quoted field.
