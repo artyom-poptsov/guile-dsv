@@ -15,6 +15,25 @@
 ' You should have received a copy of the GNU General Public License
 ' along with the program.  If not, see <http://www.gnu.org/licenses/>.
 
+' ----------------------------------------------------------------------
+' NOTE:
+' RFC 4180 explicitly states that each line must be ended with CRLF. [1]
+' On the other hand, some CSV data does not follow this rule and uses
+' only LF symbol as the line ending.
+'
+' Here we follow "Robustness principle" [2] and RFC4180 requirements
+' when reading CSV data.
+'
+' See also RFC4180, "Encoding considerations".
+'
+' References:
+' 1. <https://datatracker.ietf.org/doc/html/rfc4180#section-2>
+' 2. "be conservative in what you do, be liberal in what you accept
+'    from others"
+'    <https://en.wikipedia.org/wiki/Robustness_principle>
+'
+' ----------------------------------------------------------------------
+
 title RFC4180-style DSV parser.
 
 legend
@@ -40,6 +59,7 @@ read_field_first_char -> read_field:        guard:#t -> push-event-to-buffer
 read_field: Read the first field in a row.
 read_field ->  add_final_row:     char:eof-object? -> add-non-empty-field
 read_field --> read_lf:           char:cr?
+read_field --> add_row:           char:lf? -> add-field
 read_field --> read_field:        delimiter? -> add-field
 read_field ->  read_field:        guard:#t -> push-event-to-buffer
 
@@ -51,8 +71,9 @@ read_quoted_field ->  read_quoted_field:  guard:#t -> push-event-to-buffer
 read_quote: Read the next symbol after a quote in a quoted field.
 read_quote --> add_final_row:     char:eof-object? -> add-field
 read_quote --> read_lf:           char:cr?
+read_quote --> add_row:           char:lf? -> add-field
 read_quote --> read_quoted_field: char:double-quote? -> push-event-to-buffer
-read_quote --> read_field:        delimiter? -> add-field
+read_quote --> read_field_first_char: delimiter? -> add-field
 read_quote --> [*]:               guard:#t -> throw-syntax-error
 
 read_lf: Read the line feed symbol.
@@ -72,22 +93,5 @@ add_final_row: event-source: none
 add_final_row: exit-action:  prepare-result
 add_final_row -> [*]: stanza-empty?
 add_final_row -> [*]: guard:#t -> add-row
-
-' RFC 4180 explicitly states that each line must be ended with CRLF. [1]
-' On the other hand, some CSV data does not follow this rule and uses
-' only LF symbol as the line ending.
-'
-' Here we follow "Robustness principle" [2] and RFC4180 requirements
-' when reading CSV data.
-'
-' See also RFC4180, "Encoding considerations".
-'
-' References:
-' 1. <https://datatracker.ietf.org/doc/html/rfc4180#section-2>
-' 2. "be conservative in what you do, be liberal in what you accept
-'    from others"
-'    <https://en.wikipedia.org/wiki/Robustness_principle>
-read_field --> add_row: char:lf? -> add-field
-read_quote --> add_row: char:lf? -> add-field
 
 @enduml
