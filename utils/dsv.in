@@ -29,6 +29,7 @@
 
 (use-modules (ice-9 getopt-long)
              (scheme documentation)
+             (logging logger)
              (srfi  srfi-26)
              (dsv)
              (dsv common)
@@ -36,7 +37,8 @@
              (dsv table-preset)
              (dsv config)
              (dsv version)
-             (dsv cli common))
+             (dsv cli common)
+             (dsv fsm context))
 
 
 
@@ -131,6 +133,8 @@ Options:
   --to-delimiter, -T <delim> Convert delimiters to the specified variant.
                              When this option is not used, default delimiters
                              for the chosen output format will be used.
+  --log-driver <dirver>      Set the logging driver.
+  --log-opt <dirver>         Set the logging options.
   --version                  Print information about Guile-DSV version.
   --debug                    Enable state machine debugging.
 
@@ -163,6 +167,8 @@ Written by Artyom V. Poptsov.
                         (delimiter       (single-char #\D) (value #t))
                         (to-delimiter    (single-char #\T) (value #t))
                         (file-format     (single-char #\F) (value #t))
+                        (log-driver                        (value #t))
+                        (log-opt                           (value #t))
                         (with-header     (single-char #\H) (value #f))
                         (table-borders   (single-char #\b) (value #t))
                         (guess-delimiter (single-char #\d) (value #f))
@@ -194,9 +200,25 @@ Written by Artyom V. Poptsov.
          (to                (option-ref options 'to              #f))
          (version?          (option-ref options 'version         #f))
          (debug?            (option-ref options 'debug           #f))
+         (log-driver        (option-ref options 'log-driver      "syslog"))
+         (log-opt           (option-ref options 'log-opt         #f))
          (args              (option-ref options '()              #f)))
 
     (set-debug! debug?)
+
+    (when debug?
+      (enable-log-level! (smc-log-default-logger) 'debug))
+    (smc-log-init! log-driver
+                   (cond
+                    ((and (string? log-opt)
+                          (not (string-null? log-opt)))
+                     (map (lambda (e)
+                            (let ((kv (string-split e #\=)))
+                              (cons (string->symbol (car kv))
+                                    (cadr kv))))
+                          (string-split log-opt #\,)))
+                    (else
+                     '())))
 
     (when help-needed?
       (print-help-and-exit table-presets-path))
