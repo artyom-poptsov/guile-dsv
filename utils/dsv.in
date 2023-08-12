@@ -240,7 +240,8 @@ Written by Artyom V. Poptsov.
                  delimiter
                  to-delimiter
                  (string->dsv-format file-format)
-                 (string->symbol to)))
+                 (string->symbol to)
+                 #:debug-mode? debug?))
        (else
         (print-file input-port
                     (string->dsv-format file-format) table-borders
