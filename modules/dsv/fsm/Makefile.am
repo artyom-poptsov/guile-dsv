@@ -75,6 +75,7 @@ uninstall-hook:
 
 CLEANFILES += \
 	context.scm	\
+	context.log	\
 	unix.log	\
 	unix.scm	\
 	rfc4180.log	\
