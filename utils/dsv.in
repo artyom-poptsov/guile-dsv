@@ -246,6 +246,7 @@ Written by Artyom V. Poptsov.
         (print-file input-port
                     (string->dsv-format file-format) table-borders
                     delimiter
+                    #:debug-mode? debug?
                     #:width (cond
                              ((string=? width "auto")
                               (let ((size (terminal-size)))
