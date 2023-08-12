@@ -41,4 +41,7 @@ HELP2MANFLAGS = --source=GNU --info-page=$(PACKAGE_TARNAME)
 dsv.1: $(abs_top_builddir)/utils/dsv
 	-$(AM_V_HELP2MAN)$(gen_man) --output="$@" "$<"
 
+CLEANFILES = \
+	dsv.1
+
 ## Makefile.am ends here
