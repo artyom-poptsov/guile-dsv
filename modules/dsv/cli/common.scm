@@ -132,6 +132,7 @@ of numbers, or #f if an error occurred."
                      (filter-row-proc #f)
                      (filter-col-proc #f)
                      (proc            #f)
+                     (debug-mode?     #f)
                      (table-presets-path %table-presets-path))
   "Pretty-print a FILE."
   (let ((delim (or delim (guess-file-delimiter input-port fmt))))
@@ -139,7 +140,8 @@ of numbers, or #f if an error occurred."
     (unless delim
       (error "Could not determine a file delimiter" input-port))
 
-    (let* ((table (remove-empty-rows (dsv->scm input-port delim #:format fmt)))
+    (let* ((table (remove-empty-rows (dsv->scm input-port delim #:format fmt
+                                               #:debug-mode? debug-mode?)))
            (table (if filter-col-proc
                       (table-filter-column filter-col-proc table)
                       table))
