@@ -37,7 +37,7 @@
 title RFC4180-style DSV parser.
 
 legend
-event-source: event-source
+event-source: next-char
 endlegend
 
 [*] --> read_first_field_first_char

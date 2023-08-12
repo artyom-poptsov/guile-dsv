@@ -40,8 +40,6 @@
             push-non-printable-character
             prepare-result))
 
-(define event-source next-char)
-
 (define (none context)
   #f)
 

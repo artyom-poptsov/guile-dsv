@@ -19,7 +19,7 @@
 title Unix-style DSV parser.
 
 legend
-event-source: event-source
+event-source: next-char
 endlegend
 
 [*] --> read_first_field
