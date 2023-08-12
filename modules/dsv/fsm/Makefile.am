@@ -8,6 +8,9 @@ SOURCES = \
 BUILT_SOURCES = \
 	context.scm
 
+INSTALL += \
+	context.scm
+
 EXTRA_DIST += \
 	unix.puml
 
