@@ -12,7 +12,10 @@ INSTALL += \
 	context.scm
 
 EXTRA_DIST += \
-	unix.puml
+	unix.puml \
+	unix.scm \
+	rfc4180.puml \
+	rfc4180.scm
 
 moddir=$(prefix)/share/guile/site/$(GUILE_EFFECTIVE_VERSION)/dsv/fsm/
 godir=$(libdir)/guile/$(GUILE_EFFECTIVE_VERSION)/site-ccache/dsv/fsm/
