@@ -93,6 +93,9 @@ AS_IF([test x"$MAKEINFO_CHECK" != x"yes"],
 AC_CONFIG_FILES([pre-inst-env:build-aux/pre-inst-env.in],
         [chmod +x pre-inst-env])
 
+AC_CONFIG_LINKS([modules/dsv/fsm/unix.puml:modules/dsv/fsm/unix.puml])
+AC_CONFIG_LINKS([modules/dsv/fsm/rfc4180.puml:modules/dsv/fsm/rfc4180.puml])
+
 # Generate a Makefile, based on the results.
 AC_OUTPUT
 
