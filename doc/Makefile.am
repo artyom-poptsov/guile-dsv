@@ -1,6 +1,6 @@
 ## Makefile.am -- Config file for GNU Automake.
 ##
-## Copyright (C) 2014-2022 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+## Copyright (C) 2014-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ##
 ## This file is part of Guile-DSV.
 ##
@@ -38,7 +38,7 @@ gen_man =							\
 
 HELP2MANFLAGS = --source=GNU --info-page=$(PACKAGE_TARNAME)
 
-dsv.1: $(top_srcdir)/utils/dsv
+dsv.1: $(abs_top_builddir)/utils/dsv
 	-$(AM_V_HELP2MAN)$(gen_man) --output="$@" "$<"
 
 ## Makefile.am ends here
