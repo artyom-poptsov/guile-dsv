@@ -88,8 +88,9 @@ describes requirements of Guile-DSV and installation process.
 Guile-DSV depends on the following packages:
 
 @itemize
-@item @url{https://www.gnu.org/software/guile/, GNU Guile}, 2.0
+@item @url{https://www.gnu.org/software/guile/, GNU Guile}, 2.2+
 @item @url{http://www.nongnu.org/guile-lib/, Guile Library}, 0.1.9+
+@item @url{https://github.com/artyom-poptsov/guile-smc, Guile-SMC}, 0.6.2+
 @end itemize
 
 @section GNU Guix
