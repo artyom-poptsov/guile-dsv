@@ -196,7 +196,9 @@ of numbers, or #f if an error occurred."
 
 
 
-(define (convert input-port source-delim target-delim source-format target-format)
+(define* (convert input-port source-delim target-delim source-format target-format
+                  #:key
+                  (debug-mode? #f))
   "Convert a data from an INPUT-PORT from a SOURCE-FORMAT to a TARGET-FORMAT."
   (case target-format
     ((unix rfc4180)
@@ -206,6 +208,7 @@ of numbers, or #f if an error occurred."
        (unless source-delim
          (error "Could not determine a file delimiter" input-port))
        (let ((table (remove-empty-rows (dsv->scm input-port source-delim
+                                                 #:debug-mode? debug-mode?
                                                  #:format source-format))))
          (scm->dsv table (current-output-port) target-delim
                    #:format target-format))))
