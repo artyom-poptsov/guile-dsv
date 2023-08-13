@@ -17,7 +17,7 @@ jobs:
           sudo apt install guile-2.2 guile-2.2-libs guile-library
           sudo apt install guile-2.2-dev texinfo help2man
           sudo apt install automake autoconf
-        
+
       - name: Install Guile-SMC
         run: |
           git clone https://github.com/artyom-poptsov/guile-smc
@@ -27,7 +27,7 @@ jobs:
           ./configure --with-guilesitedir=/usr/share/guile/site/2.2 --prefix=/usr
           sudo make -j2 install
 
-      - name: Checkout repository 
+      - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Autoreconf
