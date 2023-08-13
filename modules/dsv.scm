@@ -65,7 +65,6 @@
   ;; DSV
   #:use-module ((dsv rfc4180) #:renamer (symbol-prefix-proc 'rfc4180:))
   #:use-module ((dsv unix)    #:renamer (symbol-prefix-proc 'unix:))
-  #:use-module (dsv parser)
 
   #:use-module (dsv common)
   #:use-module (dsv fsm context)
