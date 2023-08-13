@@ -1,7 +1,7 @@
 ;; guix.scm --- GNU Guix package recipe    -*- coding: utf-8 -*-
 ;;
 ;; Copyright (C) 2017 Alex Sassmannshausen <alex@pompo.co>
-;; Copyright (C) 2021-2022 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2021-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; Author: Alex Sassmannshausen <alex@pompo.co>
 ;; Created: 2 November 2017
@@ -60,9 +60,18 @@
                       #:select? (git-predicate %source-dir)))
     (build-system gnu-build-system)
     (native-inputs
-     (list autoconf automake pkg-config texinfo help2man))
+     (list autoconf
+           automake
+           pkg-config
+           texinfo
+           help2man
+           ;; needed when cross-compiling.
+           guile-3.0
+           guile-lib
+           guile-zlib
+           guile-smc))
     (inputs (list guile-3.0))
-    (propagated-inputs (list guile-lib))
+    (propagated-inputs (list guile-lib guile-smc))
     (arguments
      `(#:modules (((guix build guile-build-system)
                    #:select (target-guile-effective-version))
