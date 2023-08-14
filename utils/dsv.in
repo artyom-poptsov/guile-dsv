@@ -133,8 +133,31 @@ Options:
   --to-delimiter, -T <delim> Convert delimiters to the specified variant.
                              When this option is not used, default delimiters
                              for the chosen output format will be used.
-  --log-driver <dirver>      Set the logging driver.
-  --log-opt <dirver>         Set the logging options.
+  --log-driver <driver>      Set the logging driver.
+                             Supported values:
+                             - \"syslog\" -- use syslog as the logging driver.
+                             - \"file\" -- log to a specified file. Output files
+                               are rotated as needed.
+                               Options:
+                                 \"file\" -- the full path to the log file.
+                             - \"null\" -- disable logging (discard all the
+                               messages.)
+
+                             Default value is \"syslog\"
+  --log-opt <options>        Set the logging options.
+                             The set of options depends on the logging driver.
+                             Format:
+                               \"key1=value1,key2=value2\"
+                             Example:
+                               \"file=/tmp/smc.log\"
+
+                             There's an option \"stderr\" that is handled
+                             independently from the log driver that allows
+                             to configure stderr logging.
+                             Example values:
+                               \"stderr=true\"
+                               \"stderr=false\"
+
   --version                  Print information about Guile-DSV version.
   --debug                    Enable state machine debugging.
 
