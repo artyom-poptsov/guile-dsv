@@ -49,4 +49,7 @@ AM_SCM_LOG_FLAGS = \
 EXTRA_DIST = \
 	${SCM_TESTS}
 
+CLEANFILES = \
+	*.log
+
 ## Makefile.am ends here
