@@ -15,12 +15,20 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with the program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+(add-to-load-path (getenv "abs_top_srcdir"))
+
 (use-modules (srfi srfi-64)
              (srfi srfi-26)
              (scheme documentation)
+             (tests test)
              (dsv))
 
-(test-begin "rfc4180")
+
+(define %test-name "rfc4180")
+
+(test-begin %test-name)
+(configure-test-logging! %test-name)
 
 (define-with-docs %crlf
   "Carriage Return + Line Feed"

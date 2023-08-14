@@ -1,6 +1,6 @@
 ;;; dsv.scm -- Tests for DSV parser.
 
-;; Copyright (C) 2014-2021 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2014-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -15,11 +15,19 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with the program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+(add-to-load-path (getenv "abs_top_srcdir"))
+
 (use-modules (srfi srfi-64)
              (srfi srfi-26)
+             (tests test)
              (dsv))
 
-(test-begin "dsv")
+
+(define %test-name "dsv")
+
+(test-begin %test-name)
+(configure-test-logging! %test-name)
 
 
 ;;; dsv->scm
