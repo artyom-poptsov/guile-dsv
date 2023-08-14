@@ -15,8 +15,12 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with the program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+(add-to-load-path (getenv "abs_top_srcdir"))
+
 (use-modules (srfi srfi-64)
              (srfi srfi-26)
+             (tests test)
              (dsv)
              (dsv table)
              (dsv table-preset))
@@ -24,6 +28,7 @@
 (define %test-name "table")
 
 (test-begin %test-name)
+(configure-test-logging! %test-name)
 
 
 (test-equal "get-width"
