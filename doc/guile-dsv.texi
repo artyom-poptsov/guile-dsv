@@ -186,13 +186,13 @@ By default a @var{format} is set to @code{'unix}.
               [#:format='unix] @
               [#:comment-prefix='default] @
               [#:debug-mode?=#f] @
-              [#:log-driver=#f] @
+              [#:log-driver="syslog"] @
               [#:log-opt='()]
 @deffnx {Scheme Procedure} dsv-string->scm string [delimiter] @
               [#:format='unix] @
               [#:comment-prefix='default] @
               [#:debug-mode?=#f] @
-              [#:log-driver=#f] @
+              [#:log-driver="syslog"] @
               [#:log-opt='()]
 Read DSV data in a specified @var{format} from a @var{port}.  If the
 @var{port} is not set, read from the default input port.  If a @var{delimiter}
@@ -206,7 +206,7 @@ to skip anything); default value of @var{comment-prefix} for Unix format is
 ``#''.
 
 Empty lines in DSV data will be converted to lists that contain one element
-(an empty string).
+(an empty string.)
 
 When format is set to @code{'unix}, then following nonprintable characters
 will be escaped with backslashes: @code{#\page}, @code{#\newline},
@@ -214,7 +214,11 @@ will be escaped with backslashes: @code{#\page}, @code{#\newline},
 ``\f''.
 
 The procedure returns a list of lists that represents a DSV table, or throws
-@code{dsv-parser-error} on an error.
+an error.
+
+@var{log-driver} allows to set the logging driver.  Possible values are:
+``syslog'' (default), ``file'', ``null''.  Using @var{log-opt} parameter one
+can pass additional options for a logging driver.
 
 The @code{dsv-string->scm} procedure works the same way as @code{dsv->scm},
 except it takes a DSV @var{string} instead of a port.
