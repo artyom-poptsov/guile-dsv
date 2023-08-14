@@ -28,7 +28,9 @@
   #:use-module ((ice-9 regex) #:select (regexp-substitute/global))
   #:use-module (scheme documentation)
   #:use-module (dsv fsm context)
-  #:export (set-debug! debug
+  #:export (set-debug!
+            debug
+            dsv-error
 
             make-delimiter-guesser
 
@@ -54,6 +56,10 @@
   (and *debug?*
        (let ((fmt (string-append "DEBUG: " fmt)))
          (apply format #t fmt args))))
+
+(define (dsv-error message . args)
+  "Throw 'dsv-parser exception with the given MESSAGE and arguments ARGS."
+  (throw 'dsv-parser-error message args))
 
 
 (define (value-or-default value default-value)
