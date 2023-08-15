@@ -56,77 +56,6 @@
 
 (define %source-dir (dirname (current-filename)))
 
-(define-public guile-smc-0.6.2
-  (package
-    (name "guile-smc")
-    (version "0.6.2")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/artyom-poptsov/guile-smc")
-             (commit (string-append "v" version))))
-       (file-name (string-append name "-" version))
-       (sha256
-        (base32
-         "11083lj048ab5zsdgwpkshxi8v5nfdr7kvmmslszbi7lq2pwfqig"))))
-    (build-system gnu-build-system)
-    (arguments
-     `(#:make-flags '("GUILE_AUTO_COMPILE=0")     ;to prevent guild warnings
-       #:modules (((guix build guile-build-system)
-                   #:select (target-guile-effective-version))
-                  ,@%gnu-build-system-modules)
-       #:imported-modules ((guix build guile-build-system)
-                           ,@%gnu-build-system-modules)
-       #:phases
-       (modify-phases %standard-phases
-         (delete 'strip)
-         (add-after 'install 'wrap-program
-           (lambda* (#:key inputs outputs #:allow-other-keys)
-             (let* ((out       (assoc-ref outputs "out"))
-                    (bin       (string-append out "/bin"))
-                    (guile-lib (assoc-ref inputs "guile-lib"))
-                    (version   (target-guile-effective-version))
-                    (scm       (string-append "/share/guile/site/"
-                                              version))
-                    (go        (string-append  "/lib/guile/"
-                                               version "/site-ccache")))
-               (wrap-program (string-append bin "/smc")
-                 `("GUILE_LOAD_PATH" prefix
-                   (,(string-append out scm)
-                    ,(string-append guile-lib scm)))
-                 `("GUILE_LOAD_COMPILED_PATH" prefix
-                   (,(string-append out go)
-                    ,(string-append guile-lib go))))))))))
-    (native-inputs
-     (list autoconf
-           automake
-           pkg-config
-           texinfo
-           help2man
-           which
-           ;; needed when cross-compiling.
-           guile-3.0
-           guile-lib))
-    (inputs
-     (list bash-minimal guile-3.0 guile-lib inetutils))
-    (home-page "https://github.com/artyom-poptsov/guile-smc")
-    (synopsis "GNU Guile state machine compiler")
-    (description
-     "Guile-SMC is a state machine compiler that allows users to describe
-finite state machines (FSMs) in Scheme in terms of transition tables.  It is
-capable to generate such transition tables from a @url{https://plantuml.com/,
-PlantUML} state diagrams.
-
-A transition table can be verified and checked for dead-ends and infinite
-loops.  Also Guile-SMC FSMs gather statistics when they run.
-
-Guile-SMC comes with a Scheme program called @command{smc} -- a state machine
-compiler itself.  It produces a Scheme code for an FSM from the PlantUML
-format.  This tool is meant to be called on a PlantUML file when a program
-with a FSM is being built (for example, from a Makefile.)")
-    (license gpl3)))
-
 
 (package
   (name "guile-dsv")
@@ -145,9 +74,9 @@ with a FSM is being built (for example, from a Makefile.)")
            guile-3.0
            guile-lib
            guile-zlib
-           guile-smc-0.6.2))
+           guile-smc))
     (inputs (list guile-3.0))
-    (propagated-inputs (list guile-lib guile-smc-0.6.2))
+    (propagated-inputs (list guile-lib guile-smc))
     (arguments
      `(#:modules (((guix build guile-build-system)
                    #:select (target-guile-effective-version))
