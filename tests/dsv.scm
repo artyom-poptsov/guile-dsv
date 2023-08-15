@@ -130,6 +130,16 @@
   (scm->dsv-string '(("a\\b"))))
 
 
+
+(test-equal "dsv-string->scm: Unicode characters"
+  '(("а1" "б1" "в1")
+    ("а2" "б2" "в2"))
+  (dsv-string->scm (string-join '("а1:б1:в1"
+                                  "а2:б2:в2")
+                                "\n")
+                   #:format 'unix))
+
+
 ;;; guess-delimiter
 
 (test-equal "guess-delimiter: comma 1" #\,     (guess-delimiter "a,b,c"))

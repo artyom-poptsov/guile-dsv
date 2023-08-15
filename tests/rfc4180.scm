@@ -157,6 +157,16 @@
   (dsv-string->scm "a,b\r\nc,\r\n" #\, #:format 'rfc4180))
 
 
+
+(test-equal "dsv-string->scm: Unicode characters"
+  '(("а1" "б1" "в1")
+    ("а2" "б2" "в2"))
+  (dsv-string->scm (string-join '("а1,б1,в1"
+                                  "а2,б2,в2")
+                                "\r\n")
+                   #:format 'rfc4180))
+
+
 ;;; scm->dsv
 
 (test-equal "scm->dsv: one row, three fields, one with a double quote"
