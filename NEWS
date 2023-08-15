@@ -7,18 +7,19 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   are permitted in any medium without royalty provided the copyright
   notice and this notice are preserved.
 
-* Unreleased
+* Changes in version 0.7.0 (2023-08-15)
 ** Guile-DSV now uses Guile State Machine Compiler (Guile-SMC)
 Guile-DSV now uses Guile State Machine Compiler (Guile-SMC) for the state
-machine code generation from the PlantUML description.
+machine code generation from the PlantUML description:
+  https://github.com/artyom-poptsov/guile-smc
 
-Guile-SMC 0.6.2 now required to build and use Guile-DSV.
 ** =dsv->scm= and =dsv-string->scm= now accept additional parameters
 Now =dsv->scm= and =dsv-string->scm= procedures accept additional parameters:
 - =#:debug-mode?= -- Enable/disable the debug mode.
 - =#:log-driver= -- Set the logging driver.
 - =#:log-opt= -- Set the logging options.
 ** =dsv= tool now accepts =--log-driver= and =--log-opt=
+** Update Texinfo documentation
 
 * Changes in version 0.6.0 (2023-05-14)
 ** =dsv= now accepts =--width= (=-w=) option
