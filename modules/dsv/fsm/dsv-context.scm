@@ -29,7 +29,6 @@
 (define-module (dsv fsm dsv-context)
   #:use-module (dsv fsm context)
   #:export (none
-            event-source
             add-field
             add-non-empty-field
             add-row
