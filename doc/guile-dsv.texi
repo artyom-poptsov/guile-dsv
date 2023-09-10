@@ -65,6 +65,7 @@ Appendices
 
 @contents
 
+@c -----------------------------------------------------------------------------
 @node Introduction
 @chapter Introduction
 
@@ -78,6 +79,7 @@ Guile-DSV supports both
 Unix-style DSV format} and @url{https://tools.ietf.org/html/rfc4180, RFC
 4180}.
 
+@c -----------------------------------------------------------------------------
 @node Installation
 @chapter Installation
 
@@ -93,6 +95,13 @@ Guile-DSV depends on the following packages:
 @item @url{https://github.com/artyom-poptsov/guile-smc, Guile-SMC}, 0.6.2+
 @end itemize
 
+@menu
+* GNU Guix::
+* Manual::
+@end menu
+
+@c -----------------------------------------------------------------------------
+@node GNU Guix
 @section GNU Guix
 
 On @url{https://guix.gnu.org/, GNU Guix} the package can be installed as
@@ -112,6 +121,8 @@ $ cd guile-dsv
 $ guix package -f guix.scm
 @end example
 
+@c -----------------------------------------------------------------------------
+@node Manual
 @section Manual
 
 On Ubuntu GNU/Linux, you will need the following packages:
@@ -164,6 +175,7 @@ installed in Guile's default path.  But, if you don't know where your
 Guile site directory is, run @command{configure} without the option,
 and it will give you a suggestion.
 
+@c -----------------------------------------------------------------------------
 @node API Reference
 @chapter API Reference
 
@@ -181,6 +193,18 @@ Unix-style DSV format}
 @end table
 
 By default a @var{format} is set to @code{'unix}.
+
+@menu
+* DSV::
+* Tables::
+* Table Presets::
+* Version Information::
+* Debugging::
+@end menu
+
+@c -----------------------------------------------------------------------------
+@node DSV
+@section DSV
 
 @deffn {Scheme Procedure} dsv->scm [port [delimiter]] @
               [#:format='unix] @
@@ -342,6 +366,7 @@ Examples:
 
 @c -----------------------------------------------------------------------------
 @cindex Tables
+@node Tables
 @section Tables
 
 Module @code{(dsv table)} provides procedures for working with parsed DSV
@@ -423,6 +448,7 @@ strings.
 
 @c -----------------------------------------------------------------------------
 @cindex Table Presets
+@node Table Presets
 @section Table Presets
 
 Module @code{(dsv table-preset)} provides procedures for working with table
@@ -447,6 +473,7 @@ Check if a @var{string} is a table preset name.
 @end deffn
 
 @c -----------------------------------------------------------------------------
+@node Version Information
 @section Version Information
 
 Module @code{(dsv version)} contains procedures that allow to acquire
@@ -477,6 +504,7 @@ Get the MAJOR, MINOR or PATCH parts of the Guile-DSV version.
 @end deffn
 
 @c -----------------------------------------------------------------------------
+@node Debugging
 @section Debugging
 
 @deffn {Scheme Procedure} set-debug! enabled?
