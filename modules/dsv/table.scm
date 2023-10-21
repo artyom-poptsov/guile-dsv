@@ -435,15 +435,14 @@ list where each row is represented as a sub-list of strings."
                        (start 0))
   "Add rows/columns numbers to a TABLE.  Return the updated table."
   (let* ((table-rows    (length table))
-         (table-columns (length (car table)))
-         (table         (cons (map number->string
-                                   (iota table-columns start))
-                              table)))
+         (table-columns (length (car table))))
     (let loop ((t table)
                (n start)
                (result '()))
       (if (null? t)
-          (reverse result)
+          (cons (cons " " (map number->string
+                               (iota table-columns start)))
+                (reverse result))
           (let ((row (car t)))
             (loop (cdr t)
                   (+ n 1)
