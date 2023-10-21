@@ -70,6 +70,7 @@ Options:
   --summary, -s              Print summary information for a file.
   --delimiter, -D <delim>    Set a delimiter.
   --guess-delimiter, -d      Guess a file delimiter and print the result.
+  --number, -n               Number rows and columns.
   --width, -w <width>        Wrap long lines of text inside cells to fit the table
                              into the specified width.  If with is specified as
                              "auto" (default value) then current terminal width
