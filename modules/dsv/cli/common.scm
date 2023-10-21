@@ -127,6 +127,7 @@ of numbers, or #f if an error occurred."
 
 (define* (print-file input-port fmt borders delim
                      #:key
+                     (numbering?      #f)
                      (width           #f)
                      (with-header?    #f)
                      (filter-row-proc #f)
@@ -153,6 +154,9 @@ of numbers, or #f if an error occurred."
                       (if filter-row-proc
                           (table-filter-row filter-row-proc table)
                           table)))
+           (table  (if numbering?
+                       (table-number table)
+                       table))
            (bspec (let ((borders (borders->alist borders)))
                     (if (and (not (null? borders))
                              (string? (car borders))
