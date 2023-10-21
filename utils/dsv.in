@@ -58,6 +58,7 @@ Options:
   --summary, -s              Print summary information for a file.
   --delimiter, -D <delim>    Set a delimiter.
   --guess-delimiter, -d      Guess a file delimiter and print the result.
+  --number, -n               Number rows and columns.
   --width, -w <width>        Wrap long lines of text inside cells to fit the table
                              into the specified width.  If with is specified as
                              \"auto\" (default value) then current terminal width
@@ -183,6 +184,7 @@ Written by Artyom V. Poptsov.
 (define (main args)
   (let* ((option-spec '((help            (single-char #\h) (value #f))
                         (summary         (single-char #\s) (value #f))
+                        (number          (single-char #\n) (value #f))
                         (width           (single-char #\w) (value #t))
                         (map-cell        (single-char #\m) (value #t))
                         (filter-row      (single-char #\f) (value #t))
@@ -203,6 +205,7 @@ Written by Artyom V. Poptsov.
          ;; Options
          (help-needed?      (option-ref options 'help            #f))
          (summary-needed?   (option-ref options 'summary         #f))
+         (numbers-needed?   (option-ref options 'number          #f))
          (width             (option-ref options 'width           "auto"))
          (guess-delimiter?  (option-ref options 'guess-delimiter #f))
          (file-format       (option-ref options 'file-format     "unix"))
@@ -270,6 +273,7 @@ Written by Artyom V. Poptsov.
                     (string->dsv-format file-format) table-borders
                     delimiter
                     #:debug-mode? debug?
+                    #:numbering? numbers-needed?
                     #:width (cond
                              ((string=? width "auto")
                               (let ((size (terminal-size)))
