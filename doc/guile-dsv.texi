@@ -441,6 +441,10 @@ Wrap a table @var{row} to fit each cell it into the specified @var{widths}.
 Return a list where each row is represented as a sub-list of strings.
 @end deffn
 
+@deffn {Scheme Procedure} table-number table [#:start=0]
+Add rows and cols numbering to the table.
+@end deffn
+
 @deffn {Scheme Procedure} string-slice s width
 Slice a string @var{s} into parts of @var{width} length.  Return the list of
 strings.
