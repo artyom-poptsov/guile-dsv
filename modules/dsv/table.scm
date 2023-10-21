@@ -46,7 +46,8 @@
             table-format-field
             table-map
             table-filter-row
-            table-filter-column))
+            table-filter-column
+            table-number))
 
 
 
@@ -429,6 +430,24 @@ list where each row is represented as a sub-list of strings."
                    port)))
     (newline port)))
 
+(define* (table-number table
+                       #:key
+                       (start 0))
+  "Add rows/columns numbers to a TABLE.  Return the updated table."
+  (let* ((table-rows    (length table))
+         (table-columns (length (car table)))
+         (table         (cons (map number->string
+                                   (iota table-columns start))
+                              table)))
+    (let loop ((t table)
+               (n start)
+               (result '()))
+      (if (null? t)
+          (reverse result)
+          (let ((row (car t)))
+            (loop (cdr t)
+                  (+ n 1)
+                  (cons (cons (number->string n) row) result)))))))
 
 (define* (format-table table
                        borders
