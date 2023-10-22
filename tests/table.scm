@@ -246,6 +246,15 @@
   (sum '(2 8)))
 
 
+
+(test-equal "table-number"
+  '((" " "0" "1" "2" "3" "4")
+    ("0" "a" "b" "c" "d" "e")
+    ("1" "f" "g" "i" "j" "k"))
+  (table-number '(("a" "b" "c" "d" "e")
+                  ("f" "g" "i" "j" "k"))))
+
+
 (define exit-status (test-runner-fail-count (test-runner-current)))
 
 (test-end %test-name)
