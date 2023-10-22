@@ -13,6 +13,11 @@ Also Guile-DSV ships with a program named =dsv= (source code is here:
 =utils/dsv.in=) that allows to read and process DSV format (including
 delimiter change and conversion from one standard to another.)
 
+*Note* that if you want to use Guile-DSV from an environment where =syslog= is
+unavailable, then you must set the =log-driver= option for =dsv->scm= to
+"file" or "none" to prevent it from trying to log messages to the syslog.  See
+the Texinfo documentation for details.
+
 ** Requirements
    - [[https://www.gnu.org/software/guile/][GNU Guile]] 2.0.12+
    - [[http://www.nongnu.org/guile-lib/][Guile Library]] 0.1.9+
