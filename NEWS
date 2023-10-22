@@ -7,6 +7,14 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   are permitted in any medium without royalty provided the copyright
   notice and this notice are preserved.
 
+* Changes in version 0.7.1 (2023-10-22)
+** =dsv= now handles =--number= option
+This option allows to add numbers to rows and columns of a table.
+** New procedure in =(dsv table)=: =table-number=
+This procedure creates a new table from the one that passed as the parameter,
+adding rows and columns numbering as the first column/first row.
+** Update Texinfo documentation
+
 * Changes in version 0.7.0 (2023-08-15)
 ** Guile-DSV now uses Guile State Machine Compiler (Guile-SMC)
 Guile-DSV now uses Guile State Machine Compiler (Guile-SMC) for the state
