@@ -95,6 +95,7 @@
 (define* (dsv-string->scm str
                           #:key
                           (debug-mode? #f)
+                          (validate? #f)
                           (delimiter %default-delimiter)
                           (comment-prefix %default-comment-prefix))
   (call-with-input-string str
@@ -102,6 +103,7 @@
       (dsv->scm port
                 #:debug-mode?    debug-mode?
                 #:delimiter      delimiter
+                #:validate?      validate?
                 #:comment-prefix comment-prefix))))
 
 

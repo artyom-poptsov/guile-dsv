@@ -127,11 +127,13 @@
 (define* (dsv-string->scm str
                           #:key
                           (debug-mode? #f)
+                          (validate?   #f)
                           (delimiter %default-delimiter))
   (call-with-input-string str
     (lambda (port)
       (dsv->scm port
                 #:debug-mode?    debug-mode?
+                #:validate?      validate?
                 #:delimiter      delimiter))))
 
 (define guess-delimiter (make-delimiter-guesser dsv-string->scm 'rfc4180))
