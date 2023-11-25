@@ -116,6 +116,7 @@ values, or throw 'dsv-parser-error' on an error."
                           #:key
                           (format 'unix)
                           (comment-prefix 'default)
+                          (validate?      #f)
                           (debug-mode?    #f)
                           (log-driver     #f)
                           (log-opt        '()))
@@ -132,10 +133,12 @@ commented with a COMMENT-PREFIX.  Return a list of values, or throw
      (unix:dsv-string->scm str
                            #:delimiter      delimiter
                            #:comment-prefix comment-prefix
+                           #:validate?      validate?
                            #:debug-mode?    debug-mode?))
     ((rfc4180)
      (rfc4180:dsv-string->scm str
                               #:delimiter      delimiter
+                              #:validate?      validate?
                               #:debug-mode?    debug-mode?))
     (else
      (dsv-error "Unknown format" format))))
