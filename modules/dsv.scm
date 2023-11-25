@@ -84,6 +84,7 @@
                    #:key
                    (format         'unix)
                    (comment-prefix 'default)
+                   (validate?      #f)
                    (debug-mode?    #f)
                    (log-driver     #f)
                    (log-opt        '()))
@@ -100,10 +101,12 @@ values, or throw 'dsv-parser-error' on an error."
      (unix:dsv->scm port
                     #:delimiter      delimiter
                     #:comment-prefix comment-prefix
+                    #:validate?      validate?
                     #:debug-mode?    debug-mode?))
     ((rfc4180)
      (rfc4180:dsv->scm port
                        #:delimiter      delimiter
+                       #:validate?      validate?
                        #:debug-mode?    debug-mode?))
     (else
      (dsv-error "Unknown format" format))))

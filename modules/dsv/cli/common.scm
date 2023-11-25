@@ -142,6 +142,7 @@ of numbers, or #f if an error occurred."
       (error "Could not determine a file delimiter" input-port))
 
     (let* ((table (remove-empty-rows (dsv->scm input-port delim #:format fmt
+                                               #:validate? #t
                                                #:debug-mode? debug-mode?)))
            (table (if filter-col-proc
                       (table-filter-column filter-col-proc table)

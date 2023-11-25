@@ -7,6 +7,9 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   are permitted in any medium without royalty provided the copyright
   notice and this notice are preserved.
 
+* Unreleased
+** Parsers now can check if the table rows have consistent lengths
+
 * Changes in version 0.7.1 (2023-10-22)
 ** =dsv= now handles =--number= option
 This option allows to add numbers to rows and columns of a table.

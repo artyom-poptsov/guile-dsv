@@ -73,6 +73,7 @@
                    #:key
                    (debug-mode? #f)
                    (delimiter %default-delimiter)
+                   (validate? #f)
                    (comment-prefix %default-comment-prefix))
   (let* ((fsm (make <unix-fsm>
                 #:pre-action pre-action
@@ -85,6 +86,7 @@
                                             `((delimiter . ,(if (equal? delimiter 'default)
                                                                 %default-delimiter
                                                                 delimiter))
+                                              (validate? . ,validate?)
                                               (comment-prefix . ,(if (equal? comment-prefix 'default)
                                                                      %default-comment-prefix
                                                                      comment-prefix))))))))

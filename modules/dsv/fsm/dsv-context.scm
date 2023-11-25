@@ -91,9 +91,41 @@
       context
       (add-field context)))
 
+(define (throw-row-length-error context row row-length expected-row-length)
+  (context-log-error context
+                     "Inconsistent length mismatch on line ~a: expected ~a, got ~a"
+                     (context-row-number context)
+                     expected-row-length
+                     row-length)
+  (error (format #f
+                 "Inconsistent row length on line ~a: expected ~a, got ~a; "
+                 (context-row-number context)
+                 expected-row-length
+                 row-length)
+         (context-port context)
+         (context-row-number context)
+         (context-col-number context)
+         row
+         context))
+
 (define* (add-row context #:optional char)
-  (clear-stanza
-   (push-event-to-result context (context-stanza/reversed context))))
+  (let ((result (context-result context))
+        (stanza (context-stanza/reversed context)))
+    (if (or (not (hash-ref (context-custom-data context) 'validate?))
+            (null? result))
+        (clear-stanza
+         (push-event-to-result context (context-stanza/reversed context)))
+        (let* ((stanza-length   (length stanza))
+               (last-row        (car result))
+               (last-row-length (length last-row)))
+          (if (not (equal? stanza-length last-row-length))
+              (throw-row-length-error context
+                                      stanza
+                                      stanza-length
+                                      last-row-length)
+              (clear-stanza
+               (push-event-to-result context
+                                     (context-stanza/reversed context))))))))
 
 (define* (prepare-result context #:optional char)
   (reverse-result context))

@@ -107,6 +107,7 @@
 (define* (dsv->scm port
                    #:key
                    (debug-mode? #f)
+                   (validate? #f)
                    (delimiter %default-delimiter))
   (let* ((fsm (make <rfc4180-fsm>
                 #:pre-action pre-action
@@ -119,6 +120,7 @@
                                             `((delimiter . ,(if (equal? delimiter 'default)
                                                                 %default-delimiter
                                                                 delimiter))
+                                              (validate?      . ,validate?)
                                               (comment-prefix . #f)))))))
     (context-result context)))
 
