@@ -98,7 +98,7 @@
                      expected-row-length
                      row-length)
   (error (format #f
-                 "Inconsistent row length on line ~a: expected ~a, got ~a; "
+                 "Inconsistent row length on line ~a: expected ~a, got ~a"
                  (context-row-number context)
                  expected-row-length
                  row-length)
