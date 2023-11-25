@@ -96,6 +96,17 @@
   'dsv-error
   (dsv-string->scm "a:b:c\\"))
 
+(test-assert "dsv-string->dsv: Inconsistent row length"
+  (dsv-string->scm "a,b,c\nd,e\n"
+                   #\,
+                   #:validate? #f))
+
+(test-error "dsv-string->dsv: Inconsistent row length: error"
+  #t
+  (dsv-string->scm "a,b,c\nd,e\n"
+                   #\,
+                   #:validate? #t))
+
 
 ;;; scm->dsv
 
