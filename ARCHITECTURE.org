@@ -1,0 +1,26 @@
+#+TITLE: Guile-DSV Architecture
+#+STARTUP: content hidestars
+
+Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
+
+  Copying and distribution of this file, with or without modification,
+  are permitted in any medium without royalty provided the copyright
+  notice and this notice are preserved.
+
+* Architecture
+The main goal of this project is to provide a [[https://www.gnu.org/software/guile/][GNU Guile]] (Scheme) interface to
+parse RFC4180 and more general DSV format.  In addition to that the project
+provides a console tool named =dsv= which uses Guile-DSV facilities to handle
+DSV data in a terminal
+
+** Code Map
+*** Overview
+All the GNU Guile modules are in =modules= directory.  =dsv= program source
+code can be found in =utils= directory.
+
+*** Tests
+Tests are in =tests= directory.  They are written using SRFI-61.
+
+When a new functionality is being added a new test case (or several test
+cases) should be written for it.
+
