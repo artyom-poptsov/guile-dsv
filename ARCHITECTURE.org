@@ -18,6 +18,28 @@ DSV data in a terminal
 All the GNU Guile modules are in =modules= directory.  =dsv= program source
 code can be found in =utils= directory.
 
+*** Main Module
+For the common tasks there's a =(dsv)= module that provides basic procedures
+to read/write DSV data.
+
+*** Finite State Machine (FSM) Modules
+All the files required to build and run the parser FSM are placed in =(dsv
+fsm)= modules.  The FSM code is compiled from [[https://plantuml.com/][PlantUML]] diagrams by [[https://github.com/artyom-poptsov/guile-smc][Guile-SMC]].
+
+*** Command Line Interface Modules
+The code required for the =dsv= tool is in the =(dsv cli)= modules.
+
+*** Parser Modules
+The parser for each format is in its own module:
+- =(dsv unix)=: DSV (Unix) parser
+- =(dsv rfc4180)=: RFC 4180 parser.
+
+*** DSV Tables
+=(dsv table)= contains the code to handle DSV tables.
+
+=(dsv table-preset)= contains the code to draw pseudo-graphic tables in the
+terminal.
+
 *** Tests
 Tests are in =tests= directory.  They are written using SRFI-61.
 
