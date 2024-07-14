@@ -137,6 +137,20 @@
 
 
 
+(test-equal "smooth: zero elements in a list"
+  '()
+  (smooth '()))
+
+(test-equal "smooth: one element in a list"
+  '(1)
+  (smooth '(1)))
+
+(test-equal "smooth: two elements in a list"
+  '(26.0 26.0)
+  (smooth '(42 10)))
+
+
+
 (test-equal "filter-row"
   '(("a1" "b1" "c1")
     ("a3" "b3" "c3"))

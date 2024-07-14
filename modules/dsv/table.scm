@@ -32,6 +32,7 @@
             string*
             stylize
             sum
+            smooth
             string-slice
             table-format-row
             table-wrap-row
@@ -267,25 +268,27 @@ list where each row is represented as a sub-list of strings."
 (define (smooth lst)
   (define (avg a b)
     (/ (+ a b) 2.0))
-  (let* ((len         (length lst))
-         (indexed-lst (map cons (iota len) lst))
-         (sorted-lst  (sort indexed-lst (lambda (e n) (< (cdr e) (cdr n))))))
-    (let loop ((idx    0)
-               (result '()))
-      (if (= idx (- len 1))
-          (map cdr
-               (sort (cons (cons idx
-                                 (avg (cdr (list-ref sorted-lst idx))
-                                       (cdr (list-ref sorted-lst (- idx 1)))))
-                           result)
-                     (lambda (e n)
-                       (< (car e) (car n)))))
-          (let ((current (list-ref sorted-lst idx))
-                (next    (list-ref sorted-lst (+ idx 1))))
-            (loop (+ idx 1)
-                  (cons (cons (car current)
-                              (avg (cdr current) (cdr next)))
-                        result)))))))
+  (if (< (length lst) 2)
+      lst
+      (let* ((len         (length lst))
+             (indexed-lst (map cons (iota len) lst))
+             (sorted-lst  (sort indexed-lst (lambda (e n) (< (cdr e) (cdr n))))))
+        (let loop ((idx    0)
+                   (result '()))
+          (if (= idx (- len 1))
+              (map cdr
+                   (sort (cons (cons idx
+                                     (avg (cdr (list-ref sorted-lst idx))
+                                          (cdr (list-ref sorted-lst (- idx 1)))))
+                               result)
+                         (lambda (e n)
+                           (< (car e) (car n)))))
+              (let ((current (list-ref sorted-lst idx))
+                    (next    (list-ref sorted-lst (+ idx 1))))
+                (loop (+ idx 1)
+                      (cons (cons (car current)
+                                  (avg (cdr current) (cdr next)))
+                            result))))))))
 
 (define (table-calculate-cell-widths content-width percents)
   "Calculate table cell CONTENT-WIDTHS according to percents."
