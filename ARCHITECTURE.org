@@ -40,6 +40,34 @@ The parser for each format is in its own module:
 =(dsv table-preset)= contains the code to draw pseudo-graphic tables in the
 terminal.
 
+**** Table Presets
+Table presets are stored in =presets= directory and installed along with
+Guile-DSV.  The goal is to make the tables easily configurable.  The
+configuration can be done with a set of table options that control how each
+part of a table is rendered in a terminal.
+
+For example, option called =border-top-left= controls which symbol is used for
+the top left corner of a table; the option can be shortened to =btl= to make
+it easier to specify this parameter in a command line.
+
+Table configuration file is but a Scheme file that contains an associative
+list of options like follows:
+
+#+BEGIN_EXAMPLE scheme
+((name                    . "graphic")
+ (description             . "Pseudo-graphic table.")
+ ;; Table border style.
+ (border-top              . "─")
+ (border-top-left         . "┌")
+ (border-top-right        . "┐")
+ ;; ...
+  (header-column-separator . "┃"))
+#+END_EXAMPLE
+
+In configuration files it is recommended to use full-length option names
+(e.g. =border-top-left=) instead of shortened versions (e.g. =btl=) to make
+the code easier to read.
+
 *** Tests
 Tests are in =tests= directory.  They are written using SRFI-61.
 
