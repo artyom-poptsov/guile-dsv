@@ -1,6 +1,6 @@
 ;;; table-preset.scm -- Tests for table presets.
 
-;; Copyright (C) 2021 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2021-2024 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -30,6 +30,17 @@
 
 (test-assert "table-preset-name?: #f"
   (not (table-preset-name? "rs=-,cs=|")))
+
+
+
+(define %table-presets-path
+  (format #f "~a/presets" (getenv "abs_top_srcdir")))
+
+(test-assert "print-table-presets"
+  (with-output-to-string
+    (lambda ()
+      (print-table-presets (current-output-port)
+                           #:table-presets-path %table-presets-path))))
 
 
 (define exit-status (test-runner-fail-count (test-runner-current)))
