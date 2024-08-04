@@ -7,8 +7,34 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   are permitted in any medium without royalty provided the copyright
   notice and this notice are preserved.
 
-* Unreleased
-** Parsers now can check if the table rows have consistent lengths
+* Changes in version 0.7.2 (2024-08-04)
+** Bugfixes
+*** Parsers now can check if the table rows have consistent lengths
+Guile-DSV table formatters would always fail when a table has inconsistent
+column number in rows.  Now this is fixed by adding an additional check for
+the row length consistency to the parser.
+
+This behavior is enabled by default for the CLI. For =dsv->scm= and
+=dsv-string->scm= procedures validation is disabled by default.  The rationale
+is that in CLI a user most likely wants to pretty-print a table, and in that
+case we currently cannot print a ill-formatted table anyways so it's
+reasonable to throw an error as soon as possible.  For the programming API it
+is normal to read ill-formatted data as it is up to user how to handle the
+errors and there are more than one way to solve problems with data.  Plus we
+keep the API backward-compatible with Guile-DSV 0.7.1.
+*** Table formatter now handles tables with less than 2 columns
+The Guile-DSV table formatter would always fail when a table has less than 2
+columns.  Now this is fixed.
+*** Fix =make distcheck=
+Now the command produces a distribution of the package as it should.
+** Improvements to the project documentation
+*** New =ARCHITECTURE.org= file
+This file contains the overview of the Guile-DSV architecture (as proposed in
+<https://matklad.github.io//2021/02/06/ARCHITECTURE.md.html>.)
+*** New =CODE_OF_CONDUCT.org= file
+The document is a copy of
+<https://www.contributor-covenant.org/version/2/1/code_of_conduct/> converted
+into org-mode format.
 
 * Changes in version 0.7.1 (2023-10-22)
 ** =dsv= now handles =--number= option

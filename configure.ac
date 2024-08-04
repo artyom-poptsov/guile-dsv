@@ -3,7 +3,7 @@ dnl   Process this file with autoconf to produce configure.
 dnl
 
 define(GUILE_DSV_CONFIGURE_COPYRIGHT, [[
-Copyright (C) 2013-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+Copyright (C) 2013-2024 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 
 This file is part of Guile-DSV.
 
@@ -21,7 +21,7 @@ You should have received a copy of the GNU General Public License
 along with Guile-DSV.  If not, see <http://www.gnu.org/licenses/>.
 ]])
 
-AC_INIT([Guile-DSV], [0.7.1], [poptsov.artyom@gmail.com],
+AC_INIT([Guile-DSV], [0.7.2], [poptsov.artyom@gmail.com],
                      [guile-dsv],
                      [https://github.com/artyom-poptsov/guile-dsv])
 
