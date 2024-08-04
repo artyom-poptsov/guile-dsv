@@ -47,7 +47,8 @@ AM_SCM_LOG_FLAGS = \
 	-s
 
 EXTRA_DIST = \
-	${SCM_TESTS}
+	${SCM_TESTS} \
+	test.scm
 
 CLEANFILES = \
 	*.log
