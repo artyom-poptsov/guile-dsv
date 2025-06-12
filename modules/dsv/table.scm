@@ -230,7 +230,11 @@ STR."
               (loop (+ idx width)
                     (cons (string-copy s idx (+ idx width)) result)))))))
 
-(define (table-wrap-row row widths)
+(define* (table-wrap-row
+          row
+          widths
+          #:key
+          (string-slice string-slice))
   "Wrap a table ROW to fit each cell it into the specified WIDTHS.  Return a
 list where each row is represented as a sub-list of strings."
   (let loop ((r row)
@@ -309,7 +313,8 @@ list where each row is represented as a sub-list of strings."
                      #:key
                      (width 80)
                      (borders '())
-                     (padding 0))
+                     (padding 0)
+                     (string-slice string-slice))
   (let* ((column-count (length (car table)))
          (border-left      (or (assoc-ref borders 'border-left) ""))
          (column-separator (or (assoc-ref borders 'column-separator) ""))
@@ -347,7 +352,8 @@ list where each row is represented as a sub-list of strings."
       (if (null? old-table)
           (reverse new-table)
           (let* ((old-row  (car old-table))
-                 (new-rows (table-wrap-row old-row new-widths)))
+                 (new-rows (table-wrap-row old-row new-widths
+                                           #:string-slice string-slice)))
             (loop (cdr old-table)
                   (append (list new-rows) new-table)))))))
 
@@ -456,7 +462,8 @@ list where each row is represented as a sub-list of strings."
                        #:key
                        (width #f)
                        (with-header? #f)
-                       (port (current-output-port)))
+                       (port (current-output-port))
+                       (string-slice string-slice))
   "Format file and print it to a PORT."
   (let* ((padding 0)
          (table  (if (and width (not (zero? width)))
@@ -464,7 +471,8 @@ list where each row is represented as a sub-list of strings."
                                  (get-width table)
                                  #:borders borders
                                  #:width width
-                                 #:padding padding)
+                                 #:padding padding
+                                 #:string-slice string-slice)
                      table))
          (row-widths        (get-width table))
          (column-separator    (or (assoc-ref borders 'column-separator) ""))
