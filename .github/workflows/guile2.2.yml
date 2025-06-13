@@ -18,6 +18,10 @@ jobs:
           sudo apt install guile-2.2-dev texinfo help2man
           sudo apt install automake autoconf
 
+      - name: Select Guile 2.2
+        run: |
+          echo 1 | sudo update-alternatives --config guile
+
       - name: Install Guile-SMC
         run: |
           git clone https://github.com/artyom-poptsov/guile-smc
