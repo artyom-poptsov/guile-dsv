@@ -254,6 +254,52 @@
                 #:string-slice (lambda (s w)
                                  s))))
 
+(test-equal "table-wrap: Custom calculate-cell-widths"
+  (string-join
+   (list ".-----------------."
+         "| a1234 | b1 | c1 |"
+         "| 56789 | 23 | 23 |"
+         "| 0     | 45 | 45 |"
+         "|       | 67 | 67 |"
+         "|       | 89 | 89 |"
+         "|       | 0  | 0  |"
+         "|=======+====+====|"
+         "| a2345 | b2 | c2 |"
+         "| 67890 | 34 | 34 |"
+         "|       | 56 | 56 |"
+         "|       | 78 | 78 |"
+         "|       | 90 | 90 |"
+         "|-------+----+----|"
+         "| a3456 | b3 | c3 |"
+         "| 7890  | 45 | 45 |"
+         "|       | 67 | 67 |"
+         "|       | 89 | 89 |"
+         "|       | 0  | 0  |"
+         "|-------+----+----|"
+         "| a4567 | b4 | c4 |"
+         "| 890   | 56 | 56 |"
+         "|       | 78 | 78 |"
+         "|       | 90 | 90 |"
+         "'-----------------'"
+         "")
+   "\n")
+  (let* ((table '(("a1234567890" "b1234567890" "c1234567890")
+                  ("a234567890" "b234567890" "c234567890")
+                  ("a34567890" "b34567890" "c34567890")
+                  ("a4567890" "b4567890" "c4567890")))
+         (presets-path (string-append (getenv "abs_top_srcdir")
+                                      "/presets/"))
+         (preset (load-table-preset "ascii"
+                                    #:table-presets-path presets-path)))
+    (with-output-to-string
+      (lambda ()
+        (format-table table preset
+                      #:with-header? #t
+                      #:width 20
+                      #:calculate-cell-widths
+                      (lambda (content-width percents)
+                        (list 5 2 2)))))))
+
 (test-equal "table-format-row: simple formatting"
   " a  b  c \n"
   (let ((data '(("a" "b" "c"))))

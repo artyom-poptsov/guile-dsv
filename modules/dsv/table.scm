@@ -316,9 +316,11 @@ sub-list of strings."
                      (width 80)
                      (borders '())
                      (padding 0)
-                     (string-slice string-slice))
+                     (string-slice string-slice)
+                     (calculate-cell-widths table-calculate-cell-widths))
   "Wrap a TABLE in such way that the table will fit into WIDTH
-columns using a procedure STRING-SLICE."
+columns using a procedure STRING-SLICE. The individual cell withs are
+calculated width a CALCULATE-CELL-WIDTHS procedure."
   (let* ((column-count (length (car table)))
          (border-left      (or (assoc-ref borders 'border-left) ""))
          (column-separator (or (assoc-ref borders 'column-separator) ""))
@@ -343,7 +345,7 @@ columns using a procedure STRING-SLICE."
          (percents (map (lambda (w)
                           (* (/ w current-total-width) 100.0))
                         current-column-widths))
-         (new-widths (table-calculate-cell-widths content-width percents))
+         (new-widths (calculate-cell-widths content-width percents))
          (new-total-width (sum new-widths)))
     (when (> (+ column-count extra-width) width)
       (table-error
@@ -464,12 +466,14 @@ columns using a procedure STRING-SLICE."
 (define* (format-table table
                        borders
                        #:key
+                       (calculate-cell-widths table-calculate-cell-widths)
                        (width #f)
                        (with-header? #f)
                        (port (current-output-port))
                        (string-slice string-slice))
   "Print a formatted TABLE to a PORT, using a BORDERS specification.  The table
-will be fit into the specified WIDTH using STRING-SLICE procedure."
+will be fit into the specified WIDTH using STRING-SLICE procedure, and the
+individual cell widths are calculated with a CALCULATE-CELL-WIDTHS procedure."
   (let* ((padding 0)
          (table  (if (and width (not (zero? width)))
                      (table-wrap table
@@ -477,7 +481,8 @@ will be fit into the specified WIDTH using STRING-SLICE procedure."
                                  #:borders borders
                                  #:width width
                                  #:padding padding
-                                 #:string-slice string-slice)
+                                 #:string-slice string-slice
+                                 #:calculate-cell-widths calculate-cell-widths)
                      table))
          (row-widths        (get-width table))
          (column-separator    (or (assoc-ref borders 'column-separator) ""))
