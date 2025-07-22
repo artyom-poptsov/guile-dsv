@@ -1,7 +1,7 @@
 ;; guix.scm --- GNU Guix package recipe    -*- coding: utf-8 -*-
 ;;
 ;; Copyright (C) 2017 Alex Sassmannshausen <alex@pompo.co>
-;; Copyright (C) 2021-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2021-2025 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; Author: Alex Sassmannshausen <alex@pompo.co>
 ;; Created: 2 November 2017
@@ -78,30 +78,29 @@
     (inputs (list guile-3.0))
     (propagated-inputs (list guile-lib guile-smc))
     (arguments
-     `(#:modules (((guix build guile-build-system)
-                   #:select (target-guile-effective-version))
-                  ,@%gnu-build-system-modules)
-       #:imported-modules ((guix build guile-build-system)
-                           ,@%gnu-build-system-modules)
-       #:phases (modify-phases %standard-phases
-                  (add-after 'install 'wrap-program
-                    (lambda* (#:key inputs outputs #:allow-other-keys)
-                      (let* ((out (assoc-ref outputs "out"))
-                             (bin (string-append out "/bin"))
-                             (guile-lib (assoc-ref inputs "guile-lib"))
-                             (version (target-guile-effective-version))
-                             (scm (string-append "/share/guile/site/"
-                                                 version))
-                             (go (string-append  "/lib/guile/"
-                                                 version "/site-ccache")))
-                        (wrap-program (string-append bin "/dsv")
-                          `("GUILE_LOAD_PATH" prefix
-                            (,(string-append out scm)
-                             ,(string-append guile-lib scm)))
-                          `("GUILE_LOAD_COMPILED_PATH" prefix
-                            (,(string-append out go)
-                             ,(string-append guile-lib go)))))
-                      #t)))))
+     (list
+      #:modules `(((guix build guile-build-system)
+                  #:select (target-guile-effective-version))
+                  ,@%default-gnu-imported-modules)
+      #:imported-modules `((guix build guile-build-system)
+                           ,@%default-gnu-imported-modules)
+      #:phases #~(modify-phases %standard-phases
+                   (add-after 'install 'wrap-program
+                     (lambda* (#:key inputs outputs #:allow-other-keys)
+                       (let* ((bin (string-append #$output "/bin"))
+                              (guile-lib (assoc-ref inputs "guile-lib"))
+                              (version (target-guile-effective-version))
+                              (scm (string-append "/share/guile/site/"
+                                                  version))
+                              (go (string-append  "/lib/guile/"
+                                                  version "/site-ccache")))
+                         (wrap-program (string-append bin "/dsv")
+                                       `("GUILE_LOAD_PATH" prefix
+                                         (,(string-append #$output scm)
+                                          ,(string-append guile-lib scm)))
+                                       `("GUILE_LOAD_COMPILED_PATH" prefix
+                                         (,(string-append #$output go)
+                                          ,(string-append guile-lib go))))))))))
     (home-page "https://github.com/artyom-poptsov/guile-dsv")
     (synopsis "DSV module for Guile")
     (description
