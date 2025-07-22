@@ -150,6 +150,14 @@
                                 "\n")
                    #:format 'unix))
 
+(test-equal "dsv-string->scm: Unicode characters: RFC4180"
+  '(("Weiß" "White" "Белый")
+    ("Grün" "Green" "Зелёный"))
+  (dsv-string->scm (string-join '("\"Weiß\",\"White\",\"Белый\""
+                                  "\"Grün\",\"Green\",\"Зелёный\"")
+                                "\n")
+                   #:format 'rfc4180))
+
 
 ;;; guess-delimiter
 
