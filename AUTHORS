@@ -12,4 +12,6 @@ Authors of Guile-DSV
 
   In subdirectory 'tests', changes to:
   - rfc4180.scm
-  
+* Denis 'GNUtoo' Carikli <GNUtoo@cyberdimension.org>
+  A patch that allows to specify a custom "string-slice" procedure in
+  "table.scm".
