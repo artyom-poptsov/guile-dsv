@@ -1,6 +1,6 @@
 ;;; table.scm -- Procedures to print fancy tables in a console.
 
-;; Copyright (C) 2021-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2021-2025 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;; Copyright (C) 2025 Denis 'GNUtoo' Carikli <GNUtoo@cyberdimension.org>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
@@ -236,8 +236,9 @@ STR."
           widths
           #:key
           (string-slice string-slice))
-  "Wrap a table ROW to fit each cell it into the specified WIDTHS.  Return a
-list where each row is represented as a sub-list of strings."
+  "Wrap a table ROW to fit each cell it into the specified WIDTHS, using a
+STRING-SLICE procedure.  Return a list where each row is represented as a
+sub-list of strings."
   (let loop ((r row)
              (w widths)
              (result '()))
@@ -316,6 +317,8 @@ list where each row is represented as a sub-list of strings."
                      (borders '())
                      (padding 0)
                      (string-slice string-slice))
+  "Wrap a TABLE in such way that the table will fit into WIDTH
+columns using a procedure STRING-SLICE."
   (let* ((column-count (length (car table)))
          (border-left      (or (assoc-ref borders 'border-left) ""))
          (column-separator (or (assoc-ref borders 'column-separator) ""))
@@ -465,7 +468,8 @@ list where each row is represented as a sub-list of strings."
                        (with-header? #f)
                        (port (current-output-port))
                        (string-slice string-slice))
-  "Format file and print it to a PORT."
+  "Print a formatted TABLE to a PORT, using a BORDERS specification.  The table
+will be fit into the specified WIDTH using STRING-SLICE procedure."
   (let* ((padding 0)
          (table  (if (and width (not (zero? width)))
                      (table-wrap table
