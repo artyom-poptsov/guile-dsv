@@ -406,7 +406,7 @@ Get maximum field width for each row of @var{table}.
        [#:string-slice=string-slice]
 
 Print a formatted @var{table} to a @var{port}, using @var{borders}
-specification using a procedure @var{string-splice}.
+specification using a procedure @var{string-slice}.
 @end deffn
 
 @deffn {Scheme Procedure} table-map proc table
@@ -432,7 +432,7 @@ returns @code{#f}.
                [#:string-slice=string-slice]
 
 Wrap a @var{table} in such way that the table will fit into @var{width}
-columns using a procedure @var{string-splice}.
+columns using a procedure @var{string-slice}.
 
 @var{current-column-widths} should be the value returned by @code{get-width}
 procedure.
@@ -442,7 +442,7 @@ procedure.
 @deffn {Scheme Procedure} table-wrap-row row widths @
                [#:string-slice=string-slice]
 Wrap a table @var{row} to fit each cell it into the specified @var{widths}
-using a procedure @var{string-splice}.
+using a procedure @var{string-slice}.
 Return a list where each row is represented as a sub-list of strings.
 @end deffn
 
