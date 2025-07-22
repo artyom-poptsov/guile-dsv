@@ -1,6 +1,6 @@
 ;;; table.scm -- Tests for parsed DSV tables.
 
-;; Copyright (C) 2021-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2021-2025 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -242,6 +242,17 @@
     (table-wrap table
                 (get-width table)
                 #:width 15)))
+
+(test-equal "table-wrap: Custom string-slice"
+  '(("aaaaaaaaaa" "bbbbb")
+    ("ccc"        "d"))
+  (let ((table '(("aaaaaaaaaa" "bbbbb")
+                 ("ccc"   "d"))))
+    (table-wrap table
+                (get-width table)
+                #:width 15
+                #:string-slice (lambda (s w)
+                                 s))))
 
 (test-equal "table-format-row: simple formatting"
   " a  b  c \n"
