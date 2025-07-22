@@ -140,6 +140,13 @@
   "a\\\\b\n"
   (scm->dsv-string '(("a\\b"))))
 
+(test-equal "scm->dsv-string: RFC4180"
+  "The,\"quick,\",brown\r\nfox,jumps,over\r\nthe,lazy,dog.\r\n"
+  (scm->dsv-string '(("The" "quick," "brown")
+                     ("fox" "jumps" "over")
+                     ("the" "lazy" "dog."))
+                   #:format 'rfc4180))
+
 
 
 (test-equal "dsv-string->scm: Unicode characters"
