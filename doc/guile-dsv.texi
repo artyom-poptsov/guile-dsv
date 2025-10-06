@@ -403,10 +403,26 @@ Get maximum field width for each row of @var{table}.
 @deffn {Scheme Procedure} format-table table borders @
        [#:with-header?=#f] @
        [#:port=(current-output-port)] @
-       [#:string-slice=string-slice]
+       [#:string-slice=string-slice] @
+       [#:calculate-cell-widths=table-calculate-cell-widths]
 
 Print a formatted @var{table} to a @var{port}, using @var{borders}
 specification using a procedure @var{string-slice}.
+
+The individual cell widths are calculated width a @var{calculate-cell-widths}
+procedure, which is called as follows:
+
+@lisp
+(calculate-cell-widths content-width percents)
+@end lisp
+
+As an example of @var{calculate-cell-widths} usage, we can set fixed column
+widths by setting this parameter to the following procedure:
+@lisp
+(define (calculate-cell-width content-width percents)
+  (list 5 2 2))
+@end lisp
+
 @end deffn
 
 @deffn {Scheme Procedure} table-map proc table
@@ -429,12 +445,16 @@ returns @code{#f}.
                current-column-widths @
                [#:width=80] @
                [#:padding=0] @
-               [#:string-slice=string-slice]
+               [#:string-slice=string-slice] @
+               [#:calculate-cell-widths=table-calculate-cell-widths]
 
 Wrap a @var{table} in such way that the table will fit into @var{width}
 columns using a procedure @var{string-slice}.
 
 @var{current-column-widths} should be the value returned by @code{get-width}
+procedure.
+
+The individual cell widths are calculated width a @var{calculate-cell-widths}
 procedure.
 
 @end deffn
