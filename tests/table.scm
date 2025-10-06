@@ -1,6 +1,7 @@
 ;;; table.scm -- Tests for parsed DSV tables.
 
 ;; Copyright (C) 2021-2025 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2025 Denis 'GNUtoo' Carikli <GNUtoo@cyberdimension.org>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
