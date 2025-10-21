@@ -82,7 +82,7 @@ list."
         result))))
 
 (define (table-preset-name? string)
-  "Check if a SPEC is a table preset name."
+  "Check if a STRING is a table preset name."
   (string-match "^[a-zA-Z\\-]+$" string))
 
 ;;; preset.scm ends here.
