@@ -11,6 +11,7 @@
 This manual documents Guile-DSV version @value{VERSION}.
 
 Copyright (C) 2014-2025 Artyom V. Poptsov
+
 Copyright (C) 2025 Denis 'GNUtoo' Carikli
 
 Permission is granted to copy, distribute and/or modify this document
