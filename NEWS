@@ -7,7 +7,7 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   are permitted in any medium without royalty provided the copyright
   notice and this notice are preserved.
 
-* Unreleased
+* Changes in version 0.8.0 (2025-11-02)
 ** =rfc4180.puml=: Bugfix: Properly handle LFs in empty rows
 Guile-DSV would fail to read RFC4180 format properly when faced with data that
 uses empty rows with plain "LF" line endings.  This patch fixes that behavior.
@@ -40,6 +40,9 @@ this issue is solved by adding the description to the Texinfo documentation.
 
 Reported by mooseyboots in
 <https://github.com/artyom-poptsov/guile-dsv/issues/16>
+*** =README=: Improve
+Improve =README= file formatting and content to make it more readable and
+informative.
 
 * Changes in version 0.7.2 (2024-08-04)
 ** Bugfixes
