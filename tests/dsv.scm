@@ -1,6 +1,6 @@
 ;;; dsv.scm -- Tests for DSV parser.
 
-;; Copyright (C) 2014-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2014-2023, 2025 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -106,6 +106,34 @@
   (dsv-string->scm "a,b,c\nd,e\n"
                    #\,
                    #:validate? #t))
+
+(test-equal "dsv-string->scm, record continuation"
+  '(("a b" "c"))
+  (dsv-string->scm "a \\\nb:c\n"))
+
+
+;; Handling of empty rows.
+;; See <https://github.com/artyom-poptsov/guile-dsv/issues/15>
+
+(test-equal "dsv-string->scm, unix format, empty rows"
+  '(("a" "1")
+    ("" "")
+    ("c" "1")
+    ("" ""))
+  (dsv-string->scm "a;1\n;\nc;1\n;\n" #\;))
+
+(test-equal "dsv-string->scm, RFC4180 format, empty rows"
+  '(("a" "1")
+    ("" "")
+    ("c" "1")
+    ("" ""))
+  (dsv-string->scm "a;1\r\n;\r\nc;1\r\n;\r\n" #\;
+                   #:format 'rfc4180))
+
+(test-equal "dsv-string->scm, RFC4180 format, data with only LF"
+  '(("a" "1") ("" ""))
+  (dsv-string->scm "a;1\n;\n" #\;
+                   #:format 'rfc4180))
 
 
 ;;; scm->dsv
