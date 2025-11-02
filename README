@@ -58,147 +58,174 @@ $ sudo make install
  directory is, run =configure= without the option, and it will give you
  a suggestion.
 
-** =dsv= tool
+** =dsv= CLI tool
+Guile-DSV includes a command-line interface (CLI) tool named =dsv= which
+allows to use Guile-DSV facilities in console.
 *** Options
-#+begin_example
-$ dsv --help
-Usage: dsv [options] [file]
-
-The default behavior of the program is to print a formatted table from a
+The default behavior of =dsv= program is to print a formatted table from a
 <file> to stdout.  The options listed below can be used to change or modify
 this behavior.
+**** =--help=, =-h=
+Print the help message and exit.
 
-When no <file> is provided, dsv reads data from stdin.
+**** =--summary=, =-s=
+Print summary information for a file.
 
-Options:
-  --help, -h                 Print this message and exit.
-  --summary, -s              Print summary information for a file.
-  --delimiter, -D <delim>    Set a delimiter.
-  --guess-delimiter, -d      Guess a file delimiter and print the result.
-  --number, -n               Number rows and columns.
-  --width, -w <width>        Wrap long lines of text inside cells to fit the table
-                             into the specified width.  If with is specified as
-                             "auto" (default value) then current terminal width
-                             is used.
-                             When the required width is too small for the table
-                             wrapping, an error will be issued.
-                             Zero width means no wrapping so the table might not
-                             fit into the screen.
-  --map-cell, -m <code>      Apply an arbitrary Scheme code on each cell value
-                             before printing.
-                             There are three variables that can be used in the code:
-                             - $value -- current cell value.
-                             - $row   -- current row number
-                             - $col   -- current column number.
+**** =--delimiter=, =-D= =<delim>=
+Set a delimiter.
 
-                             Code examples:
-                             '(if (> $value 0) $value 0)'
-                             '(string-append "\"" $value "\"")'
+**** =--guess-delimiter=, =-d=
+Guess a file delimiter and print the result.
 
-                             Note that the code must return a string, that in turn
-                             will be printed in a cell.
+**** =--number=, =-n=
+Number rows and columns.
 
-  --filter-row, -f <code>    Keep only rows for which CODE returns #t.
-                             There are two variables that can be used in the code:
-                             - $value -- current row content.
-                             - $row   -- current row number.
+**** =--width=, =-w= =<width>=
+Wrap long lines of text inside cells to fit the table into the specified
+width.  If with is specified as "auto" (default value) then current terminal
+width is used.  When the required width is too small for the table wrapping,
+an error will be issued.  Zero width means no wrapping so the table might not
+fit into the screen.
 
-                             For example with this code Guile-DSV keeps only rows
-                             that are 5 columns in length:
-                             '(= (length $value) 5)'
+**** =--map-cell=, =-m= =<code>=
+Apply an arbitrary Scheme code on each cell value before printing.  There are
+three variables that can be used in the code:
+- =$value= -- current cell value.
+- =$row=   -- current row number.
+- =$col=   -- current column number.
 
-  --filter-column, -c <procedure>
-                             Keep only columns for which PROCEDURE returns #t.
-                             There are two variables that can be used in the code:
-                             - $value -- current column content as a list.
-                             - $row   -- current column number.
+Code examples:
+#+BEGIN_EXAMPLE shell
+--map-cell '(if (> $value 0) $value 0)'
+--map-cell '(string-append "\"" $value "\"")'
+#+END_EXAMPLE
 
-                             For example with this code Guile-DSV keeps only the 2nd
-                             column from the input data:
-                              '(= $col 2)'
+Note that the code must return a string, that in turn will be printed in a
+cell.
 
-  --file-format, -F <fmt>    Set a file format.  Possible formats are:
-                             "unix" (default), "rfc4180"
-  --with-header, -H          Use the first row of a table as a header when
-                             printing the table to the screen.
-  --table-borders, -b <spec> Set table borders for printing.  The value can be
-                             either a borders specification or a preset name.
+**** =--filter-row=, =-f= =<code>=
+Keep only rows for which CODE returns =#t=.
 
-                             Spec can be a comma-separated list of key=value
-                             pairs that specify the table style.  The list of
-                             possible keys can be found below
-                             (see "Table parameters".)
+There are two variables that can be used in the code:
+- =$value= -- current row content.
+- =$row=   -- current row number.
 
-                             Also a table preset name can be used as the value.
-                             See "Table presets" below.
+For example with this code Guile-DSV keeps only rows that are 5 columns in
+length:
+#+BEGIN_EXAMPLE shell
+--filter-row '(= (length $value) 5)'
+#+END_EXAMPLE
 
-                             Table preset parameters can be overridden by specifying
-                             extra parameters after the preset name.  E.g.:
-                               "graphic,bs=3;31"
+**** =--filter-column=, =-c= =<procedure>=
 
-                             Example values:
-                               - "v=|,h=-,j=+"
-                               - org
+Keep only columns for which PROCEDURE returns #t.
+There are two variables that can be used in the code:
+- =$value= -- current column content as a list.
+- =$row=   -- current column number.
 
-  --table-presets-path <path>
-                             Set the table preset path.
-                             This option can be also set by
-                              "GUILE_DSV_TABLE_PRESETS_PATH" environment
-                             variable.
-                             Default value: /gnu/store/448pzfcwaaa8smrrdbn1shmk45s7agwx-guile-dsv-git/share/guile-dsv/presets/
-  --to, -t <fmt>             Convert a file to a specified format, write
-                             the result to stdout.
-  --to-delimiter, -T <delim> Convert delimiters to the specified variant.
-                             When this option is not used, default delimiters
-                             for the chosen output format will be used.
-  --version                  Print information about Guile-DSV version.
-  --debug                    Enable state machine debugging.
+For example with this code Guile-DSV keeps only the 2nd column from the input
+data:
+#+BEGIN_EXAMPLE shell
+--filter-column '(= $col 2)'
+#+END_EXAMPLE
 
-Table parameters:
-  bt   border-top                The top border.
-  btl  border-top-left           The top left corner.
-  btr  border-top-right          The top right corner.
-  btj  border-top-joint          The top border joint.
-  bl   border-left               The left table border.
-  blj  border-left-joint         The left table border joint.
-  br   border-right              The right table border.
-  brj  border-right-joint        The right table border joint.
-  bb   border-bottom             The bottom border.
-  bbl  border-bottom-left        The left corner of the bottom border.
-  bbr  border-bottom-right       The right corner of the bottom border.
-  bbj  border-bottom-joint       The bottom border joint.
-  bs   border-style              The style of the borders ("fg;bg".)
-  ts   text-style                The text style ("fg;bg".)
-  s    shadow                    The table shadow.
-  so   shadow-offset             The table shadow offset in format "x;y" (e.g. "2;2".)
-  ss   shadow-style              The style of the shadow ("fg;bg".)
-  rs   row-separator             The table row separator.
-  rj   row-joint                 The row joint.
-  cs   column-separator          The table column separator
-  hs   header-style              The header style ("fg;bg".)
-  ht   header-top                The header top border.
-  htl  header-top-left           The header top left border.
-  htr  header-top-right          The header top right border.
-  htj  header-top-joint          The header top joint.
-  hl   header-left               The header left border.
-  hr   header-right              The header right border.
-  hcs  header-column-separator   The header column separator.
-  hb   header-bottom             The header bottom border.
-  hbl  header-bottom-left        The header bottom left corner.
-  hbr  header-bottom-right       The header bottom right border.
-  hbj  header-bottom-joint       The header bottom joint.
+**** =--file-format=, =-F= =<fmt>=
+Set a file format.  Possible formats are: "unix" (default), "rfc4180"
 
-Table presets:
-  ascii
-  graphic-bold
-  graphic-double
-  graphic
-  graphic-with-shadow
-  markdown
-  org
-#+end_example
+**** =--with-header=, =-H=
+Use the first row of a table as a header when printing the table to the
+screen.
 
-*** Print DSV files
+**** =--table-borders=, =-b= =<spec>=
+Set table borders for printing.  The value can be either a borders
+specification or a preset name.
+
+Spec can be a comma-separated list of key=value pairs that specify the table
+style.  The list of possible keys can be found below (see "Table parameters".)
+
+Also a table preset name can be used as the value.  See "Tables" section
+below.
+
+Table preset parameters can be overridden by specifying extra parameters after
+the preset name.  E.g.:
+#+BEGIN_EXAMPLE shell
+--table-borders "graphic,bs=3;31"
+#+END_EXAMPLE
+
+More examples:
+#+BEGIN_EXAMPLE shell
+--table-borders "v=|,h=-,j=+"
+--table-borders org
+#+END_EXAMPLE
+
+**** =--table-presets-path= =<path>=
+Set the table preset path.  This option can be also set by
+=GUILE_DSV_TABLE_PRESETS_PATH= environment variable.  See "Tables" section
+below.
+
+The default value depends on the Guile-DSV installation path.
+
+**** =--to=, =-t= =<fmt>=
+Convert a file to a specified format, write the result to =stdout=.
+
+**** =--to-delimiter=, =-T= =<delim>=
+Convert delimiters to the specified variant.  When this option is not used,
+ default delimiters for the chosen output format will be used.
+
+**** =--version=
+Print information about Guile-DSV version.
+
+**** =--debug=
+Enable the state machine debugging.
+
+** Tables
+*** Table parameters
+| Short name | Long name               | Description                                           |
+|------------+-------------------------+-------------------------------------------------------|
+| bt         | border-top              | The top border.                                       |
+| btl        | border-top-left         | The top left corner.                                  |
+| btr        | border-top-right        | The top right corner.                                 |
+| btj        | border-top-joint        | The top border joint.                                 |
+| bl         | border-left             | The left table border.                                |
+| blj        | border-left-joint       | The left table border joint.                          |
+| br         | border-right            | The right table border.                               |
+| brj        | border-right-joint      | The right table border joint.                         |
+| bb         | border-bottom           | The bottom border.                                    |
+| bbl        | border-bottom-left      | The left corner of the bottom border.                 |
+| bbr        | border-bottom-right     | The right corner of the bottom border.                |
+| bbj        | border-bottom-joint     | The bottom border joint.                              |
+| bs         | border-style            | The style of the borders ("fg;bg".)                   |
+| ts         | text-style              | The text style ("fg;bg".)                             |
+| s          | shadow                  | The table shadow.                                     |
+| so         | shadow-offset           | The table shadow offset in format "x;y" (e.g. "2;2".) |
+| ss         | shadow-style            | The style of the shadow ("fg;bg".)                    |
+| rs         | row-separator           | The table row separator.                              |
+| rj         | row-joint               | The row joint.                                        |
+| cs         | column-separator        | The table column separator.                           |
+| hs         | header-style            | The header style ("fg;bg".)                           |
+| ht         | header-top              | The header top border.                                |
+| htl        | header-top-left         | The header top left border.                           |
+| htr        | header-top-right        | The header top right border.                          |
+| htj        | header-top-joint        | The header top joint.                                 |
+| hl         | header-left             | The header left border.                               |
+| hr         | header-right            | The header right border.                              |
+| hcs        | header-column-separator | The header column separator.                          |
+| hb         | header-bottom           | The header bottom border.                             |
+| hbl        | header-bottom-left      | The header bottom left corner.                        |
+| hbr        | header-bottom-right     | The header bottom right border.                       |
+| hbj        | header-bottom-joint     | The header bottom joint.                              |
+
+*** Table presets
+- =ascii=
+- =graphic-bold=
+- =graphic-double=
+- =graphic=
+- =graphic-with-shadow=
+- =markdown=
+- =org=
+
+** Common use cases
+*** Printing DSV files
     To show DSV files (Unix-style) in human-readable manner, just invoke the
     tool like this:
 #+begin_example shell
@@ -233,7 +260,7 @@ $ head -4 /etc/passwd | dsv -b "rs=─,cs=│,rj=┼"
  sys    │ x │ 3 │ 3 │ sys    │ /dev      │ /usr/sbin/nologin
 #+end_example
 
-*** Table presets
+*** Printing tables
     There are table presets that can be used to draw tables with specified
     border styles.  Some examples:
 
