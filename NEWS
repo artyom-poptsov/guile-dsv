@@ -7,6 +7,40 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   are permitted in any medium without royalty provided the copyright
   notice and this notice are preserved.
 
+* Unreleased
+** =rfc4180.puml=: Bugfix: Properly handle LFs in empty rows
+Guile-DSV would fail to read RFC4180 format properly when faced with data that
+uses empty rows with plain "LF" line endings.  This patch fixes that behavior.
+
+Reported by mooseyboots in:
+<https://github.com/artyom-poptsov/guile-dsv/issues/15>
+** =(dsv table)=: Improve the API
+*** New "string-slice" option
+Now =format-table=, =table-wrap= and =table-wrap-row= procedures accept
+"string-slice" keyword option, that allows to fit a table into the specified
+width.
+
+The "string-slice" option expects a procedure an argument.  The project
+documentation updated to describe the new option.
+
+Implemented by Denis 'GNUtoo' Carikli <GNUtoo@cyberdimension.org>.
+*** New "calculate-cell-widths" option
+Now =table-wrap= and =format-table= procedures accept "calculate-cell-widths"
+keyword option that allows to control how the individual cell widths are
+calculated.
+
+The "calculate-cell-widths" option expects a procedure an argument.  The
+project documentation updated to describe the new option.
+
+Implemented by Denis 'GNUtoo' Carikli <GNUtoo@cyberdimension.org>.
+** Changes in documentation
+*** Add a description of the table preset format
+The table preset format was not described properly in the documentation.  Now
+this issue is solved by adding the description to the Texinfo documentation.
+
+Reported by mooseyboots in
+<https://github.com/artyom-poptsov/guile-dsv/issues/16>
+
 * Changes in version 0.7.2 (2024-08-04)
 ** Bugfixes
 *** Parsers now can check if the table rows have consistent lengths
