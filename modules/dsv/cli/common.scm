@@ -1,6 +1,6 @@
 ;;; common.scm -- Common Guile-DSV CLI code.
 
-;; Copyright (C) 2021-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2021-2025 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -205,8 +205,14 @@ of numbers, or #f if an error occurred."
 
 (define* (convert input-port source-delim target-delim source-format target-format
                   #:key
+                  (numbering? #f)
+                  (filter-col-proc #f)
+                  (filter-row-proc #f)
+                  (proc #f)
                   (debug-mode? #f))
-  "Convert a data from an INPUT-PORT from a SOURCE-FORMAT to a TARGET-FORMAT."
+  "Convert a data from an INPUT-PORT from a SOURCE-FORMAT to a TARGET-FORMAT.
+Optionally filter each row, column and cell with FILTER-ROW-PROC,
+FILTER-COL-PROC and PROC respectively, if those procedures are specified."
   (case target-format
     ((unix rfc4180)
      (let ((source-delim (or source-delim
@@ -214,9 +220,23 @@ of numbers, or #f if an error occurred."
            (target-delim (or target-delim 'default)))
        (unless source-delim
          (error "Could not determine a file delimiter" input-port))
-       (let ((table (remove-empty-rows (dsv->scm input-port source-delim
-                                                 #:debug-mode? debug-mode?
-                                                 #:format source-format))))
+       (let* ((table (remove-empty-rows (dsv->scm input-port source-delim
+                                                  #:debug-mode? debug-mode?
+                                                  #:format source-format)))
+              (table (if filter-col-proc
+                         (table-filter-column filter-col-proc table)
+                         table))
+              (table (if proc
+                         (table-map proc
+                                    (if filter-row-proc
+                                        (table-filter-row filter-row-proc table)
+                                        table))
+                         (if filter-row-proc
+                             (table-filter-row filter-row-proc table)
+                             table)))
+              (table  (if numbering?
+                          (table-number table)
+                          table)))
          (scm->dsv table (current-output-port) target-delim
                    #:format target-format))))
     (else

@@ -4,7 +4,7 @@
 
 ;;; dsv.in -- Get various information from DSV files.
 
-;; Copyright (C) 2015-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2015-2025 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -267,6 +267,23 @@ Written by Artyom V. Poptsov.
                  to-delimiter
                  (string->dsv-format file-format)
                  (string->symbol to)
+                 #:filter-col-proc (and filter-col-proc
+                                        (eval-string
+                                         (string-append
+                                          "(lambda ($value $col) "
+                                          filter-col-proc
+                                          ")")))
+                 #:filter-row-proc (and filter-row-proc
+                                        (eval-string
+                                         (string-append
+                                          "(lambda ($value $row) "
+                                          filter-row-proc
+                                          ")")))
+                 #:proc (and map-cell-proc
+                             (eval-string
+                              (string-append "(lambda ($value $row $col) "
+                                             map-cell-proc
+                                             ")")))
                  #:debug-mode? debug?))
        (else
         (print-file input-port

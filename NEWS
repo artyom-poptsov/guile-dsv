@@ -7,6 +7,13 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   are permitted in any medium without royalty provided the copyright
   notice and this notice are preserved.
 
+* Unreleased
+** Changes in =dsv= CLI tool
+*** Now row, column and cell filtering works with =--to= option
+Now =dsv= allows to do table filtering and cell value processing along with
+table format/delimiter conversion (with =--to= and =-t= options.)  Also now
+=convert= procedure from =(dsv cli common)= allows to add numbering to the
+table.
 * Changes in version 0.8.0 (2025-11-02)
 ** =rfc4180.puml=: Bugfix: Properly handle LFs in empty rows
 Guile-DSV would fail to read RFC4180 format properly when faced with data that
