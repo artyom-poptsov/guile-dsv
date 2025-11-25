@@ -203,8 +203,12 @@ of numbers, or #f if an error occurred."
 
 
 
-(define* (convert input-port source-delim target-delim source-format target-format
+(define* (convert input-port
                   #:key
+                  source-delimiter
+                  target-delimiter
+                  source-format
+                  target-format
                   (numbering? #f)
                   (filter-col-proc #f)
                   (filter-row-proc #f)
@@ -215,12 +219,12 @@ Optionally filter each row, column and cell with FILTER-ROW-PROC,
 FILTER-COL-PROC and PROC respectively, if those procedures are specified."
   (case target-format
     ((unix rfc4180)
-     (let ((source-delim (or source-delim
-                             (guess-file-delimiter input-port source-format)))
-           (target-delim (or target-delim 'default)))
-       (unless source-delim
+     (let ((source-delimiter (or source-delimiter
+                                 (guess-file-delimiter input-port source-format)))
+           (target-delimiter (or target-delimiter 'default)))
+       (unless source-delimiter
          (error "Could not determine a file delimiter" input-port))
-       (let* ((table (remove-empty-rows (dsv->scm input-port source-delim
+       (let* ((table (remove-empty-rows (dsv->scm input-port source-delimiter
                                                   #:debug-mode? debug-mode?
                                                   #:format source-format)))
               (table (if filter-col-proc
@@ -237,7 +241,7 @@ FILTER-COL-PROC and PROC respectively, if those procedures are specified."
               (table  (if numbering?
                           (table-number table)
                           table)))
-         (scm->dsv table (current-output-port) target-delim
+         (scm->dsv table (current-output-port) target-delimiter
                    #:format target-format))))
     (else
      (error "Unsupported target format" target-format))))

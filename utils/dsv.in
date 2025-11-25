@@ -263,10 +263,10 @@ Written by Artyom V. Poptsov.
         (print-delimiter input-port (string->dsv-format file-format)))
        (to
         (convert input-port
-                 delimiter
-                 to-delimiter
-                 (string->dsv-format file-format)
-                 (string->symbol to)
+                 #:source-delimiter delimiter
+                 #:target-delimiter to-delimiter
+                 #:source-format (string->dsv-format file-format)
+                 #:target-format (string->symbol to)
                  #:filter-col-proc (and filter-col-proc
                                         (eval-string
                                          (string-append
