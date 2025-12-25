@@ -1,4 +1,4 @@
-;;; preset.scm -- Guile-DSV table presets.
+;;; table-preset.scm -- Guile-DSV table presets.
 
 ;; Copyright (C) 2021-2023, 2025 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
@@ -89,4 +89,4 @@ list."
   "Check if a STRING is a table preset name."
   (string-match "^[a-zA-Z\\-]+$" string))
 
-;;; preset.scm ends here.
+;;; table-preset.scm ends here.
