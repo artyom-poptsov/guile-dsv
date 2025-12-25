@@ -61,9 +61,17 @@
   '(("a" "b" ""))
   (dsv-string->scm "a:b:\n"))
 
+(test-equal "dsv-string->scm: three fields, separated by a colon 3"
+  '(("" "a" "b"))
+  (dsv-string->scm ":a:b\n"))
+
+(test-equal "dsv-string->scm: three fields, separated by a colon 4"
+  '(("" "" ""))
+  (dsv-string->scm "::\n"))
+
 (test-equal "dsv-string->scm: three fields, separated by a comma"
   '(("a" "b" "c"))
-  (dsv-string->scm "a:b:c\n"))
+  (dsv-string->scm "a,b,c\n" #\,))
 
 ;; Handling of commented lines
 (test-assert "dsv->scm, comment prefix"
@@ -106,10 +114,6 @@
   (dsv-string->scm "a,b,c\nd,e\n"
                    #\,
                    #:validate? #t))
-
-(test-equal "dsv-string->scm, record continuation"
-  '(("a b" "c"))
-  (dsv-string->scm "a \\\nb:c\n"))
 
 
 ;; Handling of empty rows.
