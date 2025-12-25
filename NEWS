@@ -8,6 +8,13 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   notice and this notice are preserved.
 
 * Unreleased
+** Changes in =(dsv table-preset)=
+*** Fix =table-preset-override=                                      :BUGFIX:
+The procedure would add all border specifications to the original preset
+instead of replacing them.
+
+Now the procedure replaces all border specifications from the original preset
+with the new ones as expected.
 ** Changes in =dsv= CLI tool
 *** Now row, column and cell filtering works with =--to= option
 Now =dsv= allows to do table filtering and cell value processing along with

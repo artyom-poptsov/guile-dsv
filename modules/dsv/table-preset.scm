@@ -1,6 +1,6 @@
 ;;; preset.scm -- Guile-DSV table presets.
 
-;; Copyright (C) 2021-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2021-2023, 2025 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
   #:use-module (ice-9 regex)
   #:use-module (scheme documentation)
   #:use-module (dsv config)
+  #:use-module (srfi srfi-1)
   #:re-export  (%table-presets-path)
   #:export (print-table-presets
             load-table-preset
@@ -57,8 +58,11 @@
 table preset."
   (if (null? borders)
       preset
-      (let ((bspec (car borders)))
-        (table-preset-override (acons (car bspec) (cdr bspec) preset)
+      (let* ((bspec (car borders))
+             (key   (car bspec))
+             (value (cdr bspec))
+             (new-preset (delete (assoc key preset) preset)))
+        (table-preset-override (acons key value new-preset)
                                (cdr borders)))))
 
 (define* (load-table-preset name

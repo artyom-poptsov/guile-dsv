@@ -1,6 +1,6 @@
 ;;; table-preset.scm -- Tests for table presets.
 
-;; Copyright (C) 2021-2024 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2021-2025 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -41,6 +41,11 @@
     (lambda ()
       (print-table-presets (current-output-port)
                            #:table-presets-path %table-presets-path))))
+
+(test-equal "table-preset-override"
+  '((a . b) (c . d))
+  (table-preset-override '((a . e) (c . d))
+                         '((a . b))))
 
 
 (define exit-status (test-runner-fail-count (test-runner-current)))
