@@ -40,6 +40,15 @@
                        ("")
                        ("c" "d"))))
 
+(test-equal "borders->alist: empty spec"
+  '()
+  (borders->alist ""))
+
+(test-equal "borders->alist: list of two borders specifications"
+  '((border-top  . "|")
+    (border-top-left . "+"))
+  (borders->alist "bt=|,btl=+"))
+
 
 (define exit-status (test-runner-fail-count (test-runner-current)))
 
