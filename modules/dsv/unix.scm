@@ -67,6 +67,12 @@
     (#\tab     . "\\t")
     (#\vtab    . "\\v")))
 
+(define-with-docs %char-mapping-regex
+  "Regular expressions for character substitution."
+  (map (lambda (e)
+         (cons (make-regexp (string (car e))) (cdr e)))
+       %char-mapping))
+
 
 
 (define* (dsv->scm port
@@ -116,12 +122,14 @@
 
 (define (serialize-nonprintable-chars str)
   "Replace nonprintable characters with C-style backslash escapes."
-  (let subst ((s    str)
-              (lst  %char-mapping))
+  (let loop ((lst %char-mapping-regex)
+             (s   str))
     (if (not (null? lst))
-        (let ((s (regexp-substitute/global #f (string (caar lst)) s
-                                           'pre (cdar lst) 'post)))
-          (subst s (cdr lst)))
+        (loop (cdr lst)
+              (regexp-substitute/global #f
+                                        (caar lst)
+                                        s
+                                        'pre (cdar lst) 'post))
         s)))
 
 (define (escape builder str)

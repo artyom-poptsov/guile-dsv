@@ -7,6 +7,9 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   are permitted in any medium without royalty provided the copyright
   notice and this notice are preserved.
 
+* Unreleased
+** Improve =scm->dsv= procedure performance
+Now =scm->dsv= procedure is faster.
 * Changes in version 0.8.1 (2025-12-25)
 ** Changes in =(dsv table-preset)=
 *** Fix =table-preset-override=                                      :BUGFIX:
