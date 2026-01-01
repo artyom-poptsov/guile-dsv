@@ -15,12 +15,19 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with the program.  If not, see <http://www.gnu.org/licenses/>.
 
+(add-to-load-path (getenv "abs_top_srcdir"))
+
 (use-modules (srfi srfi-64)
              (srfi srfi-26)
+             (tests test)
              (dsv cli common))
 
 
-(test-begin "cli")
+(define %test-name "cli")
+
+
+(test-begin %test-name)
+(configure-test-logging! %test-name)
 
 (test-equal "string->dsv-format: unix"
   'unix
@@ -52,6 +59,6 @@
 
 (define exit-status (test-runner-fail-count (test-runner-current)))
 
-(test-end "cli")
+(test-end %test-name)
 
 (exit (zero? exit-status))
