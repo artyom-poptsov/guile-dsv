@@ -1,6 +1,6 @@
 ;;; rfc4180.scm -- DSV parser for Unix format.
 
-;; Copyright (C) 2015-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2015-2025 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -134,8 +134,10 @@
 
 (define (escape builder str)
   "Escape special characters with a backslash."
-  (escape-special-chars (escape-special-chars str #\\ #\\)
-                        (builder-delimiter builder)
+  (escape-special-chars str
+                        (string-append (string
+                                        (builder-delimiter builder))
+                                       (string #\\))
                         #\\))
 
 (define* (scm->dsv builder)
