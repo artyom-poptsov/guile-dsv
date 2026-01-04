@@ -3,6 +3,7 @@ include $(top_srcdir)/build-aux/am/guile.am
 SOURCES = \
 	dsv-context.scm \
 	unix.scm \
+	unix-writer.scm \
 	rfc4180.scm
 
 BUILT_SOURCES = \
@@ -14,6 +15,8 @@ INSTALL += \
 EXTRA_DIST += \
 	unix.puml \
 	unix.scm \
+	unix-writer.puml \
+	unix-writer.scm \
 	rfc4180.puml \
 	rfc4180.scm
 
@@ -32,6 +35,16 @@ GUILE_SMC_UNIX_ARGS = \
 	-L $(abs_top_srcdir)/modules:$(abs_top_builddir)/modules \
 	--fsm-name unix-fsm \
 	--fsm-module "(dsv fsm unix)" \
+	-U "((dsv fsm context) (dsv fsm dsv-context))" \
+	--debug \
+	--validate
+
+GUILE_SMC_UNIX_WRITER_ARGS = \
+	--log-driver file \
+	--log-opt "file=unix-writer.log" \
+	-L $(abs_top_srcdir)/modules:$(abs_top_builddir)/modules \
+	--fsm-name unix-writer-fsm \
+	--fsm-module "(dsv fsm unix-writer)" \
 	-U "((dsv fsm context) (dsv fsm dsv-context))" \
 	--debug \
 	--validate
@@ -63,6 +76,10 @@ unix.scm: context.scm dsv-context.scm unix.puml
 	@echo "  SMC      $@"
 	@$(GUILE_SMC_ENV) smc compile $(GUILE_SMC_UNIX_ARGS) unix.puml > $@
 
+unix-writer.scm: context.scm dsv-context.scm unix-writer.puml
+	@echo "  SMC      $@"
+	@$(GUILE_SMC_ENV) smc compile $(GUILE_SMC_UNIX_WRITER_ARGS) unix-writer.puml > $@
+
 rfc4180.scm: context.scm dsv-context.scm rfc4180.puml
 	@echo "  SMC      $@"
 	@$(GUILE_SMC_ENV) smc compile $(GUILE_SMC_RFC4180_ARGS) rfc4180.puml > $@
@@ -78,6 +95,8 @@ CLEANFILES += \
 	context.log	\
 	unix.log	\
 	unix.scm	\
+	unix-writer.log	\
+	unix-writer.scm	\
 	rfc4180.log	\
 	rfc4180.scm
 

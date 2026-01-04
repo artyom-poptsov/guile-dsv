@@ -37,6 +37,7 @@
   #:use-module (dsv common)
   #:use-module (dsv builder)
   #:use-module (dsv fsm unix)
+  #:use-module (dsv fsm unix-writer)
   #:use-module (dsv fsm context)
   #:export (make-builder
             dsv->scm
@@ -60,18 +61,16 @@
   "\n")
 
 (define-with-docs %char-mapping
-  "Nonprintable characters."
-  '((#\page    . "\\f")
-    (#\newline . "\\n")
-    (#\return  . "\\r")
-    (#\tab     . "\\t")
-    (#\vtab    . "\\v")))
-
-(define-with-docs %char-mapping-regex
-  "Regular expressions for character substitution."
-  (map (lambda (e)
-         (cons (make-regexp (string (car e))) (cdr e)))
-       %char-mapping))
+  "Characters to substitute in the output Unix format data.  Each character in
+the hash table keys must be replaced with its substitution character, preceded
+by the escape symbol ('\'.)"
+  (alist->hash-table
+   '((#\page    . #\f)
+     (#\newline . #\n)
+     (#\return  . #\r)
+     (#\tab     . #\t)
+     (#\vtab    . #\v)
+     (#\\       . #\\))))
 
 
 
@@ -118,32 +117,31 @@
                  port
                  'unix
                  (value-or-default delimiter  %default-delimiter)
-                 (value-or-default line-break %default-line-break)))
+                 (value-or-default line-break %default-line-break)
+                 %char-mapping))
 
-(define (serialize-nonprintable-chars str)
-  "Replace nonprintable characters with C-style backslash escapes."
-  (let loop ((lst %char-mapping-regex)
-             (s   str))
-    (if (not (null? lst))
-        (loop (cdr lst)
-              (regexp-substitute/global #f
-                                        (caar lst)
-                                        s
-                                        'pre (cdar lst) 'post))
-        s)))
+(define* (scm->dsv builder
+                   #:key
+                   (debug-mode? #f)
+                   (log-driver  "null")
+                   (log-opt     '()))
 
-(define (escape builder str)
-  "Escape special characters with a backslash."
-  (escape-special-chars str
-                        (string-append (string
-                                        (builder-delimiter builder))
-                                       (string #\\))
-                        #\\))
+  (smc-log-init! log-driver log-opt)
 
-(define* (scm->dsv builder)
-  (builder-build builder
-                 (lambda (field)
-                   (serialize-nonprintable-chars (escape builder field)))))
+  (let ((base-fsm (make <unix-writer-fsm>
+                    #:pre-action pre-action
+                    #:debug-mode? debug-mode?)))
+    (builder-build builder
+                   (lambda (field)
+                     (let* ((fsm (deep-clone base-fsm))
+                            (port (open-input-string field))
+                            (ctx (fsm-run! fsm
+                                           (make-char-context
+                                            #:port port
+                                            #:debug-mode? debug-mode?
+                                            #:custom-data %char-mapping))))
+                       (close port)
+                       (car (context-result ctx)))))))
 
 (define (scm->dsv-string scm delimiter line-break)
   (call-with-output-string

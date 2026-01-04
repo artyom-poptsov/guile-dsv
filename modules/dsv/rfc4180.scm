@@ -66,7 +66,8 @@
                  port
                  'rfc4180
                  (value-or-default delimiter  %default-delimiter)
-                 (value-or-default line-break %default-line-break)))
+                 (value-or-default line-break %default-line-break)
+                 'none))
 
 
 (define (escape-double-quotes field)

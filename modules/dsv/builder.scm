@@ -1,6 +1,6 @@
 ;;; builder.scm -- A DSV builder.
 
-;; Copyright (C) 2015 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2015, 2025-2026 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -35,16 +35,18 @@
             builder-line-break
             builder-display
             builder-join
-            builder-build))
+            builder-build
+            builder-char-mapping))
 
 (define-immutable-record-type <dsv-builder>
-  (%make-builder input-data port type delimiter line-break)
+  (%make-builder input-data port type delimiter line-break char-mapping)
   dsv-builder?
   (input-data builder-input-data)       ; list
   (port       builder-port)             ; port
   (type       builder-type)             ; symbol
   (delimiter  builder-delimiter)        ; char
-  (line-break builder-line-break))      ; string
+  (line-break builder-line-break)       ; string
+  (char-mapping builder-char-mapping))  ; hash-table
 
 (set-record-type-printer!
  <dsv-builder>

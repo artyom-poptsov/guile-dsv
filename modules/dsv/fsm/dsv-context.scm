@@ -1,6 +1,6 @@
 ;;; dsv-context.scm -- DSV context for FSMs.
 
-;; Copyright (C) 2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2023, 2025-2026 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -37,7 +37,10 @@
             non-printable-character?
             comment-prefix?
             push-non-printable-character
-            prepare-result))
+            prepare-result
+
+            replace-char
+            build-string))
 
 (define (none context)
   #f)
@@ -129,5 +132,19 @@
 
 (define* (prepare-result context #:optional char)
   (reverse-result context))
+
+
+;;; dsv-writer
+
+(define (replace-char context char)
+  (let ((ch (hash-ref (context-custom-data context) char)))
+    (if ch
+        (push-event-to-buffer (push-event-to-buffer context #\\)
+                              ch)
+        (push-event-to-buffer context char))))
+
+(define (build-string context char)
+  (push-event-to-result context
+                        (context-buffer->string context)))
 
 ;;; dsv-context.scm ends here.

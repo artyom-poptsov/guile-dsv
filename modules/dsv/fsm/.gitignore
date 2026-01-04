@@ -4,3 +4,5 @@ rfc4180.log
 rfc4180.scm
 context.scm
 context.log
+unix-writer.log
+unix-writer.scm
