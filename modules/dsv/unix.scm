@@ -33,7 +33,6 @@
   #:use-module ((string transform)
                 #:select (escape-special-chars))
   #:use-module (scheme documentation)
-  #:use-module (fibers)
   #:use-module (oop goops)
   #:use-module (dsv common)
   #:use-module (dsv builder)
@@ -42,6 +41,7 @@
   #:use-module (dsv fsm unix-writer-with-fibers)
   #:use-module (dsv fsm context)
   #:use-module (dsv fsm dsv-context)
+  #:autoload (fibers) (run-fibers)
   #:export (make-builder
             dsv->scm
             dsv-string->scm
@@ -149,9 +149,7 @@ by the escape symbol."
                             #:char-mapping %char-mapping
                             #:line-break (builder-line-break builder))))))
     (if fibers-module
-        (begin
-          (use-modules (fibers))
-          (run-fibers proc))
+        (run-fibers proc)
         (proc))))
 
 (define (scm->dsv-string scm delimiter line-break)
