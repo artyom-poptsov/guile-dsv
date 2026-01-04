@@ -27,7 +27,11 @@
 ;;; Code:
 
 (define-module (dsv fsm dsv-context)
+  #:use-module (srfi srfi-9 gnu)
   #:use-module (dsv fsm context)
+  #:use-module (dsv builder)
+  #:use-module (fibers)
+  #:use-module (fibers channels)
   #:export (none
             add-field
             add-non-empty-field
@@ -39,8 +43,14 @@
             push-non-printable-character
             prepare-result
 
-            replace-char
-            build-string))
+            <unix-writer>
+            make-unix-writer
+            unix-writer-update
+            unix-writer-next-row
+            unix-writer-pre-action
+            unix-writer-data-end?
+            unix-writer-process-field
+            unix-writer-process-row))
 
 (define (none context)
   #f)
@@ -136,15 +146,87 @@
 
 ;;; dsv-writer
 
-(define (replace-char context char)
-  (let ((ch (hash-ref (context-custom-data context) char)))
-    (if ch
-        (push-event-to-buffer (push-event-to-buffer context #\\)
-                              ch)
-        (push-event-to-buffer context char))))
+(define-immutable-record-type <unix-writer>
+  (%make-unix-writer table
+                     debug-mode?
+                     port
+                     delimiter
+                     line-break
+                     char-mapping
+                     row-number
+                     row-count)
+  unix-writer?
+  (table       unix-writer-table unix-writer-table-set) ; <list>
+  (debug-mode? unix-writer-debug-mode? unix-writer-debug-mode-set) ; <boolean>
+  (port        unix-writer-port)          ; <port>
+  (delimiter   unix-writer-delimiter)     ; <string>
+  (line-break  unix-writer-line-break)    ; <string>
+  (char-mapping unix-writer-char-mapping) ; <hash-table.
+  (row-number  unix-writer-row-number unix-writer-row-number-set) ; <number>
+  (row-count   unix-writer-row-count))                            ; <number>
 
-(define (build-string context char)
-  (push-event-to-result context
-                        (context-buffer->string context)))
+(define* (make-unix-writer table
+                           #:key
+                           (debug-mode? #f)
+                           (port (current-output-port))
+                           delimiter
+                           line-break
+                           char-mapping)
+  "Make a <unix-writer> instance."
+  (%make-unix-writer table
+                     debug-mode?
+                     port
+                     delimiter
+                     line-break
+                     char-mapping
+                     0
+                     (length table)))
+
+(define (unix-writer-update self row)
+  (let ((self (unix-writer-row-number-set self
+                                          (+ (unix-writer-row-number self)
+                                             1))))
+    (if (null? row)
+        self
+        (unix-writer-table-set self (cdr (unix-writer-table self))))))
+
+(define (unix-writer-next-row context)
+  (let ((data       (unix-writer-table context))
+        (row-number (unix-writer-row-number context)))
+    (if (< row-number (unix-writer-row-count context))
+        (car data)
+        '())))
+
+(define (unix-writer-data-end? context row)
+  (null? row))
+
+(define (unix-writer-process-field char-mapping field)
+  (let loop ((lst (string->list field))
+             (result '()))
+    (if (not (null? lst))
+        (let* ((char (car lst))
+               (replacement-char (hash-ref char-mapping char)))
+          (loop (cdr lst)
+                (if replacement-char
+                    (cons replacement-char (cons #\\ result))
+                    (cons char result))))
+        (reverse result))))
+
+(define (unix-writer-process-row context row)
+  (let ((char-mapping (unix-writer-char-mapping context)))
+    (define (proc field)
+      (let ((channel (make-channel)))
+        (spawn-fiber
+         (lambda ()
+           (let ((result (unix-writer-process-field char-mapping field)))
+             (put-message channel result))))
+        channel))
+    (let* ((channels (map proc row))
+           (results (map (lambda (channel) (list->string (get-message channel)))
+                         channels)))
+      (display (string-join results (unix-writer-delimiter context))
+               (unix-writer-port context))
+      (display (unix-writer-line-break context) (unix-writer-port context))
+      context)))
 
 ;;; dsv-context.scm ends here.

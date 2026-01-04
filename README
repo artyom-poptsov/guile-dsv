@@ -22,6 +22,7 @@ the Texinfo documentation for details.
    - [[https://www.gnu.org/software/guile/][GNU Guile]] 2.0.12+
    - [[http://www.nongnu.org/guile-lib/][Guile Library]] 0.1.9+
    - [[https://github.com/artyom-poptsov/guile-smc][Guile-SMC]] 0.6.2+
+   - [[https://codeberg.org/guile/fibers][Guile-Fibers]]
 
 *** Build dependencies
     - Texinfo (contains =makeinfo= tool that is required for making the

@@ -1,7 +1,7 @@
 ;; guix.scm --- GNU Guix package recipe    -*- coding: utf-8 -*-
 ;;
 ;; Copyright (C) 2017 Alex Sassmannshausen <alex@pompo.co>
-;; Copyright (C) 2021-2025 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2021-2026 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; Author: Alex Sassmannshausen <alex@pompo.co>
 ;; Created: 2 November 2017
@@ -76,7 +76,7 @@
            guile-zlib
            guile-smc))
     (inputs (list guile-3.0))
-    (propagated-inputs (list guile-lib guile-smc))
+    (propagated-inputs (list guile-fibers guile-lib guile-smc))
     (arguments
      (list
       #:modules `(((guix build guile-build-system)

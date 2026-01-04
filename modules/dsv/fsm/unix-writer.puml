@@ -19,12 +19,13 @@
 title Unix-style DSV writer.
 
 legend
-event-source: next-char
+event-source: unix-writer-next-row
+pre-action: unix-writer-update
 endlegend
 
-[*] --> read_char
+[*] --> process_row
 
-read_char -> [*]: char:eof-object? -> build-string
-read_char -> read_char: guard:#t -> replace-char
+process_row -> [*]: unix-writer-data-end?
+process_row -> process_row: guard:#t -> unix-writer-process-row
 
 @enduml
