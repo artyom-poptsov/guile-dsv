@@ -28,6 +28,7 @@
 
 (define-module (dsv fsm dsv-context)
   #:use-module (srfi srfi-9 gnu)
+  #:use-module (ice-9 hash-table)
   #:use-module (ice-9 threads)
   #:use-module (dsv fsm context)
   #:use-module (dsv builder)
@@ -57,23 +58,24 @@
 (define (none context)
   #f)
 
+(define-with-docs %char-mapping
+  "A hash table that holds character mapping for non-printable characters.  The
+key is an escaped symbol that represents a non-printable character, and value
+is the symbol itself."
+  (alist->hash-table
+   '((#\f . #\page)
+     (#\n . #\newline)
+     (#\r . #\return)
+     (#\t . #\tab)
+     (#\v . #\vtab))))
+
 
 
 (define (non-printable-character? context char)
-  (or (char=? char #\f)
-      (char=? char #\n)
-      (char=? char #\r)
-      (char=? char #\t)
-      (char=? char #\v)))
+  (char? (hash-ref %char-mapping char)))
 
 (define (push-non-printable-character context char)
-  (push-event-to-buffer context
-                        (cond
-                         ((char=? char #\f) #\page)
-                         ((char=? char #\n) #\newline)
-                         ((char=? char #\r) #\return)
-                         ((char=? char #\t) #\tab)
-                         ((char=? char #\v) #\vtab))))
+  (push-event-to-buffer context (hash-ref %char-mapping char)))
 
 (define (end-of-row? context char)
   (or (char:cr? context char)
