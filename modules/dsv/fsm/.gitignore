@@ -6,3 +6,5 @@ context.scm
 context.log
 unix-writer.log
 unix-writer.scm
+unix-writer-with-fibers.log
+unix-writer-with-fibers.scm

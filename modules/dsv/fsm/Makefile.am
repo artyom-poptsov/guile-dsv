@@ -4,6 +4,7 @@ SOURCES = \
 	dsv-context.scm \
 	unix.scm \
 	unix-writer.scm \
+	unix-writer-with-fibers.scm \
 	rfc4180.scm
 
 BUILT_SOURCES = \
@@ -17,6 +18,8 @@ EXTRA_DIST += \
 	unix.scm \
 	unix-writer.puml \
 	unix-writer.scm \
+	unix-writer-with-fibers.puml \
+	unix-writer-with-fibers.scm \
 	rfc4180.puml \
 	rfc4180.scm
 
@@ -45,6 +48,16 @@ GUILE_SMC_UNIX_WRITER_ARGS = \
 	-L $(abs_top_srcdir)/modules:$(abs_top_builddir)/modules \
 	--fsm-name unix-writer-fsm \
 	--fsm-module "(dsv fsm unix-writer)" \
+	-U "((dsv fsm context) (dsv fsm dsv-context))" \
+	--debug \
+	--validate
+
+GUILE_SMC_UNIX_WRITER_WITH_FIBERS_ARGS = \
+	--log-driver file \
+	--log-opt "file=unix-writer-with-fibers.log" \
+	-L $(abs_top_srcdir)/modules:$(abs_top_builddir)/modules \
+	--fsm-name unix-writer-with-fibers-fsm \
+	--fsm-module "(dsv fsm unix-writer-with-fibers)" \
 	-U "((dsv fsm context) (dsv fsm dsv-context))" \
 	--debug \
 	--validate
@@ -80,6 +93,12 @@ unix-writer.scm: context.scm dsv-context.scm unix-writer.puml
 	@echo "  SMC      $@"
 	@$(GUILE_SMC_ENV) smc compile $(GUILE_SMC_UNIX_WRITER_ARGS) unix-writer.puml > $@
 
+unix-writer-with-fibers.scm: context.scm dsv-context.scm unix-writer-with-fibers.puml
+	@echo "  SMC      $@"
+	@$(GUILE_SMC_ENV) smc compile \
+		$(GUILE_SMC_UNIX_WRITER_WITH_FIBERS_ARGS) \
+		unix-writer-with-fibers.puml > $@
+
 rfc4180.scm: context.scm dsv-context.scm rfc4180.puml
 	@echo "  SMC      $@"
 	@$(GUILE_SMC_ENV) smc compile $(GUILE_SMC_RFC4180_ARGS) rfc4180.puml > $@
@@ -97,6 +116,8 @@ CLEANFILES += \
 	unix.scm	\
 	unix-writer.log	\
 	unix-writer.scm	\
+	unix-writer-with-fibers.log	\
+	unix-writer-with-fibers.scm	\
 	rfc4180.log	\
 	rfc4180.scm
 

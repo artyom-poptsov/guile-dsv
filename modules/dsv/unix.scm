@@ -39,6 +39,7 @@
   #:use-module (dsv builder)
   #:use-module (dsv fsm unix)
   #:use-module (dsv fsm unix-writer)
+  #:use-module (dsv fsm unix-writer-with-fibers)
   #:use-module (dsv fsm context)
   #:use-module (dsv fsm dsv-context)
   #:export (make-builder
@@ -130,18 +131,28 @@ by the escape symbol."
 
   (smc-log-init! log-driver log-opt)
 
-  (let ((fsm (make <unix-writer-fsm>
-               #:pre-action unix-writer-update
-               #:debug-mode? debug-mode?)))
-    (run-fibers
-     (lambda ()
-       (fsm-run! fsm
-                 (make-unix-writer (builder-input-data builder)
-                                   #:debug-mode? debug-mode?
-                                   #:port (builder-port builder)
-                                   #:delimiter (string (builder-delimiter builder))
-                                   #:char-mapping %char-mapping
-                                   #:line-break (builder-line-break builder)))))))
+  (let* ((fibers-module (resolve-module '(fibers)))
+         (fsm (if fibers-module
+                  (make <unix-writer-with-fibers-fsm>
+                    #:pre-action unix-writer-update
+                    #:debug-mode? debug-mode?)
+                  (make <unix-writer-fsm>
+                    #:pre-action unix-writer-update
+                    #:debug-mode? debug-mode?)))
+         (proc (lambda ()
+                 (fsm-run! fsm
+                           (make-unix-writer
+                            (builder-input-data builder)
+                            #:debug-mode? debug-mode?
+                            #:port (builder-port builder)
+                            #:delimiter (string (builder-delimiter builder))
+                            #:char-mapping %char-mapping
+                            #:line-break (builder-line-break builder))))))
+    (if fibers-module
+        (begin
+          (use-modules (fibers))
+          (run-fibers proc))
+        (proc))))
 
 (define (scm->dsv-string scm delimiter line-break)
   (call-with-output-string

@@ -28,10 +28,11 @@
 
 (define-module (dsv fsm dsv-context)
   #:use-module (srfi srfi-9 gnu)
+  #:use-module (ice-9 threads)
   #:use-module (dsv fsm context)
   #:use-module (dsv builder)
-  #:use-module (fibers)
-  #:use-module (fibers channels)
+  #:autoload (fibers) (spawn-fiber)
+  #:autoload (fibers channels) (make-channel get-message put-message)
   #:export (none
             add-field
             add-non-empty-field
@@ -50,7 +51,8 @@
             unix-writer-pre-action
             unix-writer-data-end?
             unix-writer-process-field
-            unix-writer-process-row))
+            unix-writer-process-row
+            unix-writer-process-row/fibers))
 
 (define (none context)
   #f)
@@ -212,7 +214,7 @@
                     (cons char result))))
         (reverse result))))
 
-(define (unix-writer-process-row context row)
+(define (unix-writer-process-row/fibers context row)
   (let ((char-mapping (unix-writer-char-mapping context)))
     (define (proc field)
       (let ((channel (make-channel)))
@@ -224,6 +226,16 @@
     (let* ((channels (map proc row))
            (results (map (lambda (channel) (list->string (get-message channel)))
                          channels)))
+      (display (string-join results (unix-writer-delimiter context))
+               (unix-writer-port context))
+      (display (unix-writer-line-break context) (unix-writer-port context))
+      context)))
+
+(define (unix-writer-process-row context row)
+  (let ((char-mapping (unix-writer-char-mapping context)))
+    (define (proc field)
+      (list->string (unix-writer-process-field char-mapping field)))
+    (let ((results (par-map proc row)))
       (display (string-join results (unix-writer-delimiter context))
                (unix-writer-port context))
       (display (unix-writer-line-break context) (unix-writer-port context))
