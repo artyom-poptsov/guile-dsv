@@ -131,7 +131,9 @@ by the escape symbol."
 
   (smc-log-init! log-driver log-opt)
 
-  (let* ((fibers-module (resolve-module '(fibers)))
+  (let* ((fibers-module (resolve-module '(fibers)
+                                        #f
+                                        #:ensure #f))
          (fsm (if fibers-module
                   (make <unix-writer-with-fibers-fsm>
                     #:pre-action unix-writer-update
