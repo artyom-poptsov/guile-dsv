@@ -63,7 +63,7 @@
 (define-with-docs %char-mapping
   "Characters to substitute in the output Unix format data.  Each character in
 the hash table keys must be replaced with its substitution character, preceded
-by the escape symbol ('\'.)"
+by the escape symbol."
   (alist->hash-table
    '((#\page    . #\f)
      (#\newline . #\n)
