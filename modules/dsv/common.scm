@@ -68,9 +68,6 @@
       default-value
       value))
 
-(define (substitute str regex subst-str)
-  (regexp-substitute/global #f regex str 'pre subst-str 'post))
-
 
 
 (define (make-delimiter-guesser parser-proc fmt)
