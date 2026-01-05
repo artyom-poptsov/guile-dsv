@@ -73,6 +73,7 @@ is the symbol itself."
 
 
 (define-immutable-record-type <dsv-context>
+  ;; This data type is for writing DSV data to a specified port.
   (%make-dsv-context table
                      debug-mode?
                      port
@@ -82,23 +83,40 @@ is the symbol itself."
                      row-number
                      row-count)
   dsv-context?
+  ;; DSV data to write.
+  ;;
   ;; <list>
   (table        dsv-context-table dsv-context-table-set)
+  ;; Is debug mode enabled?
+  ;;
   ;; <boolean>
   (debug-mode?  dsv-context-debug-mode? dsv-context-debug-mode-set)
+  ;; Output port to write DSV data to.
+  ;;
   ;; <port>
   (port         dsv-context-port)
+  ;; Output field delimiter.
+  ;;
   ;; <string>
   (delimiter    dsv-context-delimiter)
+  ;; Line break that must be used in the output data.
+  ;;
   ;; <string>
   (line-break   dsv-context-line-break)
+  ;; Character mapping for substitution.
+  ;;
   ;; <hash-table>
   (char-mapping dsv-context-char-mapping)
+  ;; Current row number.
+  ;;
   ;; <number>
   (row-number   dsv-context-row-number dsv-context-row-number-set)
+  ;; Total number of table row count.
+  ;;
   ;; <number>
   (row-count    dsv-context-row-count))
 
+
 (define* (make-dsv-context table
                            #:key
                            (debug-mode? #f)
@@ -117,6 +135,7 @@ is the symbol itself."
                      (length table)))
 
 (define (dsv-context-update self row)
+  "Increment the current row number, drop the first row in the table."
   (let ((self (dsv-context-row-number-set self
                                           (+ (dsv-context-row-number self)
                                              1))))
@@ -125,6 +144,7 @@ is the symbol itself."
         (dsv-context-table-set self (cdr (dsv-context-table self))))))
 
 (define (dsv-context-next-row self)
+  "Get the first row from a table."
   (let ((data       (dsv-context-table self))
         (row-number (dsv-context-row-number self)))
     (if (< row-number (dsv-context-row-count self))
@@ -132,6 +152,7 @@ is the symbol itself."
         '())))
 
 (define (dsv-context-data-end? self row)
+  "Check if no data left in the table to process."
   (null? row))
 
 
@@ -213,7 +234,7 @@ is the symbol itself."
   (reverse-result context))
 
 
-;;; Unix
+;;; Unix writer.
 
 (define (dsv-context-process-field char-mapping field)
   (let loop ((lst (string->list field))
