@@ -1,6 +1,6 @@
 ;;; rfc4180.scm -- DSV parser for Unix format.
 
-;; Copyright (C) 2015-2025 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2015-2026 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
