@@ -5,7 +5,9 @@ SOURCES = \
 	unix.scm \
 	unix-writer.scm \
 	unix-writer-with-fibers.scm \
-	rfc4180.scm
+	rfc4180.scm \
+	rfc4180-writer.scm \
+	rfc4180-writer-with-fibers.scm
 
 BUILT_SOURCES = \
 	context.scm
@@ -21,7 +23,11 @@ EXTRA_DIST += \
 	unix-writer-with-fibers.puml \
 	unix-writer-with-fibers.scm \
 	rfc4180.puml \
-	rfc4180.scm
+	rfc4180.scm \
+	rfc4180-writer.puml \
+	rfc4180-writer.scm \
+	rfc4180-writer-with-fibers.puml \
+	rfc4180-writer-with-fibers.scm
 
 moddir=$(prefix)/share/guile/site/$(GUILE_EFFECTIVE_VERSION)/dsv/fsm/
 godir=$(libdir)/guile/$(GUILE_EFFECTIVE_VERSION)/site-ccache/dsv/fsm/
@@ -58,6 +64,26 @@ GUILE_SMC_UNIX_WRITER_WITH_FIBERS_ARGS = \
 	-L $(abs_top_srcdir)/modules:$(abs_top_builddir)/modules \
 	--fsm-name unix-writer-with-fibers-fsm \
 	--fsm-module "(dsv fsm unix-writer-with-fibers)" \
+	-U "((dsv fsm context) (dsv fsm dsv-context))" \
+	--debug \
+	--validate
+
+GUILE_SMC_RFC4180_WRITER_ARGS = \
+	--log-driver file \
+	--log-opt "file=rfc4180-writer.log" \
+	-L $(abs_top_srcdir)/modules:$(abs_top_builddir)/modules \
+	--fsm-name rfc4180-writer-fsm \
+	--fsm-module "(dsv fsm rfc4180-writer)" \
+	-U "((dsv fsm context) (dsv fsm dsv-context))" \
+	--debug \
+	--validate
+
+GUILE_SMC_RFC4180_WRITER_WITH_FIBERS_ARGS = \
+	--log-driver file \
+	--log-opt "file=rfc4180-writer-with-fibers.log" \
+	-L $(abs_top_srcdir)/modules:$(abs_top_builddir)/modules \
+	--fsm-name rfc4180-writer-with-fibers-fsm \
+	--fsm-module "(dsv fsm rfc4180-writer-with-fibers)" \
 	-U "((dsv fsm context) (dsv fsm dsv-context))" \
 	--debug \
 	--validate
@@ -103,6 +129,17 @@ rfc4180.scm: context.scm dsv-context.scm rfc4180.puml
 	@echo "  SMC      $@"
 	@$(GUILE_SMC_ENV) smc compile $(GUILE_SMC_RFC4180_ARGS) rfc4180.puml > $@
 
+rfc4180-writer.scm: context.scm dsv-context.scm rfc4180-writer.puml
+	@echo "  SMC      $@"
+	@$(GUILE_SMC_ENV) smc compile \
+		$(GUILE_SMC_RFC4180_WRITER_ARGS) \
+		rfc4180-writer.puml > $@
+
+rfc4180-writer-with-fibers.scm: context.scm dsv-context.scm rfc4180-writer-with-fibers.puml
+	@echo "  SMC      $@"
+	@$(GUILE_SMC_ENV) smc compile \
+		$(GUILE_SMC_RFC4180_WRITER_WITH_FIBERS_ARGS) \
+		rfc4180-writer-with-fibers.puml > $@
 
 # XXX: Automake does not remove those files for some reason.
 uninstall-hook:
@@ -119,6 +156,10 @@ CLEANFILES += \
 	unix-writer-with-fibers.log	\
 	unix-writer-with-fibers.scm	\
 	rfc4180.log	\
-	rfc4180.scm
+	rfc4180.scm	\
+	rfc4180-writer.log	\
+	rfc4180-writer.scm	\
+	rfc4180-writer-with-fibers.log	\
+	rfc4180-writer-with-fibers.scm
 
 ### Makefile.am ends here.

@@ -54,7 +54,13 @@
             dsv-context-data-end?
             dsv-context-process-field
             dsv-context-process-row
-            dsv-context-process-row/fibers))
+            dsv-context-process-row/fibers
+
+            rfc4180-writer-quote-field
+            rfc4180-writer-process-field
+            rfc4180-writer-process-row
+            rfc4180-writer-process-row/fibers
+            rfc4180-writer-should-be-enclosed?))
 
 (define (none context)
   #f)
@@ -81,7 +87,8 @@ is the symbol itself."
                      line-break
                      char-mapping
                      row-number
-                     row-count)
+                     row-count
+                     custom-data)
   dsv-context?
   ;; DSV data to write.
   ;;
@@ -114,7 +121,9 @@ is the symbol itself."
   ;; Total number of table row count.
   ;;
   ;; <number>
-  (row-count    dsv-context-row-count))
+  (row-count    dsv-context-row-count)
+
+  (custom-data  dsv-context-custom-data))
 
 
 (define* (make-dsv-context table
@@ -123,7 +132,8 @@ is the symbol itself."
                            (port (current-output-port))
                            delimiter
                            line-break
-                           char-mapping)
+                           char-mapping
+                           (custom-data #f))
   "Make a <dsv-context> instance."
   (%make-dsv-context table
                      debug-mode?
@@ -132,7 +142,8 @@ is the symbol itself."
                      line-break
                      char-mapping
                      0
-                     (length table)))
+                     (length table)
+                     custom-data))
 
 (define (dsv-context-update self row)
   "Increment the current row number, drop the first row in the table."
@@ -269,6 +280,63 @@ is the symbol itself."
   (let ((char-mapping (dsv-context-char-mapping context)))
     (define (proc field)
       (list->string (dsv-context-process-field char-mapping field)))
+    (let ((results (par-map proc row)))
+      (display (string-join results (dsv-context-delimiter context))
+               (dsv-context-port context))
+      (display (dsv-context-line-break context) (dsv-context-port context))
+      context)))
+
+
+;; RFC4180 writer.
+
+(define (rfc4180-writer-quote-field field)
+  "Quote a FIELD with double-quotes."
+  (append (cons #\" field) '(#\")))
+
+(define (rfc4180-writer-should-be-enclosed? context field)
+  "Check if a FIELD should be enclosed in double-quotes."
+  (let ((special-chars (dsv-context-custom-data context)))
+    (if (or (string-index field special-chars)
+            (string-contains field (dsv-context-line-break context)))
+        #t
+        #f)))
+
+(define (rfc4180-writer-process-field context field)
+  (let ((char-mapping (dsv-context-char-mapping context)))
+    (let loop ((lst (string->list field))
+               (result '()))
+      (if (not (null? lst))
+          (let* ((char (car lst))
+                 (replacement-char (hash-ref char-mapping char)))
+            (loop (cdr lst)
+                  (if replacement-char
+                      (cons replacement-char (cons #\" result))
+                      (cons char result))))
+          (let ((result (reverse result)))
+            (if (rfc4180-writer-should-be-enclosed? context field)
+                (rfc4180-writer-quote-field result)
+                result))))))
+
+(define (rfc4180-writer-process-row/fibers context row)
+  (define (proc field)
+    (let ((channel (make-channel)))
+      (spawn-fiber
+       (lambda ()
+         (let ((result (rfc4180-writer-process-field context field)))
+           (put-message channel result))))
+      channel))
+    (let* ((channels (map proc row))
+           (results (map (lambda (channel) (list->string (get-message channel)))
+                         channels)))
+      (display (string-join results (dsv-context-delimiter context))
+               (dsv-context-port context))
+      (display (dsv-context-line-break context) (dsv-context-port context))
+      context))
+
+(define (rfc4180-writer-process-row context row)
+  (let ((char-mapping (dsv-context-char-mapping context)))
+    (define (proc field)
+      (list->string (rfc4180-writer-process-field context field)))
     (let ((results (par-map proc row)))
       (display (string-join results (dsv-context-delimiter context))
                (dsv-context-port context))

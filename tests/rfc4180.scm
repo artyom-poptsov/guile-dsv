@@ -1,6 +1,6 @@
 ;;; rfc4180.scm -- Tests for RFC 4180 parser.
 
-;; Copyright (C) 2015-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2015-2026 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -20,9 +20,12 @@
 
 (use-modules (srfi srfi-64)
              (srfi srfi-26)
+             (ice-9 hash-table)
              (scheme documentation)
              (tests test)
-             (dsv))
+             (dsv)
+             ((dsv rfc4180) #:select (make-special-character-set))
+             (dsv fsm dsv-context))
 
 
 (define %test-name "rfc4180")
@@ -33,6 +36,42 @@
 (define-with-docs %crlf
   "Carriage Return + Line Feed"
   "\r\n")
+
+
+;; Writer.
+
+(test-equal "rfc4180-writer-quote-field"
+  (list #\" 'a #\")
+  (rfc4180-writer-quote-field '(a)))
+
+(test-equal "rfc4180-writer-should-be-enclosed?: #f"
+  #f
+  (rfc4180-writer-should-be-enclosed? (make-dsv-context
+                                       '((a b c) (d e f))
+                                       #:delimiter #\,
+                                       #:line-break "\r\n"
+                                       #:char-mapping (alist->hash-table '((#\" . #\")))
+                                       #:custom-data (make-special-character-set #\,))
+                                      "hello world"))
+
+(test-equal "rfc4180-writer-should-be-enclosed?: #t"
+  #t
+  (rfc4180-writer-should-be-enclosed? (make-dsv-context
+                                       '((a b c) (d e f))
+                                       #:delimiter #\,
+                                       #:line-break "\r\n"
+                                       #:char-mapping (alist->hash-table '((#\" . #\")))
+                                       #:custom-data (make-special-character-set #\,))
+                                      "hello, \"world\""))
+
+(test-assert "rfc4180-writer-process-field"
+  (let ((context (make-dsv-context
+                  '((a b c) (d e f))
+                  #:delimiter #\,
+                  #:line-break "\r\n"
+                  #:char-mapping (alist->hash-table '((#\" . #\")))
+                  #:custom-data (make-special-character-set #\,))))
+    (rfc4180-writer-process-field context "hello, \"world\"")))
 
 
 ;;; dsv->scm

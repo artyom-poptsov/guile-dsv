@@ -37,13 +37,18 @@
   #:use-module (dsv common)
   #:use-module (dsv builder)
   #:use-module (dsv fsm rfc4180)
+  #:use-module (dsv fsm rfc4180-writer)
+  #:use-module (dsv fsm rfc4180-writer-with-fibers)
   #:use-module (dsv fsm context)
+  #:use-module (dsv fsm dsv-context)
+  #:autoload (fibers) (run-fibers)
   #:export (make-builder
             scm->dsv
             scm->dsv-string
             dsv->scm
             dsv-string->scm
             guess-delimiter
+            make-special-character-set
             ;; Variables
             %default-delimiter))
 
@@ -58,6 +63,13 @@
   "Default field delimiter."
   #\,)
 
+(define-with-docs %char-mapping
+  "Characters to substitute in the output RFC41890 format data.  Each character
+in the hash table keys must be replaced with its substitution character,
+preceded by the escape symbol."
+  (alist->hash-table
+   '((#\" . #\"))))
+
 
 ;;; Writing
 
@@ -67,32 +79,42 @@
                  'rfc4180
                  (value-or-default delimiter  %default-delimiter)
                  (value-or-default line-break %default-line-break)
-                 'none))
+                 %char-mapping))
 
-
-(define (escape-double-quotes field)
-  "Escape each double-quote in a FIELD with additional double-quote."
-  (escape-special-chars field #\" #\"))
+(define (make-special-character-set delimiter)
+  (char-set delimiter #\" #\newline))
 
-(define (quote-field field)
-  "Quote a FIELD with double-quotes."
-  (string-append (string #\") field (string #\")))
+(define* (scm->dsv builder
+                   #:key
+                   (debug-mode? #f)
+                   (log-driver  "null")
+                   (log-opt     '()))
+  "Create a DSV document from a data."
 
-(define* (scm->dsv builder)
-  "Create a DSV document from a data using a BUILDER."
+  (smc-log-init! log-driver log-opt)
 
-  (define (should-be-enclosed? field)
-    "Check if a FIELD should be enclosed in double-quotes."
-    (or (string-index field    (char-set (builder-delimiter builder)
-                                         #\" #\newline))
-        (string-contains field (builder-line-break builder))))
-
-  (builder-build builder
-                 (lambda (field)
-                   (let ((escaped-field (escape-double-quotes field)))
-                     (if (should-be-enclosed? escaped-field)
-                         (quote-field escaped-field)
-                         field)))))
+  (let* ((fibers-module (resolve-module '(fibers)
+                                        #:ensure #f))
+         (fsm (if fibers-module
+                  (make <rfc4180-writer-with-fibers-fsm>
+                    #:pre-action dsv-context-update
+                    #:debug-mode? debug-mode?)
+                  (make <rfc4180-writer-fsm>
+                    #:pre-action dsv-context-update
+                    #:debug-mode? debug-mode?)))
+         (proc (lambda ()
+                 (fsm-run! fsm
+                           (make-dsv-context
+                            (builder-input-data builder)
+                            #:debug-mode? debug-mode?
+                            #:port (builder-port builder)
+                            #:delimiter (string (builder-delimiter builder))
+                            #:char-mapping %char-mapping
+                            #:line-break (builder-line-break builder)
+                            #:custom-data (make-special-character-set (builder-delimiter builder)))))))
+    (if fibers-module
+        (run-fibers proc)
+        (proc))))
 
 (define (scm->dsv-string scm delimiter line-break)
   (call-with-output-string

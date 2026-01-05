@@ -2,6 +2,10 @@ unix.scm
 unix.log
 rfc4180.log
 rfc4180.scm
+rfc4180-writer.log
+rfc4180-writer.scm
+rfc4180-writer-with-fibers.log
+rfc4180-writer-with-fibers.scm
 context.scm
 context.log
 unix-writer.log
