@@ -51,9 +51,10 @@
             dsv-context-next-row
             dsv-context-pre-action
             dsv-context-data-end?
-            dsv-context-process-field
-            dsv-context-process-row
-            dsv-context-process-row/fibers
+
+            unix-writer-process-field
+            unix-writer-process-row
+            unix-writer-process-row/fibers
 
             rfc4180-writer-quote-field
             rfc4180-writer-process-field
@@ -246,7 +247,7 @@ is the symbol itself."
 
 ;;; Unix writer.
 
-(define (dsv-context-process-field char-mapping field)
+(define (unix-writer-process-field char-mapping field)
   (let loop ((lst (string->list field))
              (result '()))
     (if (not (null? lst))
@@ -258,13 +259,13 @@ is the symbol itself."
                     (cons char result))))
         (reverse result))))
 
-(define (dsv-context-process-row/fibers context row)
+(define (unix-writer-process-row/fibers context row)
   (let ((char-mapping (dsv-context-char-mapping context)))
     (define (proc field)
       (let ((channel (make-channel)))
         (spawn-fiber
          (lambda ()
-           (let ((result (dsv-context-process-field char-mapping field)))
+           (let ((result (unix-writer-process-field char-mapping field)))
              (put-message channel result))))
         channel))
     (let* ((channels (map proc row))
@@ -275,10 +276,10 @@ is the symbol itself."
       (display (dsv-context-line-break context) (dsv-context-port context))
       context)))
 
-(define (dsv-context-process-row context row)
+(define (unix-writer-process-row context row)
   (let ((char-mapping (dsv-context-char-mapping context)))
     (define (proc field)
-      (list->string (dsv-context-process-field char-mapping field)))
+      (list->string (unix-writer-process-field char-mapping field)))
     (let ((results (par-map proc row)))
       (display (string-join results (dsv-context-delimiter context))
                (dsv-context-port context))

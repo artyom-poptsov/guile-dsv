@@ -26,6 +26,6 @@ endlegend
 [*] --> process_row
 
 process_row -> [*]: dsv-context-data-end?
-process_row -> process_row: guard:#t -> dsv-context-process-row
+process_row -> process_row: guard:#t -> unix-writer-process-row
 
 @enduml
