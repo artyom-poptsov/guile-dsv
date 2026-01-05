@@ -25,13 +25,7 @@
 ;;; Code:
 
 (define-module (dsv unix)
-  #:use-module (ice-9 rdelim)
-  #:use-module (ice-9 regex)
   #:use-module (ice-9 hash-table)
-  #:use-module (srfi  srfi-1)
-  #:use-module (srfi  srfi-26)
-  #:use-module ((string transform)
-                #:select (escape-special-chars))
   #:use-module (scheme documentation)
   #:use-module (oop goops)
   #:use-module (dsv common)
