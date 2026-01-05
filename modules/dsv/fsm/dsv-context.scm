@@ -46,15 +46,15 @@
             push-non-printable-character
             prepare-result
 
-            <unix-writer>
-            make-unix-writer
-            unix-writer-update
-            unix-writer-next-row
-            unix-writer-pre-action
-            unix-writer-data-end?
-            unix-writer-process-field
-            unix-writer-process-row
-            unix-writer-process-row/fibers))
+            <dsv-context>
+            make-dsv-context
+            dsv-context-update
+            dsv-context-next-row
+            dsv-context-pre-action
+            dsv-context-data-end?
+            dsv-context-process-field
+            dsv-context-process-row
+            dsv-context-process-row/fibers))
 
 (define (none context)
   #f)
@@ -69,6 +69,70 @@ is the symbol itself."
      (#\r . #\return)
      (#\t . #\tab)
      (#\v . #\vtab))))
+
+
+
+(define-immutable-record-type <dsv-context>
+  (%make-dsv-context table
+                     debug-mode?
+                     port
+                     delimiter
+                     line-break
+                     char-mapping
+                     row-number
+                     row-count)
+  dsv-context?
+  ;; <list>
+  (table        dsv-context-table dsv-context-table-set)
+  ;; <boolean>
+  (debug-mode?  dsv-context-debug-mode? dsv-context-debug-mode-set)
+  ;; <port>
+  (port         dsv-context-port)
+  ;; <string>
+  (delimiter    dsv-context-delimiter)
+  ;; <string>
+  (line-break   dsv-context-line-break)
+  ;; <hash-table>
+  (char-mapping dsv-context-char-mapping)
+  ;; <number>
+  (row-number   dsv-context-row-number dsv-context-row-number-set)
+  ;; <number>
+  (row-count    dsv-context-row-count))
+
+(define* (make-dsv-context table
+                           #:key
+                           (debug-mode? #f)
+                           (port (current-output-port))
+                           delimiter
+                           line-break
+                           char-mapping)
+  "Make a <dsv-context> instance."
+  (%make-dsv-context table
+                     debug-mode?
+                     port
+                     delimiter
+                     line-break
+                     char-mapping
+                     0
+                     (length table)))
+
+(define (dsv-context-update self row)
+  (let ((self (dsv-context-row-number-set self
+                                          (+ (dsv-context-row-number self)
+                                             1))))
+    (if (null? row)
+        self
+        (dsv-context-table-set self (cdr (dsv-context-table self))))))
+
+(define (dsv-context-next-row self)
+  (let ((data       (dsv-context-table self))
+        (row-number (dsv-context-row-number self)))
+    (if (< row-number (dsv-context-row-count self))
+        (car data)
+        '())))
+
+(define (dsv-context-data-end? self row)
+  (null? row))
 
 
 
@@ -149,63 +213,9 @@ is the symbol itself."
   (reverse-result context))
 
 
-;;; dsv-writer
+;;; Unix
 
-(define-immutable-record-type <unix-writer>
-  (%make-unix-writer table
-                     debug-mode?
-                     port
-                     delimiter
-                     line-break
-                     char-mapping
-                     row-number
-                     row-count)
-  unix-writer?
-  (table       unix-writer-table unix-writer-table-set) ; <list>
-  (debug-mode? unix-writer-debug-mode? unix-writer-debug-mode-set) ; <boolean>
-  (port        unix-writer-port)          ; <port>
-  (delimiter   unix-writer-delimiter)     ; <string>
-  (line-break  unix-writer-line-break)    ; <string>
-  (char-mapping unix-writer-char-mapping) ; <hash-table.
-  (row-number  unix-writer-row-number unix-writer-row-number-set) ; <number>
-  (row-count   unix-writer-row-count))                            ; <number>
-
-(define* (make-unix-writer table
-                           #:key
-                           (debug-mode? #f)
-                           (port (current-output-port))
-                           delimiter
-                           line-break
-                           char-mapping)
-  "Make a <unix-writer> instance."
-  (%make-unix-writer table
-                     debug-mode?
-                     port
-                     delimiter
-                     line-break
-                     char-mapping
-                     0
-                     (length table)))
-
-(define (unix-writer-update self row)
-  (let ((self (unix-writer-row-number-set self
-                                          (+ (unix-writer-row-number self)
-                                             1))))
-    (if (null? row)
-        self
-        (unix-writer-table-set self (cdr (unix-writer-table self))))))
-
-(define (unix-writer-next-row context)
-  (let ((data       (unix-writer-table context))
-        (row-number (unix-writer-row-number context)))
-    (if (< row-number (unix-writer-row-count context))
-        (car data)
-        '())))
-
-(define (unix-writer-data-end? context row)
-  (null? row))
-
-(define (unix-writer-process-field char-mapping field)
+(define (dsv-context-process-field char-mapping field)
   (let loop ((lst (string->list field))
              (result '()))
     (if (not (null? lst))
@@ -217,31 +227,31 @@ is the symbol itself."
                     (cons char result))))
         (reverse result))))
 
-(define (unix-writer-process-row/fibers context row)
-  (let ((char-mapping (unix-writer-char-mapping context)))
+(define (dsv-context-process-row/fibers context row)
+  (let ((char-mapping (dsv-context-char-mapping context)))
     (define (proc field)
       (let ((channel (make-channel)))
         (spawn-fiber
          (lambda ()
-           (let ((result (unix-writer-process-field char-mapping field)))
+           (let ((result (dsv-context-process-field char-mapping field)))
              (put-message channel result))))
         channel))
     (let* ((channels (map proc row))
            (results (map (lambda (channel) (list->string (get-message channel)))
                          channels)))
-      (display (string-join results (unix-writer-delimiter context))
-               (unix-writer-port context))
-      (display (unix-writer-line-break context) (unix-writer-port context))
+      (display (string-join results (dsv-context-delimiter context))
+               (dsv-context-port context))
+      (display (dsv-context-line-break context) (dsv-context-port context))
       context)))
 
-(define (unix-writer-process-row context row)
-  (let ((char-mapping (unix-writer-char-mapping context)))
+(define (dsv-context-process-row context row)
+  (let ((char-mapping (dsv-context-char-mapping context)))
     (define (proc field)
-      (list->string (unix-writer-process-field char-mapping field)))
+      (list->string (dsv-context-process-field char-mapping field)))
     (let ((results (par-map proc row)))
-      (display (string-join results (unix-writer-delimiter context))
-               (unix-writer-port context))
-      (display (unix-writer-line-break context) (unix-writer-port context))
+      (display (string-join results (dsv-context-delimiter context))
+               (dsv-context-port context))
+      (display (dsv-context-line-break context) (dsv-context-port context))
       context)))
 
 ;;; dsv-context.scm ends here.

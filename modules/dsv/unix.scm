@@ -135,14 +135,14 @@ by the escape symbol."
                                         #:ensure #f))
          (fsm (if fibers-module
                   (make <unix-writer-with-fibers-fsm>
-                    #:pre-action unix-writer-update
+                    #:pre-action dsv-context-update
                     #:debug-mode? debug-mode?)
                   (make <unix-writer-fsm>
-                    #:pre-action unix-writer-update
+                    #:pre-action dsv-context-update
                     #:debug-mode? debug-mode?)))
          (proc (lambda ()
                  (fsm-run! fsm
-                           (make-unix-writer
+                           (make-dsv-context
                             (builder-input-data builder)
                             #:debug-mode? debug-mode?
                             #:port (builder-port builder)

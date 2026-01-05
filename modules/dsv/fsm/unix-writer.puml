@@ -19,13 +19,13 @@
 title Unix-style DSV writer.
 
 legend
-event-source: unix-writer-next-row
-pre-action: unix-writer-update
+event-source: dsv-context-next-row
+pre-action: dsv-context-update
 endlegend
 
 [*] --> process_row
 
-process_row -> [*]: unix-writer-data-end?
-process_row -> process_row: guard:#t -> unix-writer-process-row
+process_row -> [*]: dsv-context-data-end?
+process_row -> process_row: guard:#t -> dsv-context-process-row
 
 @enduml
