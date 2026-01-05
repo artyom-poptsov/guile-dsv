@@ -31,7 +31,6 @@
   #:use-module (ice-9 hash-table)
   #:use-module (ice-9 threads)
   #:use-module (dsv fsm context)
-  #:use-module (dsv builder)
   #:use-module (scheme documentation)
   #:autoload (fibers) (spawn-fiber)
   #:autoload (fibers channels) (make-channel get-message put-message)
