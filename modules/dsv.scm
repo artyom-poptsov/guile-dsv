@@ -159,11 +159,13 @@ Throws 'dsv-parser-error' on an error.  Return value is unspecified."
                  (list lst))))
     (case format
       ((unix)
-       (let ((builder (unix:make-builder lst port delimiter 'default)))
-         (unix:scm->dsv builder)))
+       (unix:scm->dsv lst
+                      #:port port
+                      #:delimiter delimiter))
       ((rfc4180)
-       (let ((builder (rfc4180:make-builder lst port delimiter 'default)))
-         (rfc4180:scm->dsv builder)))
+       (rfc4180:scm->dsv lst
+                         #:port port
+                         #:delimiter delimiter))
       (else
        (dsv-error "Unknown format" format)))))
 
@@ -178,9 +180,9 @@ string; or throw a 'dsv-parser-error' on an error."
                  (list lst))))
     (case format
       ((unix)
-       (unix:scm->dsv-string lst delimiter 'default))
+       (unix:scm->dsv-string lst #:delimiter delimiter))
       ((rfc4180)
-       (rfc4180:scm->dsv-string lst delimiter 'default))
+       (rfc4180:scm->dsv-string lst #:delimiter delimiter))
       (else
        (dsv-error "Unknown format" format)))))
 

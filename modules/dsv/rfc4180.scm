@@ -35,15 +35,13 @@
   #:use-module (scheme documentation)
   #:use-module (oop goops)
   #:use-module (dsv common)
-  #:use-module (dsv builder)
   #:use-module (dsv fsm rfc4180)
   #:use-module (dsv fsm rfc4180-writer)
   #:use-module (dsv fsm rfc4180-writer-with-fibers)
   #:use-module (dsv fsm context)
   #:use-module (dsv fsm dsv-context)
   #:autoload (fibers) (run-fibers)
-  #:export (make-builder
-            scm->dsv
+  #:export (scm->dsv
             scm->dsv-string
             dsv->scm
             dsv-string->scm
@@ -73,19 +71,14 @@ preceded by the escape symbol."
 
 ;;; Writing
 
-(define (make-builder scm port delimiter line-break)
-  (%make-builder scm
-                 port
-                 'rfc4180
-                 (value-or-default delimiter  %default-delimiter)
-                 (value-or-default line-break %default-line-break)
-                 %char-mapping))
-
 (define (make-special-character-set delimiter)
   (char-set delimiter #\" #\newline))
 
-(define* (scm->dsv builder
+(define* (scm->dsv table
                    #:key
+                   (delimiter %default-delimiter)
+                   (line-break %default-line-break)
+                   (port (current-output-port))
                    (debug-mode? #f)
                    (log-driver  "null")
                    (log-opt     '()))
@@ -93,7 +86,9 @@ preceded by the escape symbol."
 
   (smc-log-init! log-driver log-opt)
 
-  (let* ((fibers-module (resolve-module '(fibers)
+  (let* ((delimiter  (value-or-default delimiter  %default-delimiter))
+         (line-break (value-or-default line-break  %default-line-break))
+         (fibers-module (resolve-module '(fibers)
                                         #:ensure #f))
          (fsm (if fibers-module
                   (make <rfc4180-writer-with-fibers-fsm>
@@ -105,21 +100,34 @@ preceded by the escape symbol."
          (proc (lambda ()
                  (fsm-run! fsm
                            (make-dsv-context
-                            (builder-input-data builder)
+                            table
                             #:debug-mode? debug-mode?
-                            #:port (builder-port builder)
-                            #:delimiter (string (builder-delimiter builder))
+                            #:port port
+                            #:delimiter (string delimiter)
                             #:char-mapping %char-mapping
-                            #:line-break (builder-line-break builder)
-                            #:custom-data (make-special-character-set (builder-delimiter builder)))))))
+                            #:line-break line-break
+                            #:custom-data (make-special-character-set delimiter))))))
     (if fibers-module
         (run-fibers proc)
         (proc))))
 
-(define (scm->dsv-string scm delimiter line-break)
+(define* (scm->dsv-string table
+                          #:key
+                          (delimiter %default-delimiter)
+                          (line-break %default-line-break)
+                          (port (current-output-port))
+                          (debug-mode? #f)
+                          (log-driver  "null")
+                          (log-opt     '()))
   (call-with-output-string
    (lambda (port)
-     (scm->dsv (make-builder scm port delimiter line-break)))))
+     (scm->dsv table
+               #:delimiter   delimiter
+               #:line-break  line-break
+               #:port        port
+               #:debug-mode? debug-mode?
+               #:log-driver  log-driver
+               #:log-opt     log-opt))))
 
 
 ;;;; The parser itself.

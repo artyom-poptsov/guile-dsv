@@ -1,6 +1,6 @@
 ## Makefile.am -- Config file for GNU Automake.
 ##
-## Copyright (C) 2015-2023 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+## Copyright (C) 2015-2026 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ##
 ## This file is part of Guile-DSV.
 ##
@@ -26,7 +26,6 @@ SOURCES = \
 	config.scm		\
 	rfc4180.scm		\
 	unix.scm		\
-	builder.scm		\
 	table.scm		\
 	table-preset.scm	\
 	common.scm
