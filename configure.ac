@@ -21,7 +21,7 @@ You should have received a copy of the GNU General Public License
 along with Guile-DSV.  If not, see <http://www.gnu.org/licenses/>.
 ]])
 
-AC_INIT([Guile-DSV], [0.8.1], [poptsov.artyom@gmail.com],
+AC_INIT([Guile-DSV], [0.9.0], [poptsov.artyom@gmail.com],
                      [guile-dsv],
                      [https://github.com/artyom-poptsov/guile-dsv])
 

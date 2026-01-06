@@ -7,7 +7,7 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   are permitted in any medium without royalty provided the copyright
   notice and this notice are preserved.
 
-* Unreleased
+* Changes in version 0.9.0 (2026-01-06)
 ** Improve =scm->dsv= and =scm->dsv-string= performance
 =scm->dsv= and =scm->dsv-string= procedures were re-written to use a simple
 finite-state machine (with Guile-SMC), with concurrent processing of table
