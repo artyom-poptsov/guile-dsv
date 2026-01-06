@@ -57,56 +57,62 @@
 (define %source-dir (dirname (current-filename)))
 
 
-(package
-  (name "guile-dsv")
-  (version "git")
-  (source (local-file %source-dir
-                      #:recursive? #t
-                      #:select? (git-predicate %source-dir)))
-    (build-system gnu-build-system)
-    (native-inputs
-     (list autoconf
-           automake
-           pkg-config
-           texinfo
-           help2man
-           ;; needed when cross-compiling.
-           guile-3.0
-           guile-lib
-           guile-zlib
-           guile-smc))
-    (inputs (list guile-3.0))
-    (propagated-inputs (list guile-fibers guile-lib guile-smc))
-    (arguments
-     (list
-      #:modules `(((guix build guile-build-system)
+(define guile-dsv
+  (package
+   (name "guile-dsv")
+   (version "git")
+   (source (local-file %source-dir
+                       #:recursive? #t
+                       #:select? (git-predicate %source-dir)))
+   (build-system gnu-build-system)
+   (native-inputs
+    (list autoconf
+          automake
+          pkg-config
+          texinfo
+          help2man
+          ;; needed when cross-compiling.
+          guile-3.0
+          guile-lib
+          guile-zlib
+          guile-smc))
+   (inputs (list bash-minimal guile-3.0))
+   (propagated-inputs (list guile-fibers guile-lib guile-smc))
+   (arguments
+    (list
+     #:modules `(((guix build guile-build-system)
                   #:select (target-guile-effective-version))
-                  ,@%default-gnu-imported-modules)
-      #:imported-modules `((guix build guile-build-system)
-                           ,@%default-gnu-imported-modules)
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'install 'wrap-program
-                     (lambda* (#:key inputs outputs #:allow-other-keys)
-                       (let* ((bin (string-append #$output "/bin"))
-                              (guile-lib (assoc-ref inputs "guile-lib"))
-                              (version (target-guile-effective-version))
-                              (scm (string-append "/share/guile/site/"
-                                                  version))
-                              (go (string-append  "/lib/guile/"
-                                                  version "/site-ccache")))
-                         (wrap-program (string-append bin "/dsv")
-                                       `("GUILE_LOAD_PATH" prefix
-                                         (,(string-append #$output scm)
-                                          ,(string-append guile-lib scm)))
-                                       `("GUILE_LOAD_COMPILED_PATH" prefix
-                                         (,(string-append #$output go)
-                                          ,(string-append guile-lib go))))))))))
-    (home-page "https://github.com/artyom-poptsov/guile-dsv")
-    (synopsis "DSV module for Guile")
-    (description
-     "Guile-DSV is a GNU Guile module for working with the
+                 ,@%default-gnu-imported-modules)
+     #:imported-modules `((guix build guile-build-system)
+                          ,@%default-gnu-imported-modules)
+     #:phases #~(modify-phases %standard-phases
+                  (delete 'strip)
+                  (add-after 'install 'wrap-program
+                    (lambda* (#:key inputs #:allow-other-keys)
+                      (let* ((bin (string-append #$output "/bin"))
+                             (guile-lib (assoc-ref inputs "guile-lib"))
+                             (version (target-guile-effective-version))
+                             (scm (string-append "/share/guile/site/"
+                                                 version))
+                             (go (string-append  "/lib/guile/"
+                                                 version "/site-ccache")))
+                        (wrap-program (string-append bin "/dsv")
+                                      `("GUILE_LOAD_PATH" prefix
+                                        (,(string-append #$output scm)
+                                         ,(string-append guile-lib scm)))
+                                      `("GUILE_LOAD_COMPILED_PATH" prefix
+                                        (,(string-append #$output go)
+                                         ,(string-append guile-lib go))))))))))
+   (home-page "https://github.com/artyom-poptsov/guile-dsv")
+   (synopsis "DSV module for Guile")
+   (description
+    "Guile-DSV is a GNU Guile module for working with the
 delimiter-separated values (DSV) data format.  Guile-DSV supports the
 Unix-style DSV format and RFC 4180 format.")
-    (license gpl3+))
+   (license gpl3+)))
+
+
+
+guile-dsv
 
 ;;; guix.scm ends here.
