@@ -3,7 +3,7 @@ dnl   Process this file with autoconf to produce configure.
 dnl
 
 define(GUILE_DSV_CONFIGURE_COPYRIGHT, [[
-Copyright (C) 2013-2025 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+Copyright (C) 2013-2026 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 
 This file is part of Guile-DSV.
 
@@ -95,6 +95,13 @@ AC_CONFIG_FILES([pre-inst-env:build-aux/pre-inst-env.in],
 
 AC_CONFIG_LINKS([modules/dsv/fsm/unix.puml:modules/dsv/fsm/unix.puml])
 AC_CONFIG_LINKS([modules/dsv/fsm/rfc4180.puml:modules/dsv/fsm/rfc4180.puml])
+AC_CONFIG_LINKS([
+        modules/dsv/fsm/unix-writer.puml:modules/dsv/fsm/unix-writer.puml
+        modules/dsv/fsm/unix-writer-with-fibers.puml:modules/dsv/fsm/unix-writer-with-fibers.puml
+        modules/dsv/fsm/rfc4180-writer.puml:modules/dsv/fsm/rfc4180-writer.puml
+        modules/dsv/fsm/rfc4180-writer-with-fibers.puml:modules/dsv/fsm/rfc4180-writer-with-fibers.puml
+])
+
 
 # Generate a Makefile, based on the results.
 AC_OUTPUT
