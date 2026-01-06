@@ -64,7 +64,8 @@
                                        #:custom-data (make-special-character-set #\,))
                                       "hello, \"world\""))
 
-(test-assert "rfc4180-writer-process-field"
+(test-equal "rfc4180-writer-process-field"
+  '(#\" #\h #\e #\l #\l #\o #\, #\space #\" #\" #\w #\o #\r #\l #\d #\" #\" #\")
   (let ((context (make-dsv-context
                   '((a b c) (d e f))
                   #:delimiter #\,
