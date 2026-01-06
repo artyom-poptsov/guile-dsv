@@ -10,7 +10,7 @@
 @copying
 This manual documents Guile-DSV version @value{VERSION}.
 
-Copyright (C) 2014-2025 Artyom V. Poptsov
+Copyright (C) 2014-2026 Artyom V. Poptsov
 
 Copyright (C) 2025 Denis 'GNUtoo' Carikli
 
@@ -280,8 +280,14 @@ Examples:
 
 @end deffn
 
-@deffn {Scheme Procedure} scm->dsv list [port [delimiter]] [#:format='unix]
-@deffnx {Scheme Procedure} scm->dsv-string list [delimiter] [#:format='unix]
+@deffn {Scheme Procedure} scm->dsv list [port [delimiter]] @
+               [#:format='unix] @
+               [#:log-driver="null"] @
+               [#:log-opt='()]
+@deffnx {Scheme Procedure} scm->dsv-string list [delimiter] @
+               [#:format='unix] @
+               [#:log-driver="null"] @
+               [#:log-opt='()]
 Write a list of values @var{list} as a sequence of DSV strings in a specified
 @var{format} to a @var{port}.  If the @var{port} is not set, write to the
 default output port.  If a @var{delimiter} is not set, use the default
@@ -293,6 +299,10 @@ a single table row (as a one-dimesional @var{list} of strings).
 When format is set to @code{'unix}, then the following escaped nonprintable
 characters will be accepted: @code{#\page}, @code{#\newline}, @code{#\return},
 @code{#\tab}, @code{#\vtab}.  E.g. ``\f'' will be read as @code{#\page}.
+
+@var{log-driver} allows to set the logging driver. Possible values are:
+``null'' (used by default), ``syslog'' , ``file'', ``null''.  Using
+@var{log-opt} parameter one can pass additional options for a logging driver.
 
 Return value is undefined.  The procedure throws a @code{dsv-parser-error} on
 an error.

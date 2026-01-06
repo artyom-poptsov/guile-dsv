@@ -149,7 +149,9 @@ commented with a COMMENT-PREFIX.  Return a list of values, or throw
                    (port      (current-output-port))
                    (delimiter 'default)
                    #:key
-                   (format    'unix))
+                   (format    'unix)
+                   (log-driver "null")
+                   (log-opt    '()))
   "Write a list of values LST as a sequence of DSV strings to a PORT using a
 specified DSV FORMAT.  If the PORT is not set, write to the default output
 port.  If a DELIMITER is not set, use the default delimiter for a FORMAT.
@@ -161,17 +163,23 @@ Throws 'dsv-parser-error' on an error.  Return value is unspecified."
       ((unix)
        (unix:scm->dsv lst
                       #:port port
-                      #:delimiter delimiter))
+                      #:delimiter delimiter
+                      #:log-driver log-driver
+                      #:log-opt    log-opt))
       ((rfc4180)
        (rfc4180:scm->dsv lst
                          #:port port
-                         #:delimiter delimiter))
+                         #:delimiter delimiter
+                         #:log-driver log-driver
+                         #:log-opt    log-opt))
       (else
        (dsv-error "Unknown format" format)))))
 
 (define* (scm->dsv-string lst
                            #:optional (delimiter 'default)
-                           #:key (format 'unix))
+                           #:key (format 'unix)
+                           (log-driver "null")
+                           (log-opt    '()))
   "Convert a list LST to a DSV string using a specified DSV FORMAT.  If the
 DELIMITER is not set, use the default delimiter for a FORMAT.  Return a DSV
 string; or throw a 'dsv-parser-error' on an error."
@@ -180,9 +188,15 @@ string; or throw a 'dsv-parser-error' on an error."
                  (list lst))))
     (case format
       ((unix)
-       (unix:scm->dsv-string lst #:delimiter delimiter))
+       (unix:scm->dsv-string lst
+                             #:delimiter delimiter
+                             #:log-driver log-driver
+                             #:log-opt    log-opt))
       ((rfc4180)
-       (rfc4180:scm->dsv-string lst #:delimiter delimiter))
+       (rfc4180:scm->dsv-string lst
+                                #:delimiter delimiter
+                                #:log-driver log-driver
+                                #:log-opt    log-opt))
       (else
        (dsv-error "Unknown format" format)))))
 
