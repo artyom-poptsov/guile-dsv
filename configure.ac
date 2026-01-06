@@ -77,6 +77,16 @@ GUILE_SITE_DIR
 GUILE_MODULE_REQUIRED([string transform])
 GUILE_MODULE_REQUIRED([smc fsm])
 
+GUILE_MODULE_AVAILABLE(FIBERS_AVAILABLE, (fibers))
+AS_IF(
+        [test $FIBERS_AVAILABLE = no],
+        [AC_MSG_NOTICE(
+                [
+                 Guile-Fibers module is not available,
+                 (ice-9 threads) will be used instead.
+                ])]
+)
+
 pkgdatadir="$datadir/$PACKAGE"
 if test "x$guilesitedir" = "x"; then
    guilesitedir="$pkgdatadir"
