@@ -29,10 +29,18 @@ AC_COPYRIGHT(GUILE_DSV_CONFIGURE_COPYRIGHT)
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
 
-AM_INIT_AUTOMAKE([gnu silent-rules -Wall -Wno-portability
-                      color-tests])
+AM_INIT_AUTOMAKE([
+        gnu
+        silent-rules
+        -Wall
+        -Wno-portability
+        color-tests
+])
 
-m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])], [AC_SUBST([AM_DEFAULT_VERBOSITY],1)])
+m4_ifdef([AM_SILENT_RULES],
+        [AM_SILENT_RULES([yes])],
+        [AC_SUBST([AM_DEFAULT_VERBOSITY],1)
+])
 
 AC_ARG_WITH([guilesitedir],
             [AS_HELP_STRING([--with-guilesitedir],
@@ -78,12 +86,20 @@ AC_SUBST([guilesitedir])
 dnl Manual pages.
 AM_MISSING_PROG([HELP2MAN], [help2man])
 
-AC_CONFIG_FILES([Makefile build-aux/am/Makefile build-aux/Makefile tests/Makefile])
-AC_CONFIG_FILES([modules/dsv/fsm/Makefile])
-AC_CONFIG_FILES([doc/Makefile build-aux/m4/Makefile modules/Makefile modules/dsv/Makefile])
-AC_CONFIG_FILES([modules/dsv/cli/Makefile])
-AC_CONFIG_FILES([utils/Makefile])
-AC_CONFIG_FILES([presets/Makefile])
+AC_CONFIG_FILES([
+        Makefile
+        build-aux/Makefile
+        build-aux/am/Makefile
+        build-aux/m4/Makefile
+        doc/Makefile
+        modules/Makefile
+        modules/dsv/Makefile
+        modules/dsv/cli/Makefile
+        modules/dsv/fsm/Makefile
+        presets/Makefile
+        tests/Makefile
+        utils/Makefile
+])
 
 dnl texinfo package required to make the documentation in Texinfo format.
 AC_CHECK_PROG(MAKEINFO_CHECK, makeinfo, yes)
@@ -93,15 +109,14 @@ AS_IF([test x"$MAKEINFO_CHECK" != x"yes"],
 AC_CONFIG_FILES([pre-inst-env:build-aux/pre-inst-env.in],
         [chmod +x pre-inst-env])
 
-AC_CONFIG_LINKS([modules/dsv/fsm/unix.puml:modules/dsv/fsm/unix.puml])
-AC_CONFIG_LINKS([modules/dsv/fsm/rfc4180.puml:modules/dsv/fsm/rfc4180.puml])
 AC_CONFIG_LINKS([
+        modules/dsv/fsm/unix.puml:modules/dsv/fsm/unix.puml
+        modules/dsv/fsm/rfc4180.puml:modules/dsv/fsm/rfc4180.puml
         modules/dsv/fsm/unix-writer.puml:modules/dsv/fsm/unix-writer.puml
         modules/dsv/fsm/unix-writer-with-fibers.puml:modules/dsv/fsm/unix-writer-with-fibers.puml
         modules/dsv/fsm/rfc4180-writer.puml:modules/dsv/fsm/rfc4180-writer.puml
         modules/dsv/fsm/rfc4180-writer-with-fibers.puml:modules/dsv/fsm/rfc4180-writer-with-fibers.puml
 ])
-
 
 # Generate a Makefile, based on the results.
 AC_OUTPUT
