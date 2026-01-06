@@ -22,7 +22,8 @@ the Texinfo documentation for details.
    - [[https://www.gnu.org/software/guile/][GNU Guile]] 2.0.12+
    - [[http://www.nongnu.org/guile-lib/][Guile Library]] 0.1.9+
    - [[https://github.com/artyom-poptsov/guile-smc][Guile-SMC]] 0.6.2+
-   - [[https://codeberg.org/guile/fibers][Guile-Fibers]] (optional)
+   - [[https://codeberg.org/guile/fibers][Guile-Fibers]] (optional) -- when Fibers module is not available on system,
+     classic threads are used instead.
 
 *** Build dependencies
     - Texinfo (contains =makeinfo= tool that is required for making the
@@ -31,6 +32,8 @@ the Texinfo documentation for details.
     - [[https://www.gnu.org/software/help2man][help2man]]
 
 ** Installation
+[[https://repology.org/badge/vertical-allrepos/guile-dsv.svg]]
+
 *** GNU Guix
  #+BEGIN_EXAMPLE shell
 $ guix install guile-dsv
@@ -47,7 +50,7 @@ $ sudo make install
 #+END_EXAMPLE
 
  For a basic explanation of the installation of the package, see the
- INSTALL file.
+ =INSTALL= file.
 
  Please *note* that you will need [[https://www.gnu.org/software/automake/][Automake]] 1.12 or later to run
  self-tests with =make check= (but the library itself can be built with
