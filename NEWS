@@ -8,8 +8,23 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   notice and this notice are preserved.
 
 * Unreleased
-** Improve =scm->dsv= procedure performance
-Now =scm->dsv= procedure is faster.
+** Improve =scm->dsv= and =scm->dsv-string= performance
+=scm->dsv= and =scm->dsv-string= procedures were re-written to use a simple
+finite-state machine (with Guile-SMC), with concurrent processing of table
+rows.  The concurrency is provided by either Guile-Fibers or =(ice-9 threads)=
+(Guile-DSV can use =(ice-9 threads)= as a fallback option on systems where
+Guile-Fibers are not available.)
+
+Those changes give Guile-DSV much better performance.  For example, given a
+test table with 1'000'000 rows and 10 columns, =scm->dsv= finished in 55s on
+Ryzen 9 5950X with 128GB of RAM, while the same task took 3649s on the same
+machine when Guile-DSV 0.8.1 is used.  That gives us around 66 times faster
+execution times, which is nice.
+
+Also, due to introduction of new Guile-SMC state machines, =scm->dsv= and
+=scm->dsv-string= now accept =log-driver= and =log-opt= keyword options.  The
+logging is disabled by default.
+
 * Changes in version 0.8.1 (2025-12-25)
 ** Changes in =(dsv table-preset)=
 *** Fix =table-preset-override=                                      :BUGFIX:
