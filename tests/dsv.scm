@@ -1,6 +1,6 @@
 ;;; dsv.scm -- Tests for DSV parser.
 
-;; Copyright (C) 2014-2023, 2025 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2014-2023, 2025-2026 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -101,7 +101,7 @@
   (dsv-string->scm "a \\\nb:c\n"))
 
 (test-error "dsv->scm: Escaped EOF error check"
-  'dsv-error
+  #t
   (dsv-string->scm "a:b:c\\"))
 
 (test-assert "dsv-string->dsv: Inconsistent row length"

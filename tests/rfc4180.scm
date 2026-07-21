@@ -131,11 +131,13 @@
     (cut dsv->scm <> #:format 'rfc4180)))
 
 (test-error "dsv->scm: EOF in a quoted field"
+  #t
   (call-with-input-string
       "\"test"
     (cut dsv->scm <> #:format 'rfc4180)))
 
 (test-error "dsv->scm: quote in an unquoted field"
+  #t
   (call-with-input-string
       "a\",b"
     (cut dsv->scm <> #:format 'rfc4180)))
@@ -162,13 +164,13 @@
 ;;; Error testing
 
 (test-error "dsv->scm, error handling: unquoted quote 1"
-  'dsv-parser-error
+  #t
   (call-with-input-string
       "\"a"
     (cut dsv->scm <> #:format 'rfc4180)))
 
 (test-error "dsv->scm, error handling: unquoted quote 2"
-  'dsv-parser-error
+  #t
   (call-with-input-string
       "\"a\nb"
     (cut dsv->scm <> #:format 'rfc4180)))

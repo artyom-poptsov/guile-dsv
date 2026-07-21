@@ -1,6 +1,6 @@
 ;;; cli.scm -- Tests for Guile-DSV CLI code.
 
-;; Copyright (C) 2025 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2025-2026 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@
   (string->dsv-format "rfc4180"))
 
 (test-error "string->dsv-format: error"
+  #t
   (string->dsv-format "wrong-format"))
 
 (test-equal "remove-empty-rows"
