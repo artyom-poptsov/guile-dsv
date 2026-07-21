@@ -1,6 +1,6 @@
 ;;; table.scm -- Procedures to print fancy tables in a console.
 
-;; Copyright (C) 2021-2025 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;; Copyright (C) 2021-2026 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;; Copyright (C) 2025 Denis 'GNUtoo' Carikli <GNUtoo@cyberdimension.org>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
@@ -145,29 +145,24 @@
 
 (define (table-map proc table)
   "Apply a procedure PROC to each TABLE cell, return the new table."
-  (define (process-row row row-num)
-    (let loop ((r       row)
-               (col-num 0)
-               (result  '()))
-      (if (null? r)
-          (reverse result)
-          (loop (cdr r)
-                (+ col-num 1)
-                (cons (proc (car r)
-                            row-num
-                            col-num)
-                      result)))))
 
-  (let row-loop ((tbl     table)
-                 (row-num 0)
-                 (result  '()))
-    (if (null? tbl)
+  (define (process-row row row-num)
+    (let* ((size (length row))
+           (row  (list->vector row)))
+      (do ((col-num 0 (+ col-num 1)))
+          ((< col-num size))
+        (let ((result (proc (vector-ref row col-num) row-num col-num)))
+          (vector-set! row col-num result)))
+      (vector->list row)))
+
+  (let loop ((rows table)
+             (row-num 0)
+             (result '()))
+    (if (null? rows)
         (reverse result)
-        (row-loop (cdr tbl)
-                  (+ row-num 1)
-                  (cons (process-row (car tbl)
-                                     row-num)
-                        result)))))
+        (loop (cdr rows)
+              (+ row-num 1)
+              (cons (process-row (car rows) row-num) result)))))
 
 (define (table-filter-row proc table)
   (let loop ((tbl     table)
